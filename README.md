@@ -1,8 +1,10 @@
 # IWDEE Tweaks and Fixes
 
-**Version 0.1**
+**Version 0.2 (development)**
 
 A small WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
+
+> **Development note:** v0.2 adds the new celestial summoning-cap component described below. The code and documentation are prepared on the `v0.2-dev` branch, but component #3 is still awaiting independent in-game validation before the stable v0.2 release is published. The current public release remains v0.1.
 
 ## Screenshots
 
@@ -28,6 +30,8 @@ In-game screenshots from the validated IWDEE v2.7.3.0 test setup using Infinity 
 </p>
 
 ## Download and installation
+
+The current stable release is **v0.1**.
 
 1. Open the [Releases](https://github.com/Sauler89/IWDEE-Tweaks-and-Fixes/releases) page and download **`IWDEE-Tweaks-and-Fixes-v0.1.zip`** from the release **Assets**.
 2. Do **not** use GitHub's automatically generated **Source code (zip)** / **Source code (tar.gz)** archives for a normal installation, because they do not include the WeiDU setup executable.
@@ -134,11 +138,28 @@ The original SCS implementation can conflict with Infinity UI++ because its mult
 
 ---
 
+### 3. Remove Summoning Cap for Celestials
+**Planetars and Devas — new in v0.2.**
+
+This is an IWDEE adaptation of [Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) component **#2340 – Remove Summoning Cap for Celestials [Ardanis/GeN1e]**.
+
+Enhanced Edition games can externalize summon limits through `SUMMLIMT.2DA`. Tweaks Anthology's EE implementation changes the `CELESTIAL` row from its normal limit to `999`, effectively removing the one-active-celestial restriction. Tweaks Anthology currently excludes IWDEE at the component-level game check, so this component applies the same table-level behavior specifically to IWDEE.
+
+The component:
+- requires `SUMMLIMT.2DA` to exist rather than falling back to older-engine resource cloning;
+- locates the `CELESTIAL` row dynamically instead of relying on a fixed row number;
+- changes only the celestial limit to `999` and preserves the regular summon limit and unrelated table edits;
+- refuses installation if Tweaks Anthology #2340 is already installed.
+
+**Important:** this component is currently **pending independent in-game validation on IWDEE**. The implementation follows the same `SUMMLIMT.2DA` mechanism used by Tweaks Anthology on supported Enhanced Edition games, but v0.2 should not be considered final until multiple Planetars/Devas have been confirmed active simultaneously in IWDEE.
+
+---
+
 ## Tested configuration
 
 The HLA implementation was developed and extensively tested on a heavily modded IWDEE v2.7 installation using Infinity UI++, with Skills and Abilities v5.3 #710/#720 providing expanded HLA content during compatibility testing.
 
-**Testing note:** the Infinity UI++ + Skills and Abilities #710/#720 configuration is the validated setup. Component #0 is designed to work without Skills and Abilities, but the completely standalone path has not yet been independently tested on a clean IWDEE installation.
+**Testing note:** the Infinity UI++ + Skills and Abilities #710/#720 configuration is the validated setup. Component #0 is designed to work without Skills and Abilities, but the completely standalone path has not yet been independently tested on a clean IWDEE installation. Component #3 is new in v0.2 development and is also awaiting its first dedicated in-game validation.
 
 In-game testing covered:
 - Fighter / Berserker
@@ -163,13 +184,13 @@ As with any WeiDU mod intended for a large modded installation, keeping a backup
 - **Icewind Dale EE:** v2.7
 - **Infinity UI++:** install before components #0 and #2.
 - **Skills and Abilities:** optional. If used, install #710/#720 after components #0/#1 and skip #730.
-- **Tweaks Anthology:** an XP-cap removal such as #2090 is recommended for triple-class high-level mage HLAs. Component #1 does not require or redistribute Tweaks Anthology files.
+- **Tweaks Anthology:** an XP-cap removal such as #2090 is recommended for triple-class high-level mage HLAs. Component #1 does not require or redistribute Tweaks Anthology files. Do not combine Tweaks Anthology #2340 with IWDEE Tweaks and Fixes #3.
 - **Sword Coast Stratagems:** do not install SCS #4115 together with component #2.
 
 ## Credits
 
 - **[Skills and Abilities](https://www.morpheus-mart.com/skills-and-abilities)**, by Grammarsalad and morpheus562, for the IWDEE HLA implementation and compatibility conventions that component #0 interoperates with. No Skills and Abilities files are included in this package.
-- **[Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) / The Gibberlings Three**, for the original Triple-Class HLA Tables concept and behavior adapted by component #1. No Tweaks Anthology files are included in this package.
+- **[Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) / The Gibberlings Three**, for the original Triple-Class HLA Tables behavior adapted by component #1 and the Remove Summoning Cap for Celestials behavior adapted by component #3; Tweaks Anthology credits Ardanis/GeN1e for the latter. No Tweaks Anthology files are included in this package.
 - **[Sword Coast Stratagems](https://github.com/Gibberlings3/SwordCoastStratagems)**, by David Wallace, for the original thief-skill-in-multiples-of-five tweak. Component #2 adapts that behavior and changes the UI patching method for Infinity UI++ compatibility.
 - **Infinity UI++**, whose IWDEE interface is the target of the compatibility patches.
 - **[WeiDU](https://github.com/WeiDUorg/weidu)** and the Infinity Engine modding community.
