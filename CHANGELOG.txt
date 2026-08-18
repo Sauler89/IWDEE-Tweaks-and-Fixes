@@ -1,0 +1,13 @@
+IWDEE Tweaks and Fixes - Changelog
+==================================
+
+v0.1
+----
+- Initial public release.
+- Added standalone BG2-style HLA support for IWDEE with Infinity UI++ compatibility.
+- Skills and Abilities is optional: components #710/#720 are supported, while #730 should be skipped.
+- Added self-contained LUNUMAB fallback handling and local MOHLA01 compatibility-marker generation.
+- Added expanded Fighter/Mage/Thief and Fighter/Mage/Cleric HLA tables based on the Tweaks Anthology component behavior.
+- Triple-class HLA tables are created dynamically from the installation's current HLA resources when needed; no Tweaks Anthology HLA tables are redistributed.
+- Added Infinity UI++-compatible thief skill point assignment in multiples of five, based on the Sword Coast Stratagems tweak.
+- Added compatibility checks, install-order warnings, documentation and credits.
