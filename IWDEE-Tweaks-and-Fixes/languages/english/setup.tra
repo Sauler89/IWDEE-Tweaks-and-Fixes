@@ -29,3 +29,9 @@
 @34 = ~Could not safely find Infinity UI++'s thief-skill +/- calls in UI.MENU. No UI changes were installed.~
 @35 = ~THIEFSKL.2DA does not have the expected START_POINTS / LEVEL_POINTS layout.~
 @36 = ~Sword Coast Stratagems component #4115 is already installed. Do not install both versions of the thief-skill x5 tweak.~
+
+@40 = ~Remove Summoning Cap for Celestials (Planetars and Devas)~
+@41 = ~SUMMLIMT.2DA is missing; the Enhanced Edition celestial summoning cap cannot be adjusted safely.~
+@42 = ~Tweaks Anthology component #2340 is already installed. Do not install both versions of the celestial summoning-cap tweak.~
+@43 = ~SUMMLIMT.2DA does not have the expected row/limit layout.~
+@44 = ~Could not find the CELESTIAL row in SUMMLIMT.2DA; the summoning cap was not changed.~
