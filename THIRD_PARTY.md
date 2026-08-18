@@ -16,7 +16,9 @@ No Skills and Abilities files are redistributed by IWDEE Tweaks and Fixes.
 
 IWDEE Tweaks and Fixes component #1 is an IWDEE adaptation of the behavior of Tweaks Anthology's Triple-Class HLA Tables component. The implementation in this repository does not redistribute Tweaks Anthology's `LUFMT.2DA` or `LUFMC.2DA` files; it patches or dynamically creates the required tables from resources present in the user's installation.
 
-Rights in the original Tweaks Anthology work remain with its respective authors and contributors.
+IWDEE Tweaks and Fixes component #3 is an IWDEE adaptation of Tweaks Anthology component #2340, **Remove Summoning Cap for Celestials [Ardanis/GeN1e]**. On Enhanced Edition games where `SUMMLIMT.2DA` is available, the Tweaks Anthology implementation raises the `CELESTIAL` limit to 999. The IWDEE Tweaks and Fixes adaptation applies that table-level behavior specifically to IWDEE and does not redistribute Tweaks Anthology files.
+
+Rights in the original Tweaks Anthology work remain with its respective authors and contributors, including the contributors credited by Tweaks Anthology for these components.
 
 ## Sword Coast Stratagems
 
