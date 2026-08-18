@@ -1,0 +1,31 @@
+@0 = ~Enable BG2-style HLAs in IWDEE (standalone Infinity UI++ support)~
+@1 = ~This component is only for Icewind Dale: Enhanced Edition.~
+@2 = ~Infinity UI++ must be installed first.~
+@3 = ~UI.MENU is missing; Infinity UI++ must be installed correctly first.~
+@4 = ~The bundled IWDEE HLA progression table is missing. Re-extract the complete IWDEE Tweaks and Fixes package and try again.~
+@5 = ~SW1H01.ITM is missing from the game; the local HLA compatibility marker cannot be generated safely.~
+@6 = ~WARNING: Skills and Abilities #710 and/or #720 is already installed. Recommended order is IWDEE Tweaks and Fixes component 0 first, then S&A #710/#720, while skipping S&A #730.~
+@7 = ~Could not safely identify a unique Infinity UI++ rgIsIwdHlaEnabled flag in UI.MENU. Installation was stopped to avoid a partial HLA setup.~
+@8 = ~Skills and Abilities component #730 is already installed. Uninstall #730 before using this component; IWDEE Tweaks and Fixes component 0 replaces its IWDEE HLA-enabling role.~
+@10 = ~Resist Magic~
+@11 = ~War Cry~
+
+@20 = ~Expanded Triple-Class HLA Tables (Fighter/Mage/Thief and Fighter/Mage/Cleric)~
+@21 = ~IWDEE HLA support is not active. Install IWDEE Tweaks and Fixes component 0 or another IWDEE HLA-enabling component first.~
+@22 = ~LUABBR.2DA is missing; triple-class HLA routing cannot be patched.~
+@23 = ~WARNING: Tweaks Anthology component #2090 (Remove experience cap) was not detected. Triple-class mage HLAs require a sufficiently high XP cap; install #2090 or an equivalent XP-cap removal before normal play.~
+@24 = ~Could not find FIGHTER_MAGE_THIEF in LUABBR.2DA; its HLA table was not rerouted to LUFMT.2DA.~
+@25 = ~Could not find FIGHTER_MAGE_CLERIC in LUABBR.2DA; its HLA table was not rerouted to LUFMC.2DA.~
+@26 = ~Neither LUFMC.2DA nor its Fighter/Cleric source LUFC0.2DA is available. The Fighter/Mage/Cleric HLA table cannot be built safely.~
+@27 = ~Neither LUFMT.2DA nor its Fighter/Thief source LUFT0.2DA is available. The Fighter/Mage/Thief HLA table cannot be built safely.~
+@28 = ~WARNING: Skills and Abilities #710/#720 is already installed. For full integration, install this triple-class component before S&A #710/#720 and then reinstall those S&A components if necessary.~
+@29 = ~LUFMC.2DA was not present; created it dynamically from the installation's current LUFC0.2DA before applying the triple-class HLA expansion.~
+@37 = ~LUFMT.2DA was not present; created it dynamically from the installation's current LUFT0.2DA before applying the triple-class HLA expansion.~
+
+@30 = ~Thief Skill Points in Multiples of Five (Infinity UI++ compatible)~
+@31 = ~Infinity UI++ must be installed first for this compatibility component.~
+@32 = ~UI.MENU is missing; Infinity UI++ must be installed correctly first.~
+@33 = ~THIEFSKL.2DA is missing; thief skill point awards cannot be adjusted.~
+@34 = ~Could not safely find Infinity UI++'s thief-skill +/- calls in UI.MENU. No UI changes were installed.~
+@35 = ~THIEFSKL.2DA does not have the expected START_POINTS / LEVEL_POINTS layout.~
+@36 = ~Sword Coast Stratagems component #4115 is already installed. Do not install both versions of the thief-skill x5 tweak.~
