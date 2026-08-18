@@ -1,10 +1,8 @@
 # IWDEE Tweaks and Fixes
 
-**Version 0.2 (development)**
+**Version 0.2**
 
 A small WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
-
-> **Development note:** v0.2 adds the new celestial summoning-cap component described below. The code and documentation are prepared on the `v0.2-dev` branch, but component #3 is still awaiting independent in-game validation before the stable v0.2 release is published. The current public release remains v0.1.
 
 ## Screenshots
 
@@ -31,9 +29,7 @@ In-game screenshots from the validated IWDEE v2.7.3.0 test setup using Infinity 
 
 ## Download and installation
 
-The current stable release is **v0.1**.
-
-1. Open the [Releases](https://github.com/Sauler89/IWDEE-Tweaks-and-Fixes/releases) page and download **`IWDEE-Tweaks-and-Fixes-v0.1.zip`** from the release **Assets**.
+1. Open the [Releases](https://github.com/Sauler89/IWDEE-Tweaks-and-Fixes/releases) page and download **`IWDEE-Tweaks-and-Fixes-v0.2.zip`** from the release **Assets**.
 2. Do **not** use GitHub's automatically generated **Source code (zip)** / **Source code (tar.gz)** archives for a normal installation, because they do not include the WeiDU setup executable.
 3. Extract the release archive into your **Icewind Dale: Enhanced Edition** installation directory (the folder containing `chitin.key`).
 4. Run `setup-IWDEE-Tweaks-and-Fixes.exe` and select the components you want to install.
@@ -43,7 +39,7 @@ For components #0 and #2, **Infinity UI++ must already be installed**. See the c
 ## Components
 
 ### 0. Enable BG2-style HLAs in IWDEE
-**Standalone Infinity UI++ support; compatible with [Skills and Abilities](https://www.morpheus-mart.com/skills-and-abilities) #710 and #720.**
+**Standalone Infinity UI++ support; compatible with Skills and Abilities**
 
 This component enables the BG2-style HLA level-up workflow in IWDEE when using Infinity UI++.
 
@@ -67,7 +63,7 @@ It:
 Skills and Abilities is optional:
 - **#710 – Add New HLAs for ALL Classes and Kits** adds the expanded HLA content tested with this mod;
 - **#720 – Update Existing HLAs** modifies/improves existing HLAs;
-- **#730 – Add HLAs to IWDEE (Lefreut UI Required)** should **not** be installed with this component, because component #0 replaces its IWDEE HLA-enabling role and includes the Infinity UI++ compatibility fix.
+- **#730 – Add HLAs to IWDEE** should **not** be installed with this component, because component #0 replaces its IWDEE HLA-enabling role and includes the Infinity UI++ compatibility fix.
 
 If Skills and Abilities #730 is already installed, component #0 stops and asks you to uninstall #730 first rather than stacking two HLA-enabling implementations.
 
@@ -79,13 +75,13 @@ If Skills and Abilities #730 is already installed, component #0 stops and asks y
 1. Infinity UI++
 2. IWDEE Tweaks and Fixes **#0**
 3. Optional IWDEE Tweaks and Fixes **#1**
-4. **Skip Skills and Abilities #730 (Lefreut UI Required)**
-5. Optional Skills and Abilities **#710** – Add New HLAs for ALL Classes and Kits
-6. Optional Skills and Abilities **#720** – Update Existing HLAs
+4. Optional Skills and Abilities **#710** – Add New HLAs for ALL Classes and Kits
+5. Optional Skills and Abilities **#720** – Update Existing HLAs
+6. **Skip Skills and Abilities #730**
 
-If you only want the vanilla/BG2-style IWDEE HLA system exposed through Infinity UI++, steps 5 and 6 are not required.
+If you only want the vanilla/BG2-style IWDEE HLA system exposed through Infinity UI++, steps 4 and 5 are not required.
 
-No Skills and Abilities mod files are redistributed by this package. The compatibility marker is generated locally from an IWDEE base-game item, and the fallback HLA progression table is included as part of IWDEE Tweaks and Fixes.
+No Skills and Abilities files are redistributed by this package. The compatibility marker is generated locally from an IWDEE base-game item, and the fallback HLA progression table is included as part of IWDEE Tweaks and Fixes.
 
 ---
 
@@ -128,13 +124,13 @@ This approach preserves earlier HLA-table changes from other mods instead of ove
 ### 2. Thief Skill Points in Multiples of Five
 **Infinity UI++ compatible**
 
-An IWDEE/Infinity UI++ adaptation of the convenience behavior of [Sword Coast Stratagems](https://github.com/Gibberlings3/SwordCoastStratagems) component #4115.
+An IWDEE/Infinity UI++ adaptation of the convenience behavior of Sword Coast Stratagems #4115.
 
 Each click on a thief-skill `+` or `-` button changes the skill by **5 points**. `THIEFSKL.2DA` point awards are also rounded to the nearest multiple of five so unusable remainder points are not left behind.
 
 The original SCS implementation can conflict with Infinity UI++ because its multi-line textual expansion can interact badly with commented copies of the UI calls. This implementation performs the five engine clicks in a **single Lua line**, so commented Infinity UI++ code remains commented and no startup Lua error is generated.
 
-**Do not install SCS #4115.**
+**Do not also install SCS #4115.**
 
 ---
 
@@ -143,37 +139,38 @@ The original SCS implementation can conflict with Infinity UI++ because its mult
 
 This is an IWDEE adaptation of [Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) component **#2340 – Remove Summoning Cap for Celestials [Ardanis/GeN1e]**.
 
-Enhanced Edition games can externalize summon limits through `SUMMLIMT.2DA`. Tweaks Anthology's EE implementation changes the `CELESTIAL` row from its normal limit to `999`, effectively removing the one-active-celestial restriction. Tweaks Anthology currently excludes IWDEE at the component-level game check, so this component applies the same table-level behavior specifically to IWDEE.
+Enhanced Edition games externalize summon limits through `SUMMLIMT.2DA`. The normal celestial limit is 1; this component changes the `CELESTIAL` limit to `999`, effectively removing the one-active-celestial restriction in IWDEE.
 
 The component:
-- requires `SUMMLIMT.2DA` to exist rather than falling back to older-engine resource cloning;
+- requires `SUMMLIMT.2DA` to exist;
 - locates the `CELESTIAL` row dynamically instead of relying on a fixed row number;
-- changes only the celestial limit to `999` and preserves the regular summon limit and unrelated table edits;
+- changes only the celestial limit to `999`, preserving the regular summon limit and unrelated table edits;
 - refuses installation if Tweaks Anthology #2340 is already installed.
 
-**Important:** this component is currently **pending independent in-game validation on IWDEE**. The implementation follows the same `SUMMLIMT.2DA` mechanism used by Tweaks Anthology on supported Enhanced Edition games, but v0.2 should not be considered final until multiple Planetars/Devas have been confirmed active simultaneously in IWDEE.
+This behavior was **validated in-game on IWDEE v2.7.3.0**, with multiple celestial summons active simultaneously.
 
 ---
 
 ## Tested configuration
 
-The HLA implementation was developed and extensively tested on a heavily modded IWDEE v2.7 installation using Infinity UI++, with Skills and Abilities v5.3 #710/#720 providing expanded HLA content during compatibility testing.
+The HLA implementation was developed and extensively tested on a heavily modded IWDEE installation using Infinity UI++, with Skills and Abilities v5.3 #710/#720 providing expanded HLA content during compatibility testing.
 
-**Testing note:** the Infinity UI++ + Skills and Abilities #710/#720 configuration is the validated setup. Component #0 is designed to work without Skills and Abilities, but the completely standalone path has not yet been independently tested on a clean IWDEE installation. Component #3 is new in v0.2 development and is also awaiting its first dedicated in-game validation.
+**Testing note:** the Infinity UI++ + Skills and Abilities #710/#720 configuration is the validated HLA setup. Component #0 is designed to work without Skills and Abilities, but the completely standalone path has not yet been independently tested on a clean IWDEE installation. Component #3 has been validated in-game on IWDEE v2.7.3.0 with multiple celestial summons active simultaneously.
 
 In-game testing covered:
 - Fighter / Berserker
 - Mage
 - Cleric
 - Druid
-- Thief / Assassin by Artisan Kitpack
-- Monk revised by Artisan Kitpack
+- Thief / Assassin
+- Monk
 - Shaman
-- Kensai overhaul by Artisan Kitpack
+- modified Kensai
 - Fighter/Mage/Thief
 - Fighter/Mage/Cleric
 - thief skill allocation in multiples of five
 - acquisition/use of arcane and divine HLAs
+- multiple simultaneous celestial summons with component #3
 
 The triple-class implementation was also tested with dynamically handled F/M/T and F/M/C tables, including the added mage HLAs and Extra Level 6/7/8 Spell selections.
 
@@ -181,7 +178,6 @@ As with any WeiDU mod intended for a large modded installation, keeping a backup
 
 ## Compatibility notes
 
-- **Icewind Dale EE:** v2.7
 - **Infinity UI++:** install before components #0 and #2.
 - **Skills and Abilities:** optional. If used, install #710/#720 after components #0/#1 and skip #730.
 - **Tweaks Anthology:** an XP-cap removal such as #2090 is recommended for triple-class high-level mage HLAs. Component #1 does not require or redistribute Tweaks Anthology files. Do not combine Tweaks Anthology #2340 with IWDEE Tweaks and Fixes #3.
