@@ -7,7 +7,7 @@ A small WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on comp
 ## Components
 
 ### 0. Enable BG2-style HLAs in IWDEE
-**Standalone Infinity UI++ support; compatible with Skills and Abilities**
+**Standalone Infinity UI++ support; compatible with Skills and Abilities by Morpheus562 (https://www.morpheus-mart.com/skills-and-abilities)**
 
 This component enables the BG2-style HLA level-up workflow in IWDEE when using Infinity UI++.
 
@@ -24,11 +24,11 @@ It:
 - applies the Tempus `LUABBR.2DA` correction used by the IWDEE HLA setup;
 - preserves unrelated changes made by other mods wherever possible.
 
-#### Is Skills and Abilities required?
+#### Is Skills and Abilities mod required?
 
 **No.** Infinity UI++ already contains the IWDEE HLA screen but normally keeps it disabled. IWDEE contains the underlying HLA resources/tables used by that interface; the missing progression/activation layer is supplied by this component.
 
-Skills and Abilities is optional:
+Skills and Abilities mod is optional:
 - **#710 – Add New HLAs for ALL Classes and Kits** adds the expanded HLA content tested with this mod;
 - **#720 – Update Existing HLAs** modifies/improves existing HLAs;
 - **#730 – Add HLAs to IWDEE** should **not** be installed with this component, because component #0 replaces its IWDEE HLA-enabling role and includes the Infinity UI++ compatibility fix.
@@ -49,7 +49,7 @@ If Skills and Abilities #730 is already installed, component #0 stops and asks y
 
 If you only want the vanilla/BG2-style IWDEE HLA system exposed through Infinity UI++, steps 4 and 5 are not required.
 
-No Skills and Abilities files are redistributed by this package. The compatibility marker is generated locally from an IWDEE base-game item, and the fallback HLA progression table is included as part of IWDEE Tweaks and Fixes.
+No Skills and Abilities mod files are redistributed by this package. The compatibility marker is generated locally from an IWDEE base-game item, and the fallback HLA progression table is included as part of IWDEE Tweaks and Fixes.
 
 ---
 
@@ -92,19 +92,19 @@ This approach preserves earlier HLA-table changes from other mods instead of ove
 ### 2. Thief Skill Points in Multiples of Five
 **Infinity UI++ compatible**
 
-An IWDEE/Infinity UI++ adaptation of the convenience behavior of Sword Coast Stratagems #4115.
+An IWDEE/Infinity UI++ adaptation of the convenience behavior of Sword Coast Stratagems component #4115.
 
 Each click on a thief-skill `+` or `-` button changes the skill by **5 points**. `THIEFSKL.2DA` point awards are also rounded to the nearest multiple of five so unusable remainder points are not left behind.
 
 The original SCS implementation can conflict with Infinity UI++ because its multi-line textual expansion can interact badly with commented copies of the UI calls. This implementation performs the five engine clicks in a **single Lua line**, so commented Infinity UI++ code remains commented and no startup Lua error is generated.
 
-**Do not also install SCS #4115.**
+**Do not install SCS #4115.**
 
 ---
 
 ## Tested configuration
 
-The HLA implementation was developed and extensively tested on a heavily modded IWDEE installation using Infinity UI++, with Skills and Abilities v5.3 #710/#720 providing expanded HLA content during compatibility testing.
+The HLA implementation was developed and extensively tested on a heavily modded IWDEE v2.7 installation using Infinity UI++, with Skills and Abilities v5.3 #710/#720 providing expanded HLA content during compatibility testing.
 
 **Testing note:** the Infinity UI++ + Skills and Abilities #710/#720 configuration is the validated setup. Component #0 is designed to work without Skills and Abilities, but the completely standalone path has not yet been independently tested on a clean IWDEE installation.
 
