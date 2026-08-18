@@ -7,7 +7,7 @@ A small WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on comp
 ## Components
 
 ### 0. Enable BG2-style HLAs in IWDEE
-**Standalone Infinity UI++ support; compatible with Skills and Abilities by Morpheus562 (https://www.morpheus-mart.com/skills-and-abilities)**
+**Standalone Infinity UI++ support; Compatible with [Skills and Abilities](https://www.morpheus-mart.com/skills-and-abilities) #710 and #720.**
 
 This component enables the BG2-style HLA level-up workflow in IWDEE when using Infinity UI++.
 
