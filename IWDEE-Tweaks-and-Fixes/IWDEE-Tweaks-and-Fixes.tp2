@@ -1,10 +1,11 @@
 /*************************************************************************/
-// IWDEE Tweaks and Fixes v0.2
+// IWDEE Tweaks and Fixes v0.3
 //
 // Component 0: Standalone IWDEE HLA support for Infinity UI++
 // Component 1: Expanded triple-class HLA tables
 // Component 2: Thief skill points in multiples of five (Infinity UI++ safe)
 // Component 3: Remove summoning cap for Celestials (Planetars and Devas)
+// Component 4: Make Enhanced Bard Song switchable
 //
 // Components are independent unless their REQUIRE_PREDICATE checks say
 // otherwise. See README.md for requirements and recommended install order.
@@ -12,7 +13,7 @@
 
 BACKUP ~IWDEE-Tweaks-and-Fixes/backup~
 AUTHOR ~Sauler~
-VERSION ~v0.2~
+VERSION ~v0.3~
 
 LANGUAGE ~English~
          ~english~
@@ -144,7 +145,161 @@ COPY_EXISTING ~LUNUMAB.2DA~ ~override~
 BUT_ONLY
 
 // ----------------------------------------------------------------------
-// Integrated fix #2: Infinity UI++ already contains IWDEE's HLA screen,
+// Integrated fix #2: remove redundant Tracking from Ranger HLA tables.
+//
+// IWDEE Rangers already receive Tracking (SPCL922) as a normal class/kit
+// ability. Some modded Ranger kits do not, and several kits may share the
+// same HLA table through LUABBR. Therefore do not patch a shared table in
+// place. Detect Ranger/Ranger-multiclass CLABs that actually grant Tracking,
+// clone their current HLA table, remove only Tracking from the clone, and
+// reroute only that class/kit to the cleaned table. This preserves Tracking
+// as an HLA for Ranger kits that do not already receive it.
+// ----------------------------------------------------------------------
+
+ACTION_CLEAR_ARRAY iwtf_ranger_clabs
+ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_ranger_clabs BEGIN
+  RANGER        => CLABRN01
+  CLERIC_RANGER => CLABRN01
+END
+
+// Add installed Ranger and Cleric/Ranger kits dynamically from KITLIST.
+ACTION_IF FILE_EXISTS_IN_GAME ~KITLIST.2DA~ BEGIN
+  COPY_EXISTING ~KITLIST.2DA~ ~override~
+    COUNT_2DA_COLS iwtf_kit_cols
+    PATCH_IF (iwtf_kit_cols >= 9) BEGIN
+      COUNT_2DA_ROWS iwtf_kit_cols iwtf_kit_rows
+      FOR (iwtf_kit_row = 0; iwtf_kit_row < iwtf_kit_rows; ++iwtf_kit_row) BEGIN
+        READ_2DA_ENTRY iwtf_kit_row 8 iwtf_kit_cols iwtf_kit_class
+        PATCH_IF ((iwtf_kit_class = 12) OR (iwtf_kit_class = 18)) BEGIN
+          READ_2DA_ENTRY iwtf_kit_row 1 iwtf_kit_cols iwtf_kit_name
+          READ_2DA_ENTRY iwtf_kit_row 5 iwtf_kit_cols iwtf_kit_clab
+          PATCH_IF (~%iwtf_kit_name%~ STRING_COMPARE_CASE ~*~) AND (~%iwtf_kit_clab%~ STRING_COMPARE_CASE ~*~) BEGIN
+            DEFINE_ASSOCIATIVE_ARRAY iwtf_ranger_clabs BEGIN
+              ~%iwtf_kit_name%~ => ~%iwtf_kit_clab%~
+            END
+          END
+        END
+      END
+    END
+  BUT_ONLY
+END
+
+// Snapshot current HLA routing after all earlier kit/HLA mods.
+ACTION_CLEAR_ARRAY iwtf_hla_routes
+COPY_EXISTING ~LUABBR.2DA~ ~override~
+  COUNT_2DA_COLS iwtf_luabbr_cols
+  COUNT_2DA_ROWS iwtf_luabbr_cols iwtf_luabbr_rows
+  FOR (iwtf_luabbr_row = 0; iwtf_luabbr_row < iwtf_luabbr_rows; ++iwtf_luabbr_row) BEGIN
+    READ_2DA_ENTRY iwtf_luabbr_row 0 iwtf_luabbr_cols iwtf_luabbr_kit
+    READ_2DA_ENTRY iwtf_luabbr_row 1 iwtf_luabbr_cols iwtf_luabbr_table
+    DEFINE_ASSOCIATIVE_ARRAY iwtf_hla_routes BEGIN
+      ~%iwtf_luabbr_kit%~ => ~%iwtf_luabbr_table%~
+    END
+  END
+BUT_ONLY
+
+OUTER_SET iwtf_ranger_hla_index = 0
+
+ACTION_PHP_EACH iwtf_ranger_clabs AS iwtf_ranger_kit => iwtf_ranger_clab BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~%iwtf_ranger_clab%.2DA~ AND
+            ((RESOURCE_CONTAINS ~%iwtf_ranger_clab%.2DA~ ~GA_SPCL922~) OR
+             (RESOURCE_CONTAINS ~%iwtf_ranger_clab%.2DA~ ~GA_CDPRTRK~)) BEGIN
+
+    ACTION_PHP_EACH iwtf_hla_routes AS iwtf_hla_kit => iwtf_hla_abbr BEGIN
+      ACTION_IF (~%iwtf_ranger_kit%~ STRING_EQUAL_CASE ~%iwtf_hla_kit%~) AND
+                FILE_EXISTS_IN_GAME ~LU%iwtf_hla_abbr%.2DA~ AND
+                ((RESOURCE_CONTAINS ~LU%iwtf_hla_abbr%.2DA~ ~GA_SPCL922~) OR
+                 (RESOURCE_CONTAINS ~LU%iwtf_hla_abbr%.2DA~ ~GA_CDPRTRK~)) BEGIN
+
+        OUTER_SET iwtf_ranger_hla_index += 1
+        OUTER_SPRINT iwtf_new_hla_abbr ~IWR%iwtf_ranger_hla_index%~
+
+        // Clone the currently routed table so shared tables remain untouched.
+        // If an unusually modded HLA table does not use the standard 10-column
+        // layout, leave that class/kit alone rather than failing core HLA setup.
+        OUTER_SET iwtf_clean_table_ok = 0
+        COPY_EXISTING ~LU%iwtf_hla_abbr%.2DA~ ~override/LU%iwtf_new_hla_abbr%.2DA~
+          COUNT_2DA_COLS iwtf_hla_cols
+          PATCH_IF (iwtf_hla_cols = 10) BEGIN
+            COUNT_2DA_ROWS iwtf_hla_cols iwtf_hla_rows
+            SET iwtf_tracking_removed = 0
+
+          FOR (iwtf_hla_row = 0; iwtf_hla_row < iwtf_hla_rows; ++iwtf_hla_row) BEGIN
+            READ_2DA_ENTRY iwtf_hla_row 1 iwtf_hla_cols iwtf_hla_ability
+            PATCH_IF (~%iwtf_hla_ability%~ STRING_EQUAL_CASE ~GA_SPCL922~) OR
+                     (~%iwtf_hla_ability%~ STRING_EQUAL_CASE ~GA_CDPRTRK~) BEGIN
+              REMOVE_2DA_ROW iwtf_hla_row iwtf_hla_cols
+              SET iwtf_hla_rows -= 1
+              SET iwtf_tracking_removed += 1
+
+              // Keep numeric row identifiers contiguous, matching the behavior
+              // expected by standard HLA tables while leaving custom textual
+              // row labels from other mods untouched.
+              FOR (iwtf_shift_row = iwtf_hla_row; iwtf_shift_row < iwtf_hla_rows; ++iwtf_shift_row) BEGIN
+                READ_2DA_ENTRY iwtf_shift_row 0 iwtf_hla_cols iwtf_shift_label
+                PATCH_IF IS_AN_INT iwtf_shift_label BEGIN
+                  SET iwtf_shift_label_new = iwtf_shift_label - 1
+                  SET_2DA_ENTRY iwtf_shift_row 0 iwtf_hla_cols ~%iwtf_shift_label_new%~
+                END
+              END
+
+              // Re-check the row now occupying this position.
+              SET iwtf_hla_row -= 1
+            END
+          END
+
+          // Preserve the source table's spare/default-row capacity so mods
+          // installed later (notably S&A #710/#720) still have room to add HLAs.
+          SET iwtf_last_numeric_label = 0
+          FOR (iwtf_label_row = 0; iwtf_label_row < iwtf_hla_rows; ++iwtf_label_row) BEGIN
+            READ_2DA_ENTRY iwtf_label_row 0 iwtf_hla_cols iwtf_label
+            PATCH_IF IS_AN_INT iwtf_label BEGIN
+              PATCH_IF (iwtf_label > iwtf_last_numeric_label) BEGIN
+                SET iwtf_last_numeric_label = iwtf_label
+              END
+            END
+          END
+
+          FOR (iwtf_blank = 0; iwtf_blank < iwtf_tracking_removed; ++iwtf_blank) BEGIN
+            SET iwtf_last_numeric_label += 1
+            INSERT_2DA_ROW iwtf_hla_rows iwtf_hla_cols ~%iwtf_last_numeric_label% * * * * * * * * *~
+            SET iwtf_hla_rows += 1
+          END
+
+            PATCH_IF (iwtf_tracking_removed > 0) BEGIN
+              SET iwtf_clean_table_ok = 1
+            END
+            PRETTY_PRINT_2DA
+          END ELSE BEGIN
+            PATCH_WARN @12
+          END
+        BUT_ONLY
+
+        ACTION_IF iwtf_clean_table_ok BEGIN
+          // Route only this class/kit to its cleaned copy.
+          COPY_EXISTING ~LUABBR.2DA~ ~override~
+            COUNT_2DA_COLS iwtf_route_cols
+            COUNT_2DA_ROWS iwtf_route_cols iwtf_route_rows
+            SET iwtf_route_found = 0
+            FOR (iwtf_route_row = 0; iwtf_route_row < iwtf_route_rows; ++iwtf_route_row) BEGIN
+              READ_2DA_ENTRY iwtf_route_row 0 iwtf_route_cols iwtf_route_kit
+              PATCH_IF (~%iwtf_route_kit%~ STRING_EQUAL_CASE ~%iwtf_ranger_kit%~) BEGIN
+                SET_2DA_ENTRY iwtf_route_row 1 iwtf_route_cols ~%iwtf_new_hla_abbr%~
+                SET iwtf_route_found = 1
+              END
+            END
+            PATCH_IF (iwtf_route_found = 0) BEGIN
+              PATCH_WARN @13
+            END
+          BUT_ONLY
+        END
+      END
+    END
+  END
+END
+
+// ----------------------------------------------------------------------
+// Integrated fix #3: Infinity UI++ already contains IWDEE's HLA screen,
 // but hides its level-up button while this flag is false. Change only the
 // unique flag assignment and preserve every other UI.MENU modification.
 // ----------------------------------------------------------------------
@@ -504,5 +659,160 @@ COPY_EXISTING ~SUMMLIMT.2DA~ ~override~
 
   PATCH_IF (found_celestial = 0) BEGIN
     PATCH_FAIL @44
+  END
+BUT_ONLY
+
+/*************************************************************************/
+// Optional component 4: Make Enhanced Bard Song switchable
+//
+// IWDEE already provides selectable innate abilities for its normal Bard
+// songs. BG2's Enhanced Bard Song HLA (SPCL920) normally changes the active
+// Bard Song and can also apply permanent spell immunities that prevent kit
+// song-switching abilities from restoring the old song.
+//
+// Build a seventh selector dynamically from the installation's current
+// #BARD1/SPCL920 resources. Also remove only those SPCL920 spell-immunity
+// effects that point to real Change Bard Song (opcode 251) switchers.
+//
+// No IWDification or Bardic Wonders resources are copied or required.
+/*************************************************************************/
+
+BEGIN @50 DESIGNATED 4
+REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~MOHLA01.ITM~ @21
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~SPCL920.SPL~ @51
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~#BARD1.SPL~ @52
+REQUIRE_PREDICATE !(FILE_EXISTS_IN_GAME ~#BARD7.SPL~) @56
+
+// Read the current Enhanced Bard Song HLA instead of assuming that its
+// underlying song resource is still the vanilla SPCL920A. At the same time,
+// remember any spell resources SPCL920 currently blocks with opcode 206.
+ACTION_CLEAR_ARRAY iwtf_ebs_blocked_resources
+OUTER_SET iwtf_ebs_count = 0
+OUTER_SET iwtf_ebs_name = -1
+OUTER_SET iwtf_ebs_desc = -1
+OUTER_SPRINT iwtf_ebs_icon ~~
+OUTER_SPRINT iwtf_ebs_target ~~
+
+COPY_EXISTING ~SPCL920.SPL~ ~override~
+  READ_LONG 0x08 iwtf_ebs_name
+  READ_LONG 0x50 iwtf_ebs_desc
+  READ_ASCII 0x3a iwtf_ebs_icon
+
+  READ_LONG 0x64 iwtf_abil_off
+  READ_SHORT 0x68 iwtf_abil_num
+  READ_LONG 0x6a iwtf_fx_off
+
+  FOR (iwtf_abil = 0; iwtf_abil < iwtf_abil_num; ++iwtf_abil) BEGIN
+    READ_SHORT (iwtf_abil_off + 0x1e + (0x28 * iwtf_abil)) iwtf_fx_num
+    READ_SHORT (iwtf_abil_off + 0x20 + (0x28 * iwtf_abil)) iwtf_fx_idx
+
+    FOR (iwtf_fx = 0; iwtf_fx < iwtf_fx_num; ++iwtf_fx) BEGIN
+      SET iwtf_fx_pos = iwtf_fx_off + (0x30 * (iwtf_fx_idx + iwtf_fx))
+      READ_SHORT iwtf_fx_pos iwtf_opcode
+
+      PATCH_IF (iwtf_opcode = 251) BEGIN
+        READ_ASCII (iwtf_fx_pos + 0x14) iwtf_this_song
+        PATCH_IF (STRING_LENGTH ~%iwtf_this_song%~ > 0) BEGIN
+          SET iwtf_ebs_count += 1
+          SPRINT iwtf_ebs_target ~%iwtf_this_song%~
+        END
+      END ELSE PATCH_IF (iwtf_opcode = 206) BEGIN
+        READ_ASCII (iwtf_fx_pos + 0x14) iwtf_blocked_resource
+        PATCH_IF (STRING_LENGTH ~%iwtf_blocked_resource%~ > 0) BEGIN
+          DEFINE_ASSOCIATIVE_ARRAY iwtf_ebs_blocked_resources BEGIN
+            ~%iwtf_blocked_resource%~ => 0
+          END
+        END
+      END
+    END
+  END
+BUT_ONLY
+
+ACTION_IF (iwtf_ebs_count != 1) BEGIN
+  FAIL @53
+END
+
+ACTION_IF NOT FILE_EXISTS_IN_GAME ~%iwtf_ebs_target%.SPL~ BEGIN
+  FAIL @54
+END
+
+// Build the seventh selector from the installation's current first IWDEE Bard
+// Song selector. This inherits compatible modifications made by earlier mods.
+COPY_EXISTING ~#BARD1.SPL~ ~override/IWTFBS7.SPL~
+  PATCH_IF (iwtf_ebs_name >= 0) BEGIN
+    WRITE_LONG 0x08 iwtf_ebs_name
+  END ELSE BEGIN
+    SAY NAME1 @57
+  END
+
+  PATCH_IF (iwtf_ebs_desc >= 0) BEGIN
+    WRITE_LONG 0x50 iwtf_ebs_desc
+  END ELSE BEGIN
+    SAY UNIDENTIFIED_DESC @58
+  END
+
+  PATCH_IF (STRING_LENGTH ~%iwtf_ebs_icon%~ > 0) BEGIN
+    WRITE_ASCIIE 0x3a ~%iwtf_ebs_icon%~
+    LPF ALTER_SPELL_HEADER STR_VAR icon = EVAL ~%iwtf_ebs_icon%~ END
+  END
+
+  // #BARD1 removes/re-adds itself when selected. Retarget those bookkeeping
+  // effects to this selector and point Change Bard Song to the detected EBS.
+  LPF ALTER_EFFECT
+    INT_VAR check_headers = 0
+    STR_VAR match_resource = ~#BARD1~ resource = ~IWTFBS7~
+  END
+
+  LPF ALTER_EFFECT
+    INT_VAR check_globals = 0 match_opcode = 251
+    STR_VAR resource = EVAL ~%iwtf_ebs_target%~
+  END
+
+// SPCL920 may permanently block the old kit-song switching spell after the
+// HLA is selected. Do not delete arbitrary immunities: inspect every blocked
+// SPL and remove the immunity only if that spell itself really contains a
+// Change Bard Song (opcode 251) effect.
+ACTION_PHP_EACH iwtf_ebs_blocked_resources AS iwtf_blocked_res => iwtf_unused BEGIN
+  OUTER_SET iwtf_is_song_switcher = 0
+
+  ACTION_IF FILE_EXISTS_IN_GAME ~%iwtf_blocked_res%.SPL~ BEGIN
+    COPY_EXISTING ~%iwtf_blocked_res%.SPL~ ~override~
+      READ_LONG 0x64 iwtf_switch_abil_off
+      READ_SHORT 0x68 iwtf_switch_abil_num
+      READ_LONG 0x6a iwtf_switch_fx_off
+
+      FOR (iwtf_switch_abil = 0; iwtf_switch_abil < iwtf_switch_abil_num; ++iwtf_switch_abil) BEGIN
+        READ_SHORT (iwtf_switch_abil_off + 0x1e + (0x28 * iwtf_switch_abil)) iwtf_switch_fx_num
+        READ_SHORT (iwtf_switch_abil_off + 0x20 + (0x28 * iwtf_switch_abil)) iwtf_switch_fx_idx
+
+        FOR (iwtf_switch_fx = 0; iwtf_switch_fx < iwtf_switch_fx_num; ++iwtf_switch_fx) BEGIN
+          SET iwtf_switch_fx_pos = iwtf_switch_fx_off + (0x30 * (iwtf_switch_fx_idx + iwtf_switch_fx))
+          READ_SHORT iwtf_switch_fx_pos iwtf_switch_opcode
+          PATCH_IF (iwtf_switch_opcode = 251) BEGIN
+            SET iwtf_is_song_switcher = 1
+          END
+        END
+      END
+    BUT_ONLY
+  END
+
+  ACTION_IF iwtf_is_song_switcher BEGIN
+    COPY_EXISTING ~SPCL920.SPL~ ~override~
+      LPF DELETE_EFFECT
+        INT_VAR silent = 1 match_opcode = 206
+        STR_VAR match_resource = EVAL ~%iwtf_blocked_res%~
+      END
+    BUT_ONLY
+  END
+END
+
+// AP_SPCL920 is cast once when the HLA is selected. Grant the seventh selector
+// as a normal innate at that moment; the selector itself can then switch the
+// active modal song back to Enhanced Bard Song whenever the player wants.
+COPY_EXISTING ~SPCL920.SPL~ ~override~
+  LPF ADD_SPELL_EFFECT
+    INT_VAR opcode = 171 target = 1 timing = 1 insert_point = 0
+    STR_VAR resource = ~IWTFBS7~
   END
 BUT_ONLY
