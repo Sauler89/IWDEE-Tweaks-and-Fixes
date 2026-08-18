@@ -128,6 +128,7 @@ As with any WeiDU mod intended for a large modded installation, keeping a backup
 
 ## Compatibility notes
 
+- **Icewind Dale EE v2.7
 - **Infinity UI++:** install before components #0 and #2.
 - **Skills and Abilities:** optional. If used, install #710/#720 after components #0/#1 and skip #730.
 - **Tweaks Anthology:** an XP-cap removal such as #2090 is recommended for triple-class high-level mage HLAs. Component #1 does not require or redistribute Tweaks Anthology files.
