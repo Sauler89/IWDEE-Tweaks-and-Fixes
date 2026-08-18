@@ -113,10 +113,10 @@ In-game testing covered:
 - Mage
 - Cleric
 - Druid
-- Thief / Assassin
-- Monk
+- Thief / Assassin by Artisan Kitpack
+- Monk revised by Artisan Kitpack
 - Shaman
-- modified Kensai
+- Kensai overhaul by Artisan Kitpack
 - Fighter/Mage/Thief
 - Fighter/Mage/Cleric
 - thief skill allocation in multiples of five
