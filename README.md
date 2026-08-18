@@ -75,9 +75,9 @@ If Skills and Abilities #730 is already installed, component #0 stops and asks y
 1. Infinity UI++
 2. IWDEE Tweaks and Fixes **#0**
 3. Optional IWDEE Tweaks and Fixes **#1**
-4. Optional Skills and Abilities **#710** – Add New HLAs for ALL Classes and Kits
-5. Optional Skills and Abilities **#720** – Update Existing HLAs
-6. **Skip Skills and Abilities #730**
+4. **Skip Skills and Abilities #730 (Lefreut UI Required)**
+5. Optional Skills and Abilities **#710** – Add New HLAs for ALL Classes and Kits
+6. Optional Skills and Abilities **#720** – Update Existing HLAs
 
 If you only want the vanilla/BG2-style IWDEE HLA system exposed through Infinity UI++, steps 4 and 5 are not required.
 
