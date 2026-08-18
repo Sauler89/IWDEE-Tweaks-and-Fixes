@@ -1,0 +1,17 @@
+IWDEE Tweaks and Fixes - Custom License
+
+Copyright (c) 2026 Federico Casarini (Sauler / Sauler89)
+
+Permission is hereby granted to use, copy, modify, and redistribute original code written specifically for IWDEE Tweaks and Fixes, in source or compiled form, provided that:
+
+1. Appropriate credit is given to Federico Casarini (Sauler / Sauler89) as the author of the original IWDEE Tweaks and Fixes code being reused.
+2. This copyright and permission notice is retained in substantial copies or redistributions of that original code.
+3. The names "IWDEE Tweaks and Fixes", "Sauler", and "Sauler89" may not be used to imply endorsement of a modified or derivative project without permission.
+
+This license applies only to original code and material authored specifically for IWDEE Tweaks and Fixes. It does not grant, replace, extend, or alter any rights in third-party code, concepts, resources, trademarks, game assets, or other material originating from or associated with other projects.
+
+In particular, portions of this project are compatibility adaptations or implementations inspired by behavior from other Infinity Engine modifications, including Tweaks Anthology, Sword Coast Stratagems, Skills and Abilities, and Infinity UI++. Copyright and other rights in those projects remain with their respective authors and contributors. See THIRD_PARTY.md for attribution details.
+
+No files from Tweaks Anthology, Sword Coast Stratagems, Skills and Abilities, or Infinity UI++ are intended to be redistributed by this project unless separately permitted by the applicable rights holder.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS OF ORIGINAL IWDEE TWEAKS AND FIXES CODE BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
