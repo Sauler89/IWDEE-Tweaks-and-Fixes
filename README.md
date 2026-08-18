@@ -4,10 +4,19 @@
 
 A small WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
+## Download and installation
+
+1. Open the [Releases](https://github.com/Sauler89/IWDEE-Tweaks-and-Fixes/releases) page and download **`IWDEE-Tweaks-and-Fixes-v0.1.zip`** from the release **Assets**.
+2. Do **not** use GitHub's automatically generated **Source code (zip)** / **Source code (tar.gz)** archives for a normal installation, because they do not include the WeiDU setup executable.
+3. Extract the release archive into your **Icewind Dale: Enhanced Edition** installation directory (the folder containing `chitin.key`).
+4. Run `setup-IWDEE-Tweaks-and-Fixes.exe` and select the components you want to install.
+
+For components #0 and #2, **Infinity UI++ must already be installed**. See the component-specific requirements and recommended install order below.
+
 ## Components
 
 ### 0. Enable BG2-style HLAs in IWDEE
-**Standalone Infinity UI++ support; Compatible with [Skills and Abilities](https://www.morpheus-mart.com/skills-and-abilities) #710 and #720.**
+**Standalone Infinity UI++ support; compatible with [Skills and Abilities](https://www.morpheus-mart.com/skills-and-abilities) #710 and #720.**
 
 This component enables the BG2-style HLA level-up workflow in IWDEE when using Infinity UI++.
 
@@ -24,11 +33,11 @@ It:
 - applies the Tempus `LUABBR.2DA` correction used by the IWDEE HLA setup;
 - preserves unrelated changes made by other mods wherever possible.
 
-#### Is Skills and Abilities mod required?
+#### Is Skills and Abilities required?
 
 **No.** Infinity UI++ already contains the IWDEE HLA screen but normally keeps it disabled. IWDEE contains the underlying HLA resources/tables used by that interface; the missing progression/activation layer is supplied by this component.
 
-Skills and Abilities mod is optional:
+Skills and Abilities is optional:
 - **#710 – Add New HLAs for ALL Classes and Kits** adds the expanded HLA content tested with this mod;
 - **#720 – Update Existing HLAs** modifies/improves existing HLAs;
 - **#730 – Add HLAs to IWDEE** should **not** be installed with this component, because component #0 replaces its IWDEE HLA-enabling role and includes the Infinity UI++ compatibility fix.
@@ -56,7 +65,7 @@ No Skills and Abilities mod files are redistributed by this package. The compati
 ### 1. Expanded Triple-Class HLA Tables
 For **Fighter/Mage/Thief** and **Fighter/Mage/Cleric**.
 
-This is an IWDEE adaptation of the behavior of Tweaks Anthology component #2300.
+This is an IWDEE adaptation of the behavior of [Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) component #2300.
 
 **Fighter/Mage/Cleric:**
 - loses Deathblow, Greater Deathblow and War Cry;
@@ -92,7 +101,7 @@ This approach preserves earlier HLA-table changes from other mods instead of ove
 ### 2. Thief Skill Points in Multiples of Five
 **Infinity UI++ compatible**
 
-An IWDEE/Infinity UI++ adaptation of the convenience behavior of Sword Coast Stratagems component #4115.
+An IWDEE/Infinity UI++ adaptation of the convenience behavior of [Sword Coast Stratagems](https://github.com/Gibberlings3/SwordCoastStratagems) component #4115.
 
 Each click on a thief-skill `+` or `-` button changes the skill by **5 points**. `THIEFSKL.2DA` point awards are also rounded to the nearest multiple of five so unusable remainder points are not left behind.
 
@@ -128,7 +137,7 @@ As with any WeiDU mod intended for a large modded installation, keeping a backup
 
 ## Compatibility notes
 
-- **Icewind Dale EE v2.7
+- **Icewind Dale EE:** v2.7
 - **Infinity UI++:** install before components #0 and #2.
 - **Skills and Abilities:** optional. If used, install #710/#720 after components #0/#1 and skip #730.
 - **Tweaks Anthology:** an XP-cap removal such as #2090 is recommended for triple-class high-level mage HLAs. Component #1 does not require or redistribute Tweaks Anthology files.
@@ -136,11 +145,16 @@ As with any WeiDU mod intended for a large modded installation, keeping a backup
 
 ## Credits
 
-- **Skills and Abilities**, by Grammarsalad and morpheus562, for the IWDEE HLA implementation and compatibility conventions that component #0 interoperates with. No Skills and Abilities files are included in this package.
-- **Tweaks Anthology / The Gibberlings Three**, for the original Triple-Class HLA Tables concept and behavior adapted by component #1. No Tweaks Anthology files are included in this package.
-- **Sword Coast Stratagems**, by David Wallace, for the original thief-skill-in-multiples-of-five tweak. Component #2 adapts that behavior and changes the UI patching method for Infinity UI++ compatibility.
+- **[Skills and Abilities](https://www.morpheus-mart.com/skills-and-abilities)**, by Grammarsalad and morpheus562, for the IWDEE HLA implementation and compatibility conventions that component #0 interoperates with. No Skills and Abilities files are included in this package.
+- **[Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) / The Gibberlings Three**, for the original Triple-Class HLA Tables concept and behavior adapted by component #1. No Tweaks Anthology files are included in this package.
+- **[Sword Coast Stratagems](https://github.com/Gibberlings3/SwordCoastStratagems)**, by David Wallace, for the original thief-skill-in-multiples-of-five tweak. Component #2 adapts that behavior and changes the UI patching method for Infinity UI++ compatibility.
 - **Infinity UI++**, whose IWDEE interface is the target of the compatibility patches.
-- **WeiDU** and the Infinity Engine modding community.
+- **[WeiDU](https://github.com/WeiDUorg/weidu)** and the Infinity Engine modding community.
+
+## License and third-party attribution
+
+- See [LICENSE](LICENSE) for the license covering original IWDEE Tweaks and Fixes code and material.
+- See [THIRD_PARTY.md](THIRD_PARTY.md) for detailed third-party attribution and rights notices.
 
 ## Notes
 
