@@ -1,6 +1,15 @@
 IWDEE Tweaks and Fixes - Changelog
 ==================================
 
+v0.3 (development)
+------------------
+- Integrated Ranger Tracking HLA cleanup into component #0.
+- Ranger and Ranger-kit HLA routing is handled dynamically so shared HLA tables are not modified for kits that do not already receive Tracking through their normal CLAB progression.
+- Added component #4: Make Enhanced Bard Song Switchable.
+- Component #4 builds a seventh Bard Song selector from the installation's current IWDEE resources and removes only SPCL920 immunities that block genuine Change Bard Song switchers.
+- IWDification and Bardic Wonders are not dependencies and no resources from either mod are redistributed.
+- The v0.3 changes are pending in-game validation before release.
+
 v0.2
 ----
 - Added an IWDEE adaptation of Tweaks Anthology component #2340: Remove Summoning Cap for Celestials.
