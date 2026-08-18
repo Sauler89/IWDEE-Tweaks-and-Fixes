@@ -9,6 +9,8 @@
 @8 = ~Skills and Abilities component #730 is already installed. Uninstall #730 before using this component; IWDEE Tweaks and Fixes component 0 replaces its IWDEE HLA-enabling role.~
 @10 = ~Resist Magic~
 @11 = ~War Cry~
+@12 = ~WARNING: A Ranger HLA table containing Tracking does not have the expected 10-column HLA layout. That class/kit was left on its existing HLA table and the Tracking cleanup was skipped for it.~
+@13 = ~WARNING: Could not find the Ranger class/kit entry in LUABBR.2DA while applying the Tracking HLA cleanup. That class/kit was left unchanged.~
 
 @20 = ~Expanded Triple-Class HLA Tables (Fighter/Mage/Thief and Fighter/Mage/Cleric)~
 @21 = ~IWDEE HLA support is not active. Install IWDEE Tweaks and Fixes component 0 or another IWDEE HLA-enabling component first.~
@@ -35,3 +37,12 @@
 @42 = ~Tweaks Anthology component #2340 is already installed. Do not install both versions of the celestial summoning-cap tweak.~
 @43 = ~SUMMLIMT.2DA does not have the expected row/limit layout.~
 @44 = ~Could not find the CELESTIAL row in SUMMLIMT.2DA; the summoning cap was not changed.~
+
+@50 = ~Make Enhanced Bard Song Switchable~
+@51 = ~SPCL920.SPL is missing; Enhanced Bard Song cannot be made switchable safely.~
+@52 = ~#BARD1.SPL is missing; IWDEE's selectable Bard Song template is unavailable.~
+@53 = ~Could not identify exactly one Change Bard Song effect in SPCL920.SPL. Installation was stopped to avoid creating an invalid Enhanced Bard Song selector.~
+@54 = ~The Bard Song resource referenced by SPCL920.SPL is missing.~
+@56 = ~#BARD7.SPL already exists. Another mod appears to provide an Enhanced Bard Song selector; do not install two implementations.~
+@57 = ~Enhanced Bard Song~
+@58 = ~Enhanced Bard Song: Selects Enhanced Bard Song as the active Bard Song.~
