@@ -1,0 +1,25 @@
+REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~SUMMLIMT.2DA~ @41
+REQUIRE_PREDICATE !(MOD_IS_INSTALLED ~cdtweaks/setup-cdtweaks.tp2~ ~2340~) @42
+
+COPY_EXISTING ~SUMMLIMT.2DA~ ~override~
+  COUNT_2DA_COLS summon_cols
+  PATCH_IF (summon_cols < 2) BEGIN
+    PATCH_FAIL @43
+  END
+
+  COUNT_2DA_ROWS summon_cols summon_rows
+  SET found_celestial = 0
+
+  FOR (summon_row = 0; summon_row < summon_rows; ++summon_row) BEGIN
+    READ_2DA_ENTRY summon_row 0 summon_cols summon_type
+    PATCH_IF (~%summon_type%~ STRING_EQUAL_CASE ~CELESTIAL~) BEGIN
+      SET_2DA_ENTRY summon_row 1 summon_cols ~999~
+      SET found_celestial = 1
+    END
+  END
+
+  PATCH_IF (found_celestial = 0) BEGIN
+    PATCH_FAIL @44
+  END
+BUT_ONLY

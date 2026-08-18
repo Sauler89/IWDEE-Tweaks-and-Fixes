@@ -7,8 +7,17 @@ v0.3 (development)
 - Ranger and Ranger-kit HLA routing is handled dynamically so shared HLA tables are not modified for kits that do not already receive Tracking through their normal CLAB progression.
 - Added component #4: Make Enhanced Bard Song Switchable.
 - Component #4 builds a seventh Bard Song selector from the installation's current IWDEE resources and removes only SPCL920 immunities that block genuine Change Bard Song switchers.
-- IWDification and Bardic Wonders are not dependencies and no resources from either mod are redistributed.
-- The v0.3 changes are pending in-game validation before release.
+- IWDification and Bardic Wonders are not dependencies for component #4 and no packaged resources from either mod are redistributed.
+- Added component #5: Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs.
+- Component #5 extends Bardic Wonders' installed Revised Bard Song Mechanics to the six classic IWDEE Bard Songs while preserving the installation's current song payloads.
+- Ranger Tracking handling has passed dedicated in-game tests.
+- Components #4 and #5 are runtime-validated on the development setup: Enhanced Bard Song and all six classic IWDEE songs apply their real effects, preserve the Bardic Wonders cooldown/switching behavior, and remain active while the Bard attacks or casts.
+- Enhanced Bard Song portrait status icons are visible in game.
+- Classic-song `C0IWSONG` / `C0SINGI2` compatibility is validated.
+- Consolidated the final Bard Song fixes: short-resref `WRITE_ASCIIE` writes use explicit 8-byte fields, and `IWTFBEFX.SPL` is created without the `BUT_ONLY` condition that previously prevented creation of the new payload resource.
+- Component #4 uses the IWDEE/EBS-specific Bardic Wonders wrapper shape so cooldown and actual EBS payload effects both apply.
+- Component #5 preserves Bardic Wonders IWDEE song-selection state (`C0IWSONG` 1-6), registers all six classic songs in `C0SINGI2` cleanup handling, and preserves the validated 8-byte EFF resref handling.
+- Split the consolidated component bodies into dedicated `.tpa` files so the main TP2 remains a clean component index without changing the validated runtime logic.
 
 v0.2
 ----
