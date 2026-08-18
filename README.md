@@ -63,7 +63,7 @@ It:
 Skills and Abilities is optional:
 - **#710 – Add New HLAs for ALL Classes and Kits** adds the expanded HLA content tested with this mod;
 - **#720 – Update Existing HLAs** modifies/improves existing HLAs;
-- **#730 – Add HLAs to IWDEE** should **not** be installed with this component, because component #0 replaces its IWDEE HLA-enabling role and includes the Infinity UI++ compatibility fix.
+- **#730 – Add HLAs to IWDEE (Lefreut UI Required)** should **not** be installed with this component, because component #0 replaces its IWDEE HLA-enabling role and includes the Infinity UI++ compatibility fix.
 
 If Skills and Abilities #730 is already installed, component #0 stops and asks you to uninstall #730 first rather than stacking two HLA-enabling implementations.
 
