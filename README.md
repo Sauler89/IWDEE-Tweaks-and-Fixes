@@ -79,7 +79,7 @@ If Skills and Abilities #730 is already installed, component #0 stops and asks y
 5. Optional Skills and Abilities **#710** – Add New HLAs for ALL Classes and Kits
 6. Optional Skills and Abilities **#720** – Update Existing HLAs
 
-If you only want the vanilla/BG2-style IWDEE HLA system exposed through Infinity UI++, steps 4 and 5 are not required.
+If you only want the vanilla/BG2-style IWDEE HLA system exposed through Infinity UI++, steps 5 and 6 are not required.
 
 No Skills and Abilities mod files are redistributed by this package. The compatibility marker is generated locally from an IWDEE base-game item, and the fallback HLA progression table is included as part of IWDEE Tweaks and Fixes.
 
