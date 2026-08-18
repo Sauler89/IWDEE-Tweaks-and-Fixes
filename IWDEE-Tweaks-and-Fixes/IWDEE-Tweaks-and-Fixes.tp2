@@ -1,9 +1,10 @@
 /*************************************************************************/
-// IWDEE Tweaks and Fixes v0.1
+// IWDEE Tweaks and Fixes v0.2
 //
 // Component 0: Standalone IWDEE HLA support for Infinity UI++
 // Component 1: Expanded triple-class HLA tables
 // Component 2: Thief skill points in multiples of five (Infinity UI++ safe)
+// Component 3: Remove summoning cap for Celestials (Planetars and Devas)
 //
 // Components are independent unless their REQUIRE_PREDICATE checks say
 // otherwise. See README.md for requirements and recommended install order.
@@ -11,7 +12,7 @@
 
 BACKUP ~IWDEE-Tweaks-and-Fixes/backup~
 AUTHOR ~Sauler~
-VERSION ~v0.1~
+VERSION ~v0.2~
 
 LANGUAGE ~English~
          ~english~
@@ -466,5 +467,42 @@ COPY_EXISTING ~THIEFSKL.2DA~ ~override~
         SET_2DA_ENTRY thief_row 2 thief_cols thief_rounded
       END
     END
+  END
+BUT_ONLY
+
+/*************************************************************************/
+// Optional component 3: Tweaks Anthology #2340 adaptation for IWDEE
+// Remove Summoning Cap for Celestials (Planetars and Devas)
+//
+// Enhanced Edition engines externalize the celestial cap in SUMMLIMT.2DA.
+// Tweaks Anthology sets the CELESTIAL limit to 999 when this table exists.
+// IWDEE is excluded by TA's component-level game check, so this component
+// applies the same table-level behavior specifically to IWDEE.
+/*************************************************************************/
+
+BEGIN @40 DESIGNATED 3
+REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~SUMMLIMT.2DA~ @41
+REQUIRE_PREDICATE !(MOD_IS_INSTALLED ~cdtweaks/setup-cdtweaks.tp2~ ~2340~) @42
+
+COPY_EXISTING ~SUMMLIMT.2DA~ ~override~
+  COUNT_2DA_COLS summon_cols
+  PATCH_IF (summon_cols < 2) BEGIN
+    PATCH_FAIL @43
+  END
+
+  COUNT_2DA_ROWS summon_cols summon_rows
+  SET found_celestial = 0
+
+  FOR (summon_row = 0; summon_row < summon_rows; ++summon_row) BEGIN
+    READ_2DA_ENTRY summon_row 0 summon_cols summon_type
+    PATCH_IF (~%summon_type%~ STRING_EQUAL_CASE ~CELESTIAL~) BEGIN
+      SET_2DA_ENTRY summon_row 1 summon_cols ~999~
+      SET found_celestial = 1
+    END
+  END
+
+  PATCH_IF (found_celestial = 0) BEGIN
+    PATCH_FAIL @44
   END
 BUT_ONLY
