@@ -1,0 +1,470 @@
+/*************************************************************************/
+// IWDEE Tweaks and Fixes v0.1
+//
+// Component 0: Standalone IWDEE HLA support for Infinity UI++
+// Component 1: Expanded triple-class HLA tables
+// Component 2: Thief skill points in multiples of five (Infinity UI++ safe)
+//
+// Components are independent unless their REQUIRE_PREDICATE checks say
+// otherwise. See README.md for requirements and recommended install order.
+/*************************************************************************/
+
+BACKUP ~IWDEE-Tweaks-and-Fixes/backup~
+AUTHOR ~Sauler~
+VERSION ~v0.1~
+
+LANGUAGE ~English~
+         ~english~
+         ~IWDEE-Tweaks-and-Fixes/languages/english/setup.tra~
+
+BEGIN @0 DESIGNATED 0
+REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1
+REQUIRE_PREDICATE (MOD_IS_INSTALLED ~infinity_ui.tp2~ ~0~) @2
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~UI.MENU~ @3
+REQUIRE_PREDICATE FILE_EXISTS ~IWDEE-Tweaks-and-Fixes/2da/LUNUMAB-IWDEE.2DA~ @4
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~SW1H01.ITM~ @5
+REQUIRE_PREDICATE !(MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~730~) @8
+
+ACTION_IF (MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~710~) OR (MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~720~) BEGIN
+  PRINT @6
+END
+
+// ----------------------------------------------------------------------
+// Standalone IWDEE HLA infrastructure
+// ----------------------------------------------------------------------
+
+// If LUNUMAB does not exist at all, seed it from this mod's own fallback
+// table. Otherwise preserve the current table and patch only FIRST_LEVEL
+// below. Skills and Abilities is therefore optional, not a dependency.
+ACTION_IF NOT FILE_EXISTS_IN_GAME ~LUNUMAB.2DA~ BEGIN
+  COPY ~IWDEE-Tweaks-and-Fixes/2da/LUNUMAB-IWDEE.2DA~ ~override/LUNUMAB.2DA~
+END
+
+// Compatibility marker. Skills and Abilities #710/#720 only test for the
+// existence of MOHLA01.ITM on IWDEE; they do not use its contents. Generate
+// a valid local marker from an IWDEE base-game item instead of redistributing
+// the Skills and Abilities marker resource. Preserve an existing marker.
+ACTION_IF NOT FILE_EXISTS_IN_GAME ~MOHLA01.ITM~ BEGIN
+  COPY_EXISTING ~SW1H01.ITM~ ~override/MOHLA01.ITM~
+END
+
+// Same HLA display-name changes as S&A 730, preserving other spell edits.
+COPY_EXISTING ~SPCL904.SPL~ ~override~
+  SAY NAME1 @10
+  SAY NAME2 @10
+
+COPY_EXISTING ~SPCL908.SPL~ ~override~
+  SAY NAME1 @11
+  SAY NAME2 @11
+
+// Marker used by S&A's paladin HLA handling.
+COPY_EXISTING ~SW1H01.ITM~ ~override/MOIWD01.ITM~
+
+// Same Tempus CLAB-reference correction as S&A 730.
+COPY_EXISTING ~LUABBR.2DA~ ~override~
+  REPLACE_TEXTUALLY ~C!3~ ~Cl0~
+
+// ----------------------------------------------------------------------
+// Integrated fix #1: apply the tested BG2-style FIRST_LEVEL progression.
+// Only FIRST_LEVEL is touched; RATE, CHANGE_LEVEL, NEW_RATE and extra rows
+// from other mods are preserved.
+// ----------------------------------------------------------------------
+
+COPY_EXISTING ~LUNUMAB.2DA~ ~override~
+  COUNT_2DA_COLS col_count
+  COUNT_2DA_ROWS col_count rows
+  FOR (index = 0; index < rows; ++index) BEGIN
+    READ_2DA_ENTRY index 0 col_count row_name
+
+    PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MAGE~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~18~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~FIGHTER~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~20~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~CLERIC~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~22~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~THIEF~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~24~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~BARD~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~24~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~PALADIN~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~18~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~DRUID~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~15~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~RANGER~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~18~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~FIGHTER_MAGE~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~14~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~FIGHTER_CLERIC~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~FIGHTER_THIEF~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~FIGHTER_MAGE_THIEF~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MAGE_THIEF~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~CLERIC_MAGE~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~CLERIC_THIEF~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~FIGHTER_DRUID~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~FIGHTER_MAGE_CLERIC~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~CLERIC_RANGER~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~41~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~SORCERER~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~18~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MONK~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~22~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI2FIGHTER~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~14~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI2MAGE~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~14~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI2CLERIC~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~15~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI2RANGER~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~13~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI2DRUID~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~14~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI2THIEF~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~17~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI3FIGHTER~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~12~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI3MAGE~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~13~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI3THIEF~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~15~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~MULTI3CLERIC~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~13~
+    END ELSE PATCH_IF ~%row_name%~ STRING_EQUAL_CASE ~SHAMAN~ BEGIN
+      SET_2DA_ENTRY index 1 col_count ~18~
+    END
+  END
+BUT_ONLY
+
+// ----------------------------------------------------------------------
+// Integrated fix #2: Infinity UI++ already contains IWDEE's HLA screen,
+// but hides its level-up button while this flag is false. Change only the
+// unique flag assignment and preserve every other UI.MENU modification.
+// ----------------------------------------------------------------------
+
+COPY_EXISTING ~UI.MENU~ ~override~
+  COUNT_REGEXP_INSTANCES ~rgIsIwdHlaEnabled[ %TAB%]*=[ %TAB%]*false~ hla_flag_false
+  COUNT_REGEXP_INSTANCES ~rgIsIwdHlaEnabled[ %TAB%]*=[ %TAB%]*true~ hla_flag_true
+  PATCH_IF (hla_flag_false = 1) BEGIN
+    REPLACE_TEXTUALLY ~rgIsIwdHlaEnabled[ %TAB%]*=[ %TAB%]*false~ ~rgIsIwdHlaEnabled = true~
+  END ELSE PATCH_IF (hla_flag_true = 1) BEGIN
+    PATCH_PRINT ~Infinity UI++ IWDEE HLA flag is already enabled; no UI change needed.~
+  END ELSE BEGIN
+    PATCH_FAIL @7
+  END
+BUT_ONLY
+
+
+/*************************************************************************/
+// Optional component 1: Tweaks Anthology #2300 adaptation for IWDEE
+// Triple-Class HLA Tables (Fighter/Mage/Thief + Fighter/Mage/Cleric)
+//
+// Behavior adapted from Tweaks Anthology component #2300.
+// Install this component BEFORE Skills and Abilities #710/#720 so that
+// S&A sees LUFMT/LUFMC through LUABBR and can add its common HLAs to them.
+/*************************************************************************/
+
+BEGIN @20 DESIGNATED 1
+REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~MOHLA01.ITM~ @21
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~LUABBR.2DA~ @22
+REQUIRE_PREDICATE ((FILE_EXISTS_IN_GAME ~LUFMC.2DA~) OR (FILE_EXISTS_IN_GAME ~LUFC0.2DA~)) @26
+REQUIRE_PREDICATE ((FILE_EXISTS_IN_GAME ~LUFMT.2DA~) OR (FILE_EXISTS_IN_GAME ~LUFT0.2DA~)) @27
+
+ACTION_IF (MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~710~) OR (MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~720~) BEGIN
+  PRINT @28
+END
+
+// The original Tweaks Anthology component requires #2090 (remove XP cap).
+// Do not hard-block here because the cap can be removed by another mod or
+// later in the install order, but make the requirement explicit.
+ACTION_IF (NOT MOD_IS_INSTALLED ~cdtweaks/setup-cdtweaks.tp2~ ~2090~) BEGIN
+  PRINT @23
+END
+
+// Build dedicated triple-class tables from the user's current installation
+// when they do not already exist. This preserves earlier mod changes to the
+// Fighter/Cleric and Fighter/Thief HLA tables instead of shipping static
+// LUFMC/LUFMT copies.
+ACTION_IF NOT FILE_EXISTS_IN_GAME ~LUFMC.2DA~ BEGIN
+  COPY_EXISTING ~LUFC0.2DA~ ~override/LUFMC.2DA~
+  // The Tweaks Anthology transformation needs two spare rows for Dragon's
+  // Breath and Comet after replacing Deathblow/Greater Deathblow/War Cry.
+  APPEND ~LUFMC.2DA~ ~IWTF_FMCP1 * * * 1 99 1 * * *~
+  APPEND ~LUFMC.2DA~ ~IWTF_FMCP2 * * * 1 99 1 * * *~
+  PRINT @29
+END
+
+ACTION_IF NOT FILE_EXISTS_IN_GAME ~LUFMT.2DA~ BEGIN
+  COPY_EXISTING ~LUFT0.2DA~ ~override/LUFMT.2DA~
+  // F/M/T needs one spare row because five thief/fighter HLAs are replaced
+  // by mage HLAs and Dragon's Breath is the additional sixth mage HLA.
+  APPEND ~LUFMT.2DA~ ~IWTF_FMTP1 * * * 1 99 1 * * *~
+  PRINT @37
+END
+
+// BG2EE-style dedicated triple-class tables also contain the three extra
+// level 6/7/8 spell-slot HLAs. Add them only if the current table lacks them.
+APPEND ~LUFMC.2DA~ ~IWTF_FMCX6 AP_SPCL928 * * 1 99 1 * * *~ UNLESS ~AP_SPCL928~
+APPEND ~LUFMC.2DA~ ~IWTF_FMCX7 AP_SPCL929 * * 1 99 1 AP_SPCL928 * *~ UNLESS ~AP_SPCL929~
+APPEND ~LUFMC.2DA~ ~IWTF_FMCX8 AP_SPCL930 * * 1 99 1 AP_SPCL929 * *~ UNLESS ~AP_SPCL930~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTX6 AP_SPCL928 * * 1 99 1 * * *~ UNLESS ~AP_SPCL928~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTX7 AP_SPCL929 * * 1 99 1 AP_SPCL928 * *~ UNLESS ~AP_SPCL929~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTX8 AP_SPCL930 * * 1 99 1 AP_SPCL929 * *~ UNLESS ~AP_SPCL930~
+
+// Point the two base triple classes at their dedicated HLA tables.
+// Search by row label rather than relying on vanilla row numbers, because
+// IWDEE mod installations commonly add many extra LUABBR rows.
+COPY_EXISTING ~LUABBR.2DA~ ~override~
+  COUNT_2DA_COLS luabbr_cols
+  COUNT_2DA_ROWS luabbr_cols luabbr_rows
+  SET found_fmt = 0
+  SET found_fmc = 0
+  FOR (i = 0; i < luabbr_rows; ++i) BEGIN
+    READ_2DA_ENTRY i 0 luabbr_cols luabbr_row
+    PATCH_IF (~%luabbr_row%~ STRING_EQUAL_CASE ~FIGHTER_MAGE_THIEF~) BEGIN
+      SET_2DA_ENTRY i 1 luabbr_cols ~FMT~
+      SET found_fmt = 1
+    END ELSE PATCH_IF (~%luabbr_row%~ STRING_EQUAL_CASE ~FIGHTER_MAGE_CLERIC~) BEGIN
+      SET_2DA_ENTRY i 1 luabbr_cols ~FMC~
+      SET found_fmc = 1
+    END
+  END
+  PATCH_IF (found_fmt = 0) BEGIN
+    PATCH_FAIL @24
+  END
+  PATCH_IF (found_fmc = 0) BEGIN
+    PATCH_FAIL @25
+  END
+BUT_ONLY
+
+// ----------------------------------------------------------------------
+// Fighter / Mage / Cleric
+// Lose Deathblow, Greater Deathblow and War Cry.
+// Gain Improved Alacrity, Dragon's Breath, Summon (Dark) Planetar, Comet.
+// ----------------------------------------------------------------------
+COPY_EXISTING ~LUFMC.2DA~ ~override~
+    READ_2DA_ENTRIES_NOW ~r2en_lufmc~ 10
+    SET planetar = 0
+    SET dark_planetar = 0
+    SET improved_alacrity = 0
+    SET dragons_breath = 0
+    SET comet = 0
+    FOR (i = 0; i < r2en_lufmc; i += 1) BEGIN
+      READ_2DA_ENTRY_FORMER ~r2en_lufmc~ i 1 old_ability
+      SPRINT new_ability ~~
+      PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL902~) BEGIN // Deathblow
+        PATCH_IF (planetar == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI923~ // Summon Planetar
+          SET planetar = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL903~) BEGIN // Greater Deathblow
+        PATCH_IF (dark_planetar == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI924~ // Summon Dark Planetar
+          SET dark_planetar = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL908~) BEGIN // War Cry
+        PATCH_IF (improved_alacrity == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI921~ // Improved Alacrity
+          SET improved_alacrity = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~*~) BEGIN
+        PATCH_IF (dragons_breath == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI922~ // Dragon's Breath
+          SET dragons_breath = 1
+        END ELSE PATCH_IF (comet == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI925~ // Comet
+          SET comet = 1
+        END
+      END
+      PATCH_IF (STRING_LENGTH ~%new_ability%~ > 0) BEGIN
+        SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 1 ~%new_ability%~
+        SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 2 ~*~
+        SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 3 ~*~
+        SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 4 ~32~
+        SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 5 ~99~
+        SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 6 ~1~
+        SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 7 ~*~
+        PATCH_IF (~%new_ability%~ STRING_EQUAL_CASE ~GA_SPWI923~) BEGIN
+          SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 8 ~GA_SPWI924~
+          SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 9 ~ALL_EVIL~
+        END ELSE PATCH_IF (~%new_ability%~ STRING_EQUAL_CASE ~GA_SPWI924~) BEGIN
+          SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 8 ~GA_SPWI923~
+          SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 9 ~ALL_GOOD~
+        END ELSE BEGIN
+          SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 8 ~*~
+          SET_2DA_ENTRY_LATER ~s2el_lufmc~ i 9 ~*~
+        END
+      END
+    END
+    SET_2DA_ENTRIES_NOW ~s2el_lufmc~ 10
+    PRETTY_PRINT_2DA
+
+// Defensive completion for dynamically-derived or unusually modded tables.
+APPEND ~LUFMC.2DA~ ~IWTF_FMCA1 GA_SPWI921 * * 32 99 1 * * *~ UNLESS ~GA_SPWI921~
+APPEND ~LUFMC.2DA~ ~IWTF_FMCA2 GA_SPWI922 * * 32 99 1 * * *~ UNLESS ~GA_SPWI922~
+APPEND ~LUFMC.2DA~ ~IWTF_FMCA3 GA_SPWI923 * * 32 99 1 * GA_SPWI924 ALL_EVIL~ UNLESS ~GA_SPWI923~
+APPEND ~LUFMC.2DA~ ~IWTF_FMCA4 GA_SPWI924 * * 32 99 1 * GA_SPWI923 ALL_GOOD~ UNLESS ~GA_SPWI924~
+APPEND ~LUFMC.2DA~ ~IWTF_FMCA5 GA_SPWI925 * * 32 99 1 * * *~ UNLESS ~GA_SPWI925~
+
+// ----------------------------------------------------------------------
+// Fighter / Mage / Thief
+// Lose Deathblow, Greater Deathblow, War Cry, Alchemy and Scribe Scrolls.
+// Gain Energy Blades, Improved Alacrity, Dragon's Breath,
+// Summon (Dark) Planetar and Comet.
+// ----------------------------------------------------------------------
+COPY_EXISTING ~LUFMT.2DA~ ~override~
+    READ_2DA_ENTRIES_NOW ~r2en_lufmt~ 10
+    SET planetar = 0
+    SET dark_planetar = 0
+    SET improved_alacrity = 0
+    SET dragons_breath = 0
+    SET energy_blades = 0
+    SET comet = 0
+    FOR (i = 0; i < r2en_lufmt; i += 1) BEGIN
+      READ_2DA_ENTRY_FORMER ~r2en_lufmt~ i 1 old_ability
+      SPRINT new_ability ~~
+      PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL902~) BEGIN // Deathblow
+        PATCH_IF (planetar == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI923~ // Summon Planetar
+          SET planetar = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL903~) BEGIN // Greater Deathblow
+        PATCH_IF (dark_planetar == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI924~ // Summon Dark Planetar
+          SET dark_planetar = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL908~) BEGIN // War Cry
+        PATCH_IF (improved_alacrity == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI921~ // Improved Alacrity
+          SET improved_alacrity = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN // Alchemy
+        PATCH_IF (energy_blades == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI920~ // Energy Blades
+          SET energy_blades = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN // Scribe Scrolls
+        PATCH_IF (comet == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI925~ // Comet
+          SET comet = 1
+        END
+      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~*~) BEGIN
+        PATCH_IF (dragons_breath == 0) BEGIN
+          SPRINT new_ability ~GA_SPWI922~ // Dragon's Breath
+          SET dragons_breath = 1
+        END
+      END
+      PATCH_IF (STRING_LENGTH ~%new_ability%~ > 0) BEGIN
+        SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 1 ~%new_ability%~
+        SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 2 ~*~
+        SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 3 ~*~
+        SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 4 ~32~
+        SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 5 ~99~
+        SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 6 ~1~
+        SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 7 ~*~
+        PATCH_IF (~%new_ability%~ STRING_EQUAL_CASE ~GA_SPWI923~) BEGIN
+          SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 8 ~GA_SPWI924~
+          SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 9 ~ALL_EVIL~
+        END ELSE PATCH_IF (~%new_ability%~ STRING_EQUAL_CASE ~GA_SPWI924~) BEGIN
+          SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 8 ~GA_SPWI923~
+          SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 9 ~ALL_GOOD~
+        END ELSE BEGIN
+          SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 8 ~*~
+          SET_2DA_ENTRY_LATER ~s2el_lufmt~ i 9 ~*~
+        END
+      END
+    END
+    SET_2DA_ENTRIES_NOW ~s2el_lufmt~ 10
+    PRETTY_PRINT_2DA
+
+// Defensive completion for dynamically-derived or unusually modded tables.
+APPEND ~LUFMT.2DA~ ~IWTF_FMTA1 GA_SPWI920 * * 32 99 1 * * *~ UNLESS ~GA_SPWI920~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTA2 GA_SPWI921 * * 32 99 1 * * *~ UNLESS ~GA_SPWI921~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTA3 GA_SPWI922 * * 32 99 1 * * *~ UNLESS ~GA_SPWI922~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTA4 GA_SPWI923 * * 32 99 1 * GA_SPWI924 ALL_EVIL~ UNLESS ~GA_SPWI923~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTA5 GA_SPWI924 * * 32 99 1 * GA_SPWI923 ALL_GOOD~ UNLESS ~GA_SPWI924~
+APPEND ~LUFMT.2DA~ ~IWTF_FMTA6 GA_SPWI925 * * 32 99 1 * * *~ UNLESS ~GA_SPWI925~
+
+/*************************************************************************/
+// Optional component 2: SCS #4115 adaptation for Infinity UI++
+// Thieves assign skill points in multiples of five
+//
+// The original SCS implementation expands each thief-skill click into five
+// physical lines. Infinity UI++ contains commented-out copies of the same
+// click calls; a textual multi-line replacement strips the comment prefix
+// from lines 2-5 of those copies, leaving raw Lua/UI text active and causing
+// the startup error observed with that combination.
+//
+// This adaptation performs the same five clicks as a SINGLE Lua line. Thus
+// commented Infinity UI++ copies remain fully commented, while live copies
+// execute five engine clicks. Harmless whitespace is also added inside the
+// index expression so a later install of the original SCS component cannot
+// match and expand these calls again.
+/*************************************************************************/
+
+BEGIN @30 DESIGNATED 2
+REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1
+REQUIRE_PREDICATE (MOD_IS_INSTALLED ~infinity_ui.tp2~ ~0~) @31
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~UI.MENU~ @32
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~THIEFSKL.2DA~ @33
+REQUIRE_PREDICATE !(MOD_IS_INSTALLED ~stratagems/setup-stratagems.tp2~ ~4115~) @36
+
+// Infinity UI++-safe equivalent of SCS accelerate_thief_levelling.tpa.
+// Patch only the current-skill +/- calls. Calls that use thief_skill[1]
+// for IWDEE setup bookkeeping are intentionally left untouched.
+COPY_EXISTING ~UI.MENU~ ~override~
+  COUNT_REGEXP_INSTANCES ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, true)~ thief_plus_calls
+  COUNT_REGEXP_INSTANCES ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, false)~ thief_minus_calls
+
+  PATCH_IF ((thief_plus_calls = 0) || (thief_minus_calls = 0)) BEGIN
+    PATCH_FAIL @34
+  END
+
+  REPLACE_TEXTUALLY
+    ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, true)~
+    ~for dwSkillStep = 1, 5 do createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill[ currentChargenThiefSkill ].id, true) end~
+
+  REPLACE_TEXTUALLY
+    ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, false)~
+    ~for dwSkillStep = 1, 5 do createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill[ currentChargenThiefSkill ].id, false) end~
+
+  PATCH_PRINT ~Infinity UI++ thief-skill calls patched safely: plus=%thief_plus_calls%, minus=%thief_minus_calls%.~
+BUT_ONLY
+
+// Match SCS behavior for point awards too: START_POINTS and LEVEL_POINTS are
+// rounded to the nearest multiple of five (remainders 0-2 down, 3-4 up).
+// THIEFSKL.2DA's standard layout is row label, START_POINTS, LEVEL_POINTS.
+COPY_EXISTING ~THIEFSKL.2DA~ ~override~
+  COUNT_2DA_COLS thief_cols
+  PATCH_IF (thief_cols < 3) BEGIN
+    PATCH_FAIL @35
+  END
+  COUNT_2DA_ROWS thief_cols thief_rows
+  FOR (thief_row = 0; thief_row < thief_rows; ++thief_row) BEGIN
+    READ_2DA_ENTRY thief_row 1 thief_cols thief_start
+    READ_2DA_ENTRY thief_row 2 thief_cols thief_level
+
+    PATCH_IF IS_AN_INT thief_start BEGIN
+      SET thief_rem = thief_start MODULO 5
+      PATCH_IF (thief_rem > 0) BEGIN
+        SET thief_rounded = ((thief_start / 5) * 5) + ((thief_rem >= 3) ? 5 : 0)
+        SET_2DA_ENTRY thief_row 1 thief_cols thief_rounded
+      END
+    END
+
+    PATCH_IF IS_AN_INT thief_level BEGIN
+      SET thief_rem = thief_level MODULO 5
+      PATCH_IF (thief_rem > 0) BEGIN
+        SET thief_rounded = ((thief_level / 5) * 5) + ((thief_rem >= 3) ? 5 : 0)
+        SET_2DA_ENTRY thief_row 2 thief_cols thief_rounded
+      END
+    END
+  END
+BUT_ONLY
