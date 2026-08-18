@@ -4,10 +4,10 @@ IWDEE Tweaks and Fixes - Changelog
 v0.2
 ----
 - Added an IWDEE adaptation of Tweaks Anthology component #2340: Remove Summoning Cap for Celestials.
-- The new component raises the CELESTIAL limit in SUMMLIMT.2DA to 999, allowing multiple active Planetars/Devas where the IWDEE engine honors the externalized summon-limit table.
+- The new component raises the CELESTIAL limit in SUMMLIMT.2DA to 999, allowing multiple active Planetars/Devas.
+- Confirmed in-game on IWDEE v2.7.3.0 with multiple celestial summons active simultaneously.
 - Added compatibility checks to avoid stacking the component with Tweaks Anthology #2340.
 - Updated documentation and third-party attribution for the new component.
-- Component #3 is pending independent in-game validation before the v0.2 release is published.
 
 v0.1
 ----
