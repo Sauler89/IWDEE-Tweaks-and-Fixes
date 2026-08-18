@@ -4,6 +4,29 @@
 
 A small WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
+## Screenshots
+
+In-game screenshots from the validated IWDEE v2.7.3.0 test setup using Infinity UI++ and Skills and Abilities #710/#720. They show the HLA level-up entry point, HLA selection interface, high-level spell/ability availability, and custom-kit HLA handling.
+
+<p align="center">
+  <img src="screenshots/6.jpg" width="49%" alt="ABILITIES button on the IWDEE level-up screen">
+  <img src="screenshots/2.jpg" width="49%" alt="Mage HLA selection screen">
+</p>
+
+<p align="center">
+  <img src="screenshots/1.jpg" width="49%" alt="Mage level 9 spellbook with selected HLAs">
+  <img src="screenshots/3.jpg" width="49%" alt="High-level abilities available in game">
+</p>
+
+<p align="center">
+  <img src="screenshots/4.jpg" width="49%" alt="Custom-kit HLA selection and descriptions">
+  <img src="screenshots/5.jpg" width="49%" alt="Custom-kit HLA selection with prerequisites and multiple picks">
+</p>
+
+<p align="center">
+  <img src="screenshots/7.jpg" width="75%" alt="Icewind Dale Enhanced Edition v2.7.3.0">
+</p>
+
 ## Download and installation
 
 1. Open the [Releases](https://github.com/Sauler89/IWDEE-Tweaks-and-Fixes/releases) page and download **`IWDEE-Tweaks-and-Fixes-v0.1.zip`** from the release **Assets**.
