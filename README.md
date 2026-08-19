@@ -35,10 +35,8 @@ In-game screenshots from the validated IWDEE v2.7.3.0 test setup using Infinity 
 Standalone Infinity UI++ support for the BG2-style HLA level-up workflow in IWDEE.
 
 The component:
+
 - enables the HLA interface already present in Infinity UI++;
-- creates `LUNUMAB.2DA` from the bundled IWDEE fallback when required and otherwise preserves the current table while applying the tested `FIRST_LEVEL` progression;
-- creates the local `MOHLA01.ITM` compatibility marker when missing;
-- remains compatible with Skills and Abilities #710/#720 while replacing the IWDEE-enabling role of #730;
 - applies the IWDEE HLA compatibility fixes used by the current setup;
 - removes redundant Tracking from Ranger/Ranger-kit HLA tables only when that class or kit already receives Tracking normally;
 - preserves shared HLA tables by cloning and rerouting only affected Ranger classes/kits;
