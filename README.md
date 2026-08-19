@@ -1,10 +1,10 @@
 # IWDEE Tweaks and Fixes
 
-**Version 0.3 (development)**
+**Version 0.3**
 
 A WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
-> The latest stable release remains **v0.2**. The `v0.3-dev` branch contains the consolidated v0.3 implementation. The Ranger Tracking changes and Bard Song components #4/#5 have passed dedicated in-game validation on the development installation.
+> v0.3 has passed a clean installation test of all six components and final in-game validation of the consolidated HLA, Ranger Tracking, celestial-summoning, Enhanced Bard Song, and classic Bard Song behavior.
 
 ## Components
 
@@ -86,7 +86,7 @@ The final #4/#5 implementation incorporates the two installation/runtime bugs id
 - short resrefs written through `WRITE_ASCIIE` are written explicitly as **8-byte** resref fields;
 - `IWTFBEFX.SPL` is created as a new preserved EBS payload resource without a `BUT_ONLY` guard that would suppress creation of a previously nonexistent destination.
 
-These fixes are part of the consolidated v0.3 source rather than separate hotfix layers.
+These fixes are part of the v0.3 source rather than separate hotfix layers.
 
 ## Recommended install order
 
@@ -102,9 +102,9 @@ These fixes are part of the consolidated v0.3 source rather than separate hotfix
 
 ## Tested configuration
 
-Development and compatibility testing has been performed on IWDEE v2.7.3.0 with Infinity UI++ and, for the expanded HLA test setup, Skills and Abilities #710/#720.
+Development and compatibility testing was performed on IWDEE v2.7.3.0 with Infinity UI++ and, for the expanded HLA test setup, Skills and Abilities #710/#720.
 
-Dedicated in-game validation covers Ranger Tracking behavior, component #3's multiple celestial summons, component #4's Enhanced Bard Song switching/runtime behavior, and component #5's six classic IWDEE songs with Bardic Wonders cooldown and cleanup handling.
+Final v0.3 validation includes a clean WeiDU installation of components #0 through #5 with no installation errors, followed by in-game verification that the consolidated behavior remains correct. Dedicated in-game validation covers Ranger Tracking behavior, component #3's multiple celestial summons, component #4's Enhanced Bard Song switching/runtime behavior, and component #5's six classic IWDEE songs with Bardic Wonders cooldown and cleanup handling.
 
 ## Compatibility notes
 
