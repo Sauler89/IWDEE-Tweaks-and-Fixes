@@ -101,15 +101,6 @@ The component:
 
 **Runtime validation:** all six classic IWDEE songs apply their intended effects, use the Bardic Wonders cooldown behavior, remain active while the Bard attacks or casts, switch correctly between songs, and interoperate with `C0IWSONG` / `C0SINGI2` state and cleanup handling.
 
-## v0.3 Bard Song fixes consolidated
-
-The final #4/#5 implementation incorporates the two installation/runtime bugs identified during testing:
-
-- short resrefs written through `WRITE_ASCIIE` are written explicitly as **8-byte** resref fields;
-- `IWTFBEFX.SPL` is created as a new preserved EBS payload resource without a `BUT_ONLY` guard that would suppress creation of a previously nonexistent destination.
-
-These fixes are part of the v0.3 source rather than separate hotfix layers.
-
 ## Recommended install order
 
 1. Install Infinity UI++.
@@ -122,19 +113,13 @@ These fixes are part of the v0.3 source rather than separate hotfix layers.
 8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors.
 9. Optionally install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics and after other tweaks to the six classic IWDEE songs.
 
-## Tested configuration
-
-Development and compatibility testing was performed on IWDEE v2.7.3.0 with Infinity UI++ and, for the expanded HLA test setup, Skills and Abilities #710/#720.
-
-Final v0.3 validation includes a clean WeiDU installation of components #0 through #5 with no installation errors, followed by in-game verification that the consolidated behavior remains correct. Dedicated in-game validation covers Ranger Tracking behavior, component #3's multiple celestial summons, component #4's Enhanced Bard Song switching/runtime behavior, and component #5's six classic IWDEE songs with Bardic Wonders cooldown and cleanup handling.
-
 ## Compatibility notes
 
-- **Infinity UI++:** required before components #0 and #2.
-- **Skills and Abilities:** optional. #710/#720 are supported; skip #730 when using component #0.
+- **Infinity UI++:** required (install early)
+- **Skills and Abilities:** optional. Components that add new abilities and update existing abilities are supported. Not compatible with component **"Add HLAs to IWDEE (Lefreut UI Required)"**
 - **Bardic Wonders:** completely optional for the mod as a whole. It is required only if you choose component #5, which extends Bardic Wonders' installed **Revised Bard Song Mechanics** to the six classic IWDEE songs.
-- **Tweaks Anthology:** do not combine its #2340 with component #3. An XP-cap removal such as #2090 is recommended for component #1.
-- **Sword Coast Stratagems:** do not combine SCS #4115 with component #2.
+- **Tweaks Anthology:** not compatible with component that expand HLA triple-class table. An XP-cap removal such as #2090 is recommended for component #1.
+- **Sword Coast Stratagems:** SCS #4115 not compatible with component #2.
 
 ## Credits and attribution
 
