@@ -111,7 +111,6 @@ Dedicated in-game validation covers Ranger Tracking behavior, component #3's mul
 - **Infinity UI++:** required before components #0 and #2.
 - **Skills and Abilities:** optional. #710/#720 are supported; skip #730 when using component #0.
 - **Bardic Wonders:** optional for #0-#4; required for #5 because #5 extends its installed Revised Bard Song Mechanics runtime.
-- **IWDification:** not required. Component #4 stops if `#BARD7.SPL` already exists.
 - **Tweaks Anthology:** do not combine its #2340 with component #3. An XP-cap removal such as #2090 is recommended for component #1.
 - **Sword Coast Stratagems:** do not combine SCS #4115 with component #2.
 
