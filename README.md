@@ -57,7 +57,7 @@ The component:
 
 **Runtime validation:** Enhanced Bard Song is selectable, switches correctly with the normal songs, keeps the Bardic Wonders cooldown behavior, remains active while the Bard attacks or casts, applies the real EBS effects, and displays the corresponding portrait status icons.
 
-Bardic Wonders and IWDification are not dependencies for component #4. If another implementation has already supplied `#BARD7.SPL`, the component stops rather than stacking two EBS selectors.
+Bardic Wonders is not a dependency for component #4. If another implementation has already supplied `#BARD7.SPL`, the component stops rather than stacking two EBS selectors.
 
 ### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs
 
