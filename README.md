@@ -4,8 +4,6 @@
 
 A WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
-> v0.3 has passed a clean installation test of all six components and final in-game validation of the consolidated HLA, Ranger Tracking, celestial-summoning, Enhanced Bard Song, and classic Bard Song behavior.
-
 
 ## Screenshots
 
