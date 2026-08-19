@@ -62,7 +62,7 @@ IWDEE adaptation of Tweaks Anthology #2340. It changes only the `CELESTIAL` limi
 
 This component has been validated in-game on IWDEE v2.7.3.0 with multiple celestial summons active simultaneously.
 
-### 4. Make Enhanced Bard Song Switchable
+### 4. Make Enhanced Bard Song Switchable (Experimental)
 
 Creates a seventh selectable Bard Song entry for the BG2-style **Enhanced Bard Song** HLA and dynamically follows the installation's current Bard Song resources instead of assuming vanilla names.
 
@@ -79,7 +79,7 @@ The component:
 
 Bardic Wonders is not a dependency for component #4. If another implementation has already supplied `#BARD7.SPL`, the component stops rather than stacking two EBS selectors.
 
-### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs
+### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs (Experimental)
 
 **Optional component:** this component is completely optional. Install it only if you already use Bardic Wonders' **Revised Bard Song Mechanics** and want those mechanics extended to IWDEE's six classic selectable Bard Songs.
 
