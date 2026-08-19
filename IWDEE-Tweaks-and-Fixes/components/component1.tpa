@@ -1,9 +1,3 @@
-REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1
-REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~MOHLA01.ITM~ @21
-REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~LUABBR.2DA~ @22
-REQUIRE_PREDICATE ((FILE_EXISTS_IN_GAME ~LUFMC.2DA~) OR (FILE_EXISTS_IN_GAME ~LUFC0.2DA~)) @26
-REQUIRE_PREDICATE ((FILE_EXISTS_IN_GAME ~LUFMT.2DA~) OR (FILE_EXISTS_IN_GAME ~LUFT0.2DA~)) @27
-
 ACTION_IF (MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~710~) OR (MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~720~) BEGIN
   PRINT @28
 END
@@ -15,14 +9,8 @@ ACTION_IF (NOT MOD_IS_INSTALLED ~cdtweaks/setup-cdtweaks.tp2~ ~2090~) BEGIN
   PRINT @23
 END
 
-// Build dedicated triple-class tables from the user's current installation
-// when they do not already exist. This preserves earlier mod changes to the
-// Fighter/Cleric and Fighter/Thief HLA tables instead of shipping static
-// LUFMC/LUFMT copies.
 ACTION_IF NOT FILE_EXISTS_IN_GAME ~LUFMC.2DA~ BEGIN
   COPY_EXISTING ~LUFC0.2DA~ ~override/LUFMC.2DA~
-  // The Tweaks Anthology transformation needs two spare rows for Dragon's
-  // Breath and Comet after replacing Deathblow/Greater Deathblow/War Cry.
   APPEND ~LUFMC.2DA~ ~IWTF_FMCP1 * * * 1 99 1 * * *~
   APPEND ~LUFMC.2DA~ ~IWTF_FMCP2 * * * 1 99 1 * * *~
   PRINT @29
@@ -30,14 +18,10 @@ END
 
 ACTION_IF NOT FILE_EXISTS_IN_GAME ~LUFMT.2DA~ BEGIN
   COPY_EXISTING ~LUFT0.2DA~ ~override/LUFMT.2DA~
-  // F/M/T needs one spare row because five thief/fighter HLAs are replaced
-  // by mage HLAs and Dragon's Breath is the additional sixth mage HLA.
   APPEND ~LUFMT.2DA~ ~IWTF_FMTP1 * * * 1 99 1 * * *~
   PRINT @37
 END
 
-// BG2EE-style dedicated triple-class tables also contain the three extra
-// level 6/7/8 spell-slot HLAs. Add them only if the current table lacks them.
 APPEND ~LUFMC.2DA~ ~IWTF_FMCX6 AP_SPCL928 * * 1 99 1 * * *~ UNLESS ~AP_SPCL928~
 APPEND ~LUFMC.2DA~ ~IWTF_FMCX7 AP_SPCL929 * * 1 99 1 AP_SPCL928 * *~ UNLESS ~AP_SPCL929~
 APPEND ~LUFMC.2DA~ ~IWTF_FMCX8 AP_SPCL930 * * 1 99 1 AP_SPCL929 * *~ UNLESS ~AP_SPCL930~
@@ -45,9 +29,6 @@ APPEND ~LUFMT.2DA~ ~IWTF_FMTX6 AP_SPCL928 * * 1 99 1 * * *~ UNLESS ~AP_SPCL928~
 APPEND ~LUFMT.2DA~ ~IWTF_FMTX7 AP_SPCL929 * * 1 99 1 AP_SPCL928 * *~ UNLESS ~AP_SPCL929~
 APPEND ~LUFMT.2DA~ ~IWTF_FMTX8 AP_SPCL930 * * 1 99 1 AP_SPCL929 * *~ UNLESS ~AP_SPCL930~
 
-// Point the two base triple classes at their dedicated HLA tables.
-// Search by row label rather than relying on vanilla row numbers, because
-// IWDEE mod installations commonly add many extra LUABBR rows.
 COPY_EXISTING ~LUABBR.2DA~ ~override~
   COUNT_2DA_COLS luabbr_cols
   COUNT_2DA_ROWS luabbr_cols luabbr_rows
@@ -71,11 +52,6 @@ COPY_EXISTING ~LUABBR.2DA~ ~override~
   END
 BUT_ONLY
 
-// ----------------------------------------------------------------------
-// Fighter / Mage / Cleric
-// Lose Deathblow, Greater Deathblow and War Cry.
-// Gain Improved Alacrity, Dragon's Breath, Summon (Dark) Planetar, Comet.
-// ----------------------------------------------------------------------
 COPY_EXISTING ~LUFMC.2DA~ ~override~
     READ_2DA_ENTRIES_NOW ~r2en_lufmc~ 10
     SET planetar = 0
