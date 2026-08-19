@@ -1,0 +1,235 @@
+OUTER_SPRINT iwtf_bw_classic_donor ~~
+ACTION_IF FILE_EXISTS_IN_GAME ~SPCL542A.SPL~ BEGIN
+  ACTION_IF RESOURCE_CONTAINS ~SPCL542A.SPL~ ~C0BARDSX~ BEGIN
+    OUTER_SPRINT iwtf_bw_classic_donor ~SPCL542A~
+  END
+END
+ACTION_IF (STRING_LENGTH ~%iwtf_bw_classic_donor%~ = 0) BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~SPCL751A.SPL~ BEGIN
+    ACTION_IF RESOURCE_CONTAINS ~SPCL751A.SPL~ ~C0BARDSX~ BEGIN
+      OUTER_SPRINT iwtf_bw_classic_donor ~SPCL751A~
+    END
+  END
+END
+ACTION_IF (STRING_LENGTH ~%iwtf_bw_classic_donor%~ = 0) BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~FJBARDB.SPL~ BEGIN
+    ACTION_IF RESOURCE_CONTAINS ~FJBARDB.SPL~ ~C0BARDSX~ BEGIN
+      OUTER_SPRINT iwtf_bw_classic_donor ~FJBARDB~
+    END
+  END
+END
+ACTION_IF (STRING_LENGTH ~%iwtf_bw_classic_donor%~ = 0) BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~FJBLADEB.SPL~ BEGIN
+    ACTION_IF RESOURCE_CONTAINS ~FJBLADEB.SPL~ ~C0BARDSX~ BEGIN
+      OUTER_SPRINT iwtf_bw_classic_donor ~FJBLADEB~
+    END
+  END
+END
+ACTION_IF (STRING_LENGTH ~%iwtf_bw_classic_donor%~ = 0) BEGIN
+  FAIL @73
+END
+
+OUTER_SPRINT iwtf_bw_classic_donor_marker ~~
+COPY_EXISTING ~%iwtf_bw_classic_donor%.SPL~ ~override~
+  READ_LONG 0x64 iwtf_bw_abil_off
+  READ_SHORT 0x68 iwtf_bw_abil_num
+  READ_LONG 0x6a iwtf_bw_fx_off
+  FOR (iwtf_bw_abil = 0; iwtf_bw_abil < iwtf_bw_abil_num; ++iwtf_bw_abil) BEGIN
+    READ_SHORT (iwtf_bw_abil_off + 0x1e + (0x28 * iwtf_bw_abil)) iwtf_bw_fx_num
+    READ_SHORT (iwtf_bw_abil_off + 0x20 + (0x28 * iwtf_bw_abil)) iwtf_bw_fx_idx
+    FOR (iwtf_bw_fx = 0; iwtf_bw_fx < iwtf_bw_fx_num; ++iwtf_bw_fx) BEGIN
+      SET iwtf_bw_fx_pos = iwtf_bw_fx_off + (0x30 * (iwtf_bw_fx_idx + iwtf_bw_fx))
+      READ_SHORT iwtf_bw_fx_pos iwtf_bw_opcode
+      PATCH_IF (iwtf_bw_opcode = 177) BEGIN
+        READ_ASCII (iwtf_bw_fx_pos + 0x14) iwtf_bw_res
+        PATCH_IF (~%iwtf_bw_res%~ STRING_COMPARE_CASE ~C0SINGIN~) AND
+                 (STRING_LENGTH ~%iwtf_bw_res%~ > 0) AND
+                 (STRING_LENGTH ~%iwtf_bw_classic_donor_marker%~ = 0) BEGIN
+          SPRINT iwtf_bw_classic_donor_marker ~%iwtf_bw_res%~
+        END
+      END
+    END
+  END
+  PATCH_IF (STRING_LENGTH ~%iwtf_bw_classic_donor_marker%~ = 0) BEGIN
+    PATCH_FAIL @74
+  END
+BUT_ONLY
+ACTION_IF NOT FILE_EXISTS_IN_GAME ~%iwtf_bw_classic_donor_marker%.EFF~ BEGIN
+  FAIL @75
+END
+
+OUTER_SPRINT iwtf_bw_cleanup_donor ~~
+ACTION_FOR_EACH iwtf_bw_cleanup_candidate IN FJBARDB SPCL542A SPCL751A FJBLADEB BEGIN
+  ACTION_IF (STRING_LENGTH ~%iwtf_bw_cleanup_donor%~ = 0) BEGIN
+    ACTION_IF RESOURCE_CONTAINS ~C0SINGI2.SPL~ ~%iwtf_bw_cleanup_candidate%~ BEGIN
+      OUTER_SPRINT iwtf_bw_cleanup_donor ~%iwtf_bw_cleanup_candidate%~
+    END
+  END
+END
+ACTION_IF (STRING_LENGTH ~%iwtf_bw_cleanup_donor%~ = 0) BEGIN
+  FAIL @78
+END
+
+ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_classic_song_payload BEGIN
+  ~#BARD1~ => ~IWTFS1~
+  ~#BARD2~ => ~IWTFS2~
+  ~#BARD3~ => ~IWTFS3~
+  ~#BARD4~ => ~IWTFS4~
+  ~#BARD5~ => ~IWTFS5~
+  ~#BARD6~ => ~IWTFS6~
+END
+
+ACTION_PHP_EACH iwtf_classic_song_payload AS iwtf_song_selector => iwtf_song_payload BEGIN
+  OUTER_SET iwtf_song_index = 0
+  ACTION_IF (~%iwtf_song_selector%~ STRING_EQUAL_CASE ~#BARD1~) BEGIN OUTER_SET iwtf_song_index = 1 END
+  ACTION_IF (~%iwtf_song_selector%~ STRING_EQUAL_CASE ~#BARD2~) BEGIN OUTER_SET iwtf_song_index = 2 END
+  ACTION_IF (~%iwtf_song_selector%~ STRING_EQUAL_CASE ~#BARD3~) BEGIN OUTER_SET iwtf_song_index = 3 END
+  ACTION_IF (~%iwtf_song_selector%~ STRING_EQUAL_CASE ~#BARD4~) BEGIN OUTER_SET iwtf_song_index = 4 END
+  ACTION_IF (~%iwtf_song_selector%~ STRING_EQUAL_CASE ~#BARD5~) BEGIN OUTER_SET iwtf_song_index = 5 END
+  ACTION_IF (~%iwtf_song_selector%~ STRING_EQUAL_CASE ~#BARD6~) BEGIN OUTER_SET iwtf_song_index = 6 END
+  ACTION_IF (iwtf_song_index = 0) BEGIN
+    FAIL @79
+  END
+
+  OUTER_SET iwtf_song_target_count = 0
+  OUTER_SPRINT iwtf_song_target ~~
+  COPY_EXISTING ~%iwtf_song_selector%.SPL~ ~override~
+    READ_LONG 0x64 iwtf_sel_abil_off
+    READ_SHORT 0x68 iwtf_sel_abil_num
+    READ_LONG 0x6a iwtf_sel_fx_off
+    FOR (iwtf_sel_abil = 0; iwtf_sel_abil < iwtf_sel_abil_num; ++iwtf_sel_abil) BEGIN
+      READ_SHORT (iwtf_sel_abil_off + 0x1e + (0x28 * iwtf_sel_abil)) iwtf_sel_fx_num
+      READ_SHORT (iwtf_sel_abil_off + 0x20 + (0x28 * iwtf_sel_abil)) iwtf_sel_fx_idx
+      FOR (iwtf_sel_fx = 0; iwtf_sel_fx < iwtf_sel_fx_num; ++iwtf_sel_fx) BEGIN
+        SET iwtf_sel_fx_pos = iwtf_sel_fx_off + (0x30 * (iwtf_sel_fx_idx + iwtf_sel_fx))
+        READ_SHORT iwtf_sel_fx_pos iwtf_sel_opcode
+        PATCH_IF (iwtf_sel_opcode = 251) BEGIN
+          READ_ASCII (iwtf_sel_fx_pos + 0x14) iwtf_this_song_target
+          PATCH_IF (STRING_LENGTH ~%iwtf_this_song_target%~ > 0) BEGIN
+            SET iwtf_song_target_count += 1
+            SPRINT iwtf_song_target ~%iwtf_this_song_target%~
+          END
+        END
+      END
+    END
+    PATCH_IF (iwtf_song_target_count != 1) BEGIN
+      PATCH_FAIL @76
+    END
+  BUT_ONLY
+  ACTION_IF NOT FILE_EXISTS_IN_GAME ~%iwtf_song_target%.SPL~ BEGIN
+    FAIL @77
+  END
+
+  OUTER_SPRINT iwtf_song_marker ~~
+  ACTION_IF RESOURCE_CONTAINS ~%iwtf_song_target%.SPL~ ~C0BARDSX~ BEGIN
+    COPY_EXISTING ~%iwtf_song_target%.SPL~ ~override~
+      READ_LONG 0x64 iwtf_song_abil_off
+      READ_SHORT 0x68 iwtf_song_abil_num
+      READ_LONG 0x6a iwtf_song_fx_off
+      FOR (iwtf_song_abil = 0; iwtf_song_abil < iwtf_song_abil_num; ++iwtf_song_abil) BEGIN
+        READ_SHORT (iwtf_song_abil_off + 0x1e + (0x28 * iwtf_song_abil)) iwtf_song_fx_num
+        READ_SHORT (iwtf_song_abil_off + 0x20 + (0x28 * iwtf_song_abil)) iwtf_song_fx_idx
+        FOR (iwtf_song_fx = 0; iwtf_song_fx < iwtf_song_fx_num; ++iwtf_song_fx) BEGIN
+          SET iwtf_song_fx_pos = iwtf_song_fx_off + (0x30 * (iwtf_song_fx_idx + iwtf_song_fx))
+          READ_SHORT iwtf_song_fx_pos iwtf_song_opcode
+          PATCH_IF (iwtf_song_opcode = 177) BEGIN
+            READ_ASCII (iwtf_song_fx_pos + 0x14) iwtf_song_res
+            PATCH_IF (~%iwtf_song_res%~ STRING_COMPARE_CASE ~C0SINGIN~) AND
+                     (STRING_LENGTH ~%iwtf_song_res%~ > 0) AND
+                     (STRING_LENGTH ~%iwtf_song_marker%~ = 0) BEGIN
+              SPRINT iwtf_song_marker ~%iwtf_song_res%~
+            END
+          END
+        END
+      END
+      PATCH_IF (STRING_LENGTH ~%iwtf_song_marker%~ = 0) BEGIN
+        PATCH_FAIL @74
+      END
+    BUT_ONLY
+  END ELSE BEGIN
+    OUTER_SET iwtf_song_name = 0 - 1
+    OUTER_SET iwtf_song_desc = 0 - 1
+    OUTER_SPRINT iwtf_song_icon ~~
+    COPY_EXISTING ~%iwtf_song_target%.SPL~ ~override~
+      READ_LONG 0x08 iwtf_song_name
+      READ_LONG 0x50 iwtf_song_desc
+      READ_ASCII 0x3a iwtf_song_icon
+    BUT_ONLY
+    COPY_EXISTING ~%iwtf_song_target%.SPL~ ~override/%iwtf_song_payload%.SPL~
+      LPF ALTER_EFFECT
+        INT_VAR silent = 1
+        STR_VAR match_resource = EVAL ~%iwtf_song_target%~ resource = EVAL ~%iwtf_song_payload%~
+      END
+      LPF ALTER_EFFECT
+        INT_VAR silent = 1 match_opcode = 272 special = 0
+      END
+    BUT_ONLY
+    COPY_EXISTING ~%iwtf_bw_classic_donor%.SPL~ ~override/%iwtf_song_target%.SPL~
+      PATCH_IF (iwtf_song_name >= 0) BEGIN
+        WRITE_LONG 0x08 iwtf_song_name
+      END
+      PATCH_IF (iwtf_song_desc >= 0) BEGIN
+        WRITE_LONG 0x50 iwtf_song_desc
+      END
+      PATCH_IF (STRING_LENGTH ~%iwtf_song_icon%~ > 0) BEGIN
+        WRITE_ASCIIE 0x3a ~%iwtf_song_icon%~ #8
+        LPF ALTER_SPELL_HEADER STR_VAR icon = EVAL ~%iwtf_song_icon%~ END
+      END
+      LPF ALTER_EFFECT
+        INT_VAR silent = 1
+        STR_VAR match_resource = EVAL ~%iwtf_bw_classic_donor_marker%~ resource = EVAL ~%iwtf_song_payload%~
+      END
+    BUT_ONLY
+    COPY_EXISTING ~%iwtf_bw_classic_donor_marker%.EFF~ ~override/%iwtf_song_payload%.EFF~
+      WRITE_ASCIIE 0x30 ~%iwtf_song_payload%~ #8
+    BUT_ONLY
+    OUTER_SPRINT iwtf_song_marker ~%iwtf_song_payload%~
+    ACTION_IF NOT RESOURCE_CONTAINS ~C0BARDX.SPL~ ~%iwtf_song_payload%~ BEGIN
+      COPY_EXISTING ~C0BARDX.SPL~ ~override~
+        LPF ADD_SPELL_EFFECT
+          INT_VAR opcode = 309 target = 1 parameter1 = 0 parameter2 = 0 timing = 1
+          STR_VAR resource = EVAL ~%iwtf_song_payload%~
+        END
+      BUT_ONLY
+    END
+  END
+
+  ACTION_IF NOT RESOURCE_CONTAINS ~%iwtf_song_selector%.SPL~ ~C0IWSONG~ BEGIN
+    COPY_EXISTING ~%iwtf_song_selector%.SPL~ ~override~
+      LPF ADD_SPELL_EFFECT
+        INT_VAR opcode = 309 target = 2 parameter1 = iwtf_song_index parameter2 = 0 timing = 1
+        STR_VAR resource = ~C0IWSONG~
+      END
+    BUT_ONLY
+  END
+  COPY_EXISTING ~%iwtf_song_selector%.SPL~ ~override~
+    LPF ADD_SPELL_EFFECT
+      INT_VAR opcode = 309 target = 2 parameter1 = 0 parameter2 = 0 timing = 1
+      STR_VAR resource = ~C0BWHLAB~
+    END
+  BUT_ONLY
+  ACTION_IF NOT RESOURCE_CONTAINS ~C0SINGI2.SPL~ ~%iwtf_song_target%~ BEGIN
+    COPY_EXISTING ~C0SINGI2.SPL~ ~override~
+      LPF CLONE_EFFECT
+        INT_VAR silent = 1 match_opcode = 321
+        STR_VAR match_resource = EVAL ~%iwtf_bw_cleanup_donor%~ resource = EVAL ~%iwtf_song_target%~
+      END
+    BUT_ONLY
+  END
+  ACTION_IF NOT RESOURCE_CONTAINS ~%iwtf_song_selector%.SPL~ ~C0BARDX~ BEGIN
+    COPY_EXISTING ~%iwtf_song_selector%.SPL~ ~override~
+      LPF CLONE_EFFECT
+        INT_VAR silent = 1 match_opcode = 251 opcode = 326 target = 2 parameter1 = 0 parameter2 = 0 timing = 1
+        STR_VAR match_resource = EVAL ~%iwtf_song_target%~ resource = ~C0BARDX~
+      END
+    BUT_ONLY
+  END
+  ACTION_IF NOT RESOURCE_CONTAINS ~%iwtf_song_selector%.SPL~ ~%iwtf_song_marker%~ BEGIN
+    COPY_EXISTING ~%iwtf_song_selector%.SPL~ ~override~
+      LPF CLONE_EFFECT
+        INT_VAR silent = 1 match_opcode = 251 opcode = 309 target = 2 parameter1 = 1 parameter2 = 0 timing = 4 duration = 1
+        STR_VAR match_resource = EVAL ~%iwtf_song_target%~ resource = EVAL ~%iwtf_song_marker%~
+      END
+    BUT_ONLY
+  END
+END

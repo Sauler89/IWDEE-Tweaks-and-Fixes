@@ -9,6 +9,8 @@
 @8 = ~Skills and Abilities component #730 is already installed. Uninstall #730 before using this component; IWDEE Tweaks and Fixes component 0 replaces its IWDEE HLA-enabling role.~
 @10 = ~Resist Magic~
 @11 = ~War Cry~
+@12 = ~WARNING: A Ranger HLA table containing Tracking does not have the expected 10-column HLA layout. That class/kit was left on its existing HLA table and the Tracking cleanup was skipped for it.~
+@13 = ~WARNING: Could not find the Ranger class/kit entry in LUABBR.2DA while applying the Tracking HLA cleanup. That class/kit was left unchanged.~
 
 @20 = ~Expanded Triple-Class HLA Tables (Fighter/Mage/Thief and Fighter/Mage/Cleric)~
 @21 = ~IWDEE HLA support is not active. Install IWDEE Tweaks and Fixes component 0 or another IWDEE HLA-enabling component first.~
@@ -35,3 +37,23 @@
 @42 = ~Tweaks Anthology component #2340 is already installed. Do not install both versions of the celestial summoning-cap tweak.~
 @43 = ~SUMMLIMT.2DA does not have the expected row/limit layout.~
 @44 = ~Could not find the CELESTIAL row in SUMMLIMT.2DA; the summoning cap was not changed.~
+
+@50 = ~Make Enhanced Bard Song Switchable~
+@51 = ~SPCL920.SPL is missing; Enhanced Bard Song cannot be made switchable safely.~
+@52 = ~#BARD1.SPL is missing; IWDEE's selectable Bard Song template is unavailable.~
+@53 = ~Could not identify exactly one Change Bard Song effect in SPCL920.SPL. Installation was stopped to avoid creating an invalid Enhanced Bard Song selector.~
+@54 = ~The Bard Song resource referenced by SPCL920.SPL is missing.~
+@56 = ~#BARD7.SPL already exists. Another mod appears to provide an Enhanced Bard Song selector; do not install two implementations.~
+@57 = ~Enhanced Bard Song~
+@58 = ~Enhanced Bard Song: Selects Enhanced Bard Song as the active Bard Song.~
+
+@70 = ~Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs~
+@71 = ~Bardic Wonders-style Revised Bard Song Mechanics runtime resources were not detected. Install Revised Bard Song Mechanics first before using this compatibility component.~
+@72 = ~One or more of IWDEE's six classic Bard Song selectors (#BARD1-#BARD6) is missing; the classic-song conversion cannot be applied safely.~
+@73 = ~Revised Bard Song Mechanics was detected, but no already-transformed Bard Song wrapper could be found to use as a structural template.~
+@74 = ~A Revised Bard Song Mechanics wrapper was detected, but its song-payload marker could not be identified safely.~
+@75 = ~The EFF resource used by the detected Revised Bard Song Mechanics wrapper is missing.~
+@76 = ~One of IWDEE's classic Bard Song selectors does not contain exactly one Change Bard Song effect. The conversion was stopped to avoid patching the wrong song.~
+@77 = ~A Bard Song resource referenced by one of IWDEE's classic selectors is missing.~
+@78 = ~Revised Bard Song Mechanics was detected, but C0SINGI2 does not contain a usable song-cleanup entry to clone safely.~
+@79 = ~An internal IWDEE classic Bard Song selector could not be mapped to its song index.~

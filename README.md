@@ -1,201 +1,127 @@
 # IWDEE Tweaks and Fixes
 
-**Version 0.2**
+**Version 0.3**
 
-A small WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
+A WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
-## Screenshots
-
-In-game screenshots from the validated IWDEE v2.7.3.0 test setup using Infinity UI++ and Skills and Abilities #710/#720. They show the HLA level-up entry point, HLA selection interface, high-level spell/ability availability, and custom-kit HLA handling.
-
-<p align="center">
-  <img src="screenshots/6.jpg" width="49%" alt="ABILITIES button on the IWDEE level-up screen">
-  <img src="screenshots/2.jpg" width="49%" alt="Mage HLA selection screen">
-</p>
-
-<p align="center">
-  <img src="screenshots/1.jpg" width="49%" alt="Mage level 9 spellbook with selected HLAs">
-  <img src="screenshots/3.jpg" width="49%" alt="High-level abilities available in game">
-</p>
-
-<p align="center">
-  <img src="screenshots/4.jpg" width="49%" alt="Custom-kit HLA selection and descriptions">
-  <img src="screenshots/5.jpg" width="49%" alt="Custom-kit HLA selection with prerequisites and multiple picks">
-</p>
-
-<p align="center">
-  <img src="screenshots/7.jpg" width="75%" alt="Icewind Dale Enhanced Edition v2.7.3.0">
-</p>
-
-## Download and installation
-
-1. Open the [Releases](https://github.com/Sauler89/IWDEE-Tweaks-and-Fixes/releases) page and download **`IWDEE-Tweaks-and-Fixes-v0.2.zip`** from the release **Assets**.
-2. Do **not** use GitHub's automatically generated **Source code (zip)** / **Source code (tar.gz)** archives for a normal installation, because they do not include the WeiDU setup executable.
-3. Extract the release archive into your **Icewind Dale: Enhanced Edition** installation directory (the folder containing `chitin.key`).
-4. Run `setup-IWDEE-Tweaks-and-Fixes.exe` and select the components you want to install.
-
-For components #0 and #2, **Infinity UI++ must already be installed**. See the component-specific requirements and recommended install order below.
+> v0.3 has passed a clean installation test of all six components and final in-game validation of the consolidated HLA, Ranger Tracking, celestial-summoning, Enhanced Bard Song, and classic Bard Song behavior.
 
 ## Components
 
 ### 0. Enable BG2-style HLAs in IWDEE
-**Standalone Infinity UI++ support; compatible with Skills and Abilities**
 
-This component enables the BG2-style HLA level-up workflow in IWDEE when using Infinity UI++.
-
-**Skills and Abilities is not required and does not need to be extracted in the game directory.** Component #0 is self-contained.
-
-It:
-- enables the HLA level-up interface already present in Infinity UI++;
-- creates `LUNUMAB.2DA` from this mod's own IWDEE fallback table if the resource does not already exist;
-- if `LUNUMAB.2DA` already exists, preserves the current table and only restores the tested `FIRST_LEVEL` values for recognized rows;
-- creates a local `MOHLA01.ITM` compatibility marker from an IWDEE base-game item if the marker is missing;
-- keeps compatibility with Skills and Abilities #710/#720, which use the presence of `MOHLA01.ITM` to recognize IWDEE HLA support;
-- applies the HLA display-name changes for Resist Magic and War Cry;
-- creates `MOIWD01.ITM`, used by Skills and Abilities' IWDEE paladin HLA handling;
-- applies the Tempus `LUABBR.2DA` correction used by the IWDEE HLA setup;
-- preserves unrelated changes made by other mods wherever possible.
-
-#### Is Skills and Abilities required?
-
-**No.** Infinity UI++ already contains the IWDEE HLA screen but normally keeps it disabled. IWDEE contains the underlying HLA resources/tables used by that interface; the missing progression/activation layer is supplied by this component.
-
-Skills and Abilities is optional:
-- **#710 – Add New HLAs for ALL Classes and Kits** adds the expanded HLA content tested with this mod;
-- **#720 – Update Existing HLAs** modifies/improves existing HLAs;
-- **#730 – Add HLAs to IWDEE** should **not** be installed with this component, because component #0 replaces its IWDEE HLA-enabling role and includes the Infinity UI++ compatibility fix.
-
-If Skills and Abilities #730 is already installed, component #0 stops and asks you to uninstall #730 first rather than stacking two HLA-enabling implementations.
-
-#### Requirements for component #0
-- Icewind Dale: Enhanced Edition
-- Infinity UI++ installed first
-
-#### Recommended install order
-1. Infinity UI++
-2. IWDEE Tweaks and Fixes **#0**
-3. Optional IWDEE Tweaks and Fixes **#1**
-4. Optional Skills and Abilities **#710** – Add New HLAs for ALL Classes and Kits
-5. Optional Skills and Abilities **#720** – Update Existing HLAs
-6. **Skip Skills and Abilities #730**
-
-If you only want the vanilla/BG2-style IWDEE HLA system exposed through Infinity UI++, steps 4 and 5 are not required.
-
-No Skills and Abilities files are redistributed by this package. The compatibility marker is generated locally from an IWDEE base-game item, and the fallback HLA progression table is included as part of IWDEE Tweaks and Fixes.
-
----
-
-### 1. Expanded Triple-Class HLA Tables
-For **Fighter/Mage/Thief** and **Fighter/Mage/Cleric**.
-
-This is an IWDEE adaptation of the behavior of [Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) component #2300.
-
-**Fighter/Mage/Cleric:**
-- loses Deathblow, Greater Deathblow and War Cry;
-- gains Improved Alacrity, Dragon's Breath, Summon Planetar, Summon Dark Planetar and Comet.
-
-**Fighter/Mage/Thief:**
-- loses Deathblow, Greater Deathblow, War Cry, Alchemy and Scribe Scrolls;
-- gains Energy Blades, Improved Alacrity, Dragon's Breath, Summon Planetar, Summon Dark Planetar and Comet.
-
-Both dedicated triple-class tables also receive the BG2EE-style:
-- Extra Level 6 Spell
-- Extra Level 7 Spell
-- Extra Level 8 Spell
-
-The mage HLAs retain the high-level requirements and the alignment exclusions for Planetar/Dark Planetar.
-
-**Install this component before Skills and Abilities #710/#720** if you want S&A to detect the dedicated `LUFMT`/`LUFMC` tables and add its common HLA feats to them too.
-
-A sufficiently high XP cap is required for normal use. Tweaks Anthology #2090 (Remove experience cap) or an equivalent XP-cap removal is recommended, since triple-class characters otherwise cannot naturally reach the levels needed for the highest arcane HLAs.
-
-#### Dynamic table handling
-This package does **not** redistribute Tweaks Anthology HLA tables.
-
-- If `LUFMT.2DA` and/or `LUFMC.2DA` already exist, the component patches the existing resources.
-- If `LUFMT.2DA` is missing, it is generated from the installation's current `LUFT0.2DA` (Fighter/Thief table).
-- If `LUFMC.2DA` is missing, it is generated from the installation's current `LUFC0.2DA` (Fighter/Cleric table).
-- The component then adds the Extra Level 6/7/8 Spell HLAs and the intended mage HLA expansion.
-
-This approach preserves earlier HLA-table changes from other mods instead of overwriting them with static bundled tables.
-
----
-
-### 2. Thief Skill Points in Multiples of Five
-**Infinity UI++ compatible**
-
-An IWDEE/Infinity UI++ adaptation of the convenience behavior of Sword Coast Stratagems #4115.
-
-Each click on a thief-skill `+` or `-` button changes the skill by **5 points**. `THIEFSKL.2DA` point awards are also rounded to the nearest multiple of five so unusable remainder points are not left behind.
-
-The original SCS implementation can conflict with Infinity UI++ because its multi-line textual expansion can interact badly with commented copies of the UI calls. This implementation performs the five engine clicks in a **single Lua line**, so commented Infinity UI++ code remains commented and no startup Lua error is generated.
-
-**Do not also install SCS #4115.**
-
----
-
-### 3. Remove Summoning Cap for Celestials
-**Planetars and Devas — new in v0.2.**
-
-This is an IWDEE adaptation of [Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) component **#2340 – Remove Summoning Cap for Celestials [Ardanis/GeN1e]**.
-
-Enhanced Edition games externalize summon limits through `SUMMLIMT.2DA`. The normal celestial limit is 1; this component changes the `CELESTIAL` limit to `999`, effectively removing the one-active-celestial restriction in IWDEE.
+Standalone Infinity UI++ support for the BG2-style HLA level-up workflow in IWDEE.
 
 The component:
-- requires `SUMMLIMT.2DA` to exist;
-- locates the `CELESTIAL` row dynamically instead of relying on a fixed row number;
-- changes only the celestial limit to `999`, preserving the regular summon limit and unrelated table edits;
-- refuses installation if Tweaks Anthology #2340 is already installed.
+- enables the HLA interface already present in Infinity UI++;
+- creates `LUNUMAB.2DA` from the bundled IWDEE fallback when required and otherwise preserves the current table while applying the tested `FIRST_LEVEL` progression;
+- creates the local `MOHLA01.ITM` compatibility marker when missing;
+- remains compatible with Skills and Abilities #710/#720 while replacing the IWDEE-enabling role of #730;
+- applies the IWDEE HLA compatibility fixes used by the current setup;
+- removes redundant Tracking from Ranger/Ranger-kit HLA tables only when that class or kit already receives Tracking normally;
+- preserves shared HLA tables by cloning and rerouting only affected Ranger classes/kits;
+- recognizes native and compatible replacement Tracking resources used by modded installations.
 
-This behavior was **validated in-game on IWDEE v2.7.3.0**, with multiple celestial summons active simultaneously.
+**Requirements:** IWDEE and Infinity UI++ installed first.
 
----
+### 1. Expanded Triple-Class HLA Tables
+
+Adds dedicated HLA handling for **Fighter/Mage/Thief** and **Fighter/Mage/Cleric**, adapting the behavior of Tweaks Anthology component #2300 to IWDEE.
+
+The tables are built from the installation's current resources when necessary so earlier mod changes are preserved. An XP-cap removal such as Tweaks Anthology #2090 is recommended for normal access to the high-level mage abilities.
+
+### 2. Thief Skill Points in Multiples of Five
+
+IWDEE/Infinity UI++-safe adaptation of the SCS thief-skill tweak. It makes thief skill assignment operate in steps of five and rounds `THIEFSKL.2DA` point awards to multiples of five without activating Infinity UI++'s commented Lua/UI copies.
+
+Do not combine it with SCS #4115.
+
+### 3. Remove Summoning Cap for Celestials
+
+IWDEE adaptation of Tweaks Anthology #2340. It changes only the `CELESTIAL` limit in `SUMMLIMT.2DA` to `999`, effectively removing the one-active-Planetar/Deva restriction while preserving unrelated summon limits.
+
+This component has been validated in-game on IWDEE v2.7.3.0 with multiple celestial summons active simultaneously.
+
+### 4. Make Enhanced Bard Song Switchable
+
+Creates a seventh selectable Bard Song entry for the BG2-style **Enhanced Bard Song** HLA and dynamically follows the installation's current Bard Song resources instead of assuming vanilla names.
+
+The component:
+- detects the actual Change Bard Song target used by `SPCL920.SPL`;
+- creates `IWTFBS7.SPL` from the current IWDEE selector structure;
+- grants the selector when Enhanced Bard Song is selected as an HLA;
+- removes only `SPCL920` spell immunities that block genuine Bard Song switchers;
+- integrates dynamically with Bardic Wonders' Revised Bard Song Mechanics when those runtime resources are present;
+- preserves the Bardic Wonders cooldown/aura behavior instead of reverting EBS to a vanilla modal song;
+- registers EBS with the installed `C0IWSONG` / `C0SINGI2` state and cleanup behavior where applicable.
+
+**Runtime validation:** Enhanced Bard Song is selectable, switches correctly with the normal songs, keeps the Bardic Wonders cooldown behavior, remains active while the Bard attacks or casts, applies the real EBS effects, and displays the corresponding portrait status icons.
+
+Bardic Wonders is not a dependency for component #4. If another implementation has already supplied `#BARD7.SPL`, the component stops rather than stacking two EBS selectors.
+
+### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs
+
+Compatibility extension for **Bardic Wonders' Revised Bard Song Mechanics**.
+
+On IWDEE, the six classic selectable Bard Songs can escape Bardic Wonders' normal song-discovery condition and remain modal even while its revised runtime is installed. Component #5 extends the installed revised mechanics to `#BARD1` through `#BARD6` without redistributing Bardic Wonders files.
+
+The component:
+- discovers each classic selector's current Change Bard Song target dynamically;
+- preserves the current song payload and earlier mod changes;
+- builds compatible aura/cooldown wrappers from an already-working transformed Bard Song in the installation;
+- creates only IWDEE Tweaks and Fixes-owned payload resources (`IWTFS1` through `IWTFS6`);
+- preserves already-transformed songs instead of replacing their wrappers;
+- maintains Bardic Wonders' IWDEE selection state with `C0IWSONG` values 1-6;
+- registers the classic songs with `C0SINGI2` cleanup handling;
+- uses explicit 8-byte resref writes where required by SPL/EFF fields.
+
+**Requirements:** Bardic Wonders' Revised Bard Song Mechanics runtime (`C0BARDX.SPL`, `C0BARDSX.SPL`, and `C0SINGI2.SPL`) must already exist.
+
+**Runtime validation:** all six classic IWDEE songs apply their intended effects, use the Bardic Wonders cooldown behavior, remain active while the Bard attacks or casts, switch correctly between songs, and interoperate with `C0IWSONG` / `C0SINGI2` state and cleanup handling.
+
+## v0.3 Bard Song fixes consolidated
+
+The final #4/#5 implementation incorporates the two installation/runtime bugs identified during testing:
+
+- short resrefs written through `WRITE_ASCIIE` are written explicitly as **8-byte** resref fields;
+- `IWTFBEFX.SPL` is created as a new preserved EBS payload resource without a `BUT_ONLY` guard that would suppress creation of a previously nonexistent destination.
+
+These fixes are part of the v0.3 source rather than separate hotfix layers.
+
+## Recommended install order
+
+1. Install Infinity UI++.
+2. Install Ranger/Bard kits and class-overhaul mods whose final resources should be detected.
+3. Install Bard/class/song mods that should modify the base Bard Song resources before the compatibility layer.
+4. Install Bardic Wonders **Revised Bard Song Mechanics** if desired.
+5. Install IWDEE Tweaks and Fixes **#0**.
+6. Optionally install **#1**.
+7. If used, install Skills and Abilities **#710** and **#720**; skip **#730**.
+8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors.
+9. Install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics and after other tweaks to the six classic IWDEE songs.
 
 ## Tested configuration
 
-The HLA implementation was developed and extensively tested on a heavily modded IWDEE installation using Infinity UI++, with Skills and Abilities v5.3 #710/#720 providing expanded HLA content during compatibility testing.
+Development and compatibility testing was performed on IWDEE v2.7.3.0 with Infinity UI++ and, for the expanded HLA test setup, Skills and Abilities #710/#720.
 
-**Testing note:** the Infinity UI++ + Skills and Abilities #710/#720 configuration is the validated HLA setup. Component #0 is designed to work without Skills and Abilities, but the completely standalone path has not yet been independently tested on a clean IWDEE installation. Component #3 has been validated in-game on IWDEE v2.7.3.0 with multiple celestial summons active simultaneously.
-
-In-game testing covered:
-- Fighter / Berserker
-- Mage
-- Cleric
-- Druid
-- Thief / Assassin
-- Monk
-- Shaman
-- modified Kensai
-- Fighter/Mage/Thief
-- Fighter/Mage/Cleric
-- thief skill allocation in multiples of five
-- acquisition/use of arcane and divine HLAs
-- multiple simultaneous celestial summons with component #3
-
-The triple-class implementation was also tested with dynamically handled F/M/T and F/M/C tables, including the added mage HLAs and Extra Level 6/7/8 Spell selections.
-
-As with any WeiDU mod intended for a large modded installation, keeping a backup before installation is recommended.
+Final v0.3 validation includes a clean WeiDU installation of components #0 through #5 with no installation errors, followed by in-game verification that the consolidated behavior remains correct. Dedicated in-game validation covers Ranger Tracking behavior, component #3's multiple celestial summons, component #4's Enhanced Bard Song switching/runtime behavior, and component #5's six classic IWDEE songs with Bardic Wonders cooldown and cleanup handling.
 
 ## Compatibility notes
 
-- **Infinity UI++:** install before components #0 and #2.
-- **Skills and Abilities:** optional. If used, install #710/#720 after components #0/#1 and skip #730.
-- **Tweaks Anthology:** an XP-cap removal such as #2090 is recommended for triple-class high-level mage HLAs. Component #1 does not require or redistribute Tweaks Anthology files. Do not combine Tweaks Anthology #2340 with IWDEE Tweaks and Fixes #3.
-- **Sword Coast Stratagems:** do not install SCS #4115 together with component #2.
+- **Infinity UI++:** required before components #0 and #2.
+- **Skills and Abilities:** optional. #710/#720 are supported; skip #730 when using component #0.
+- **Bardic Wonders:** optional for #0-#4; required for #5 because #5 extends its installed Revised Bard Song Mechanics runtime.
+- **Tweaks Anthology:** do not combine its #2340 with component #3. An XP-cap removal such as #2090 is recommended for component #1.
+- **Sword Coast Stratagems:** do not combine SCS #4115 with component #2.
 
-## Credits
+## Credits and attribution
 
-- **[Skills and Abilities](https://www.morpheus-mart.com/skills-and-abilities)**, by Grammarsalad and morpheus562, for the IWDEE HLA implementation and compatibility conventions that component #0 interoperates with. No Skills and Abilities files are included in this package.
-- **[Tweaks Anthology](https://github.com/Gibberlings3/Tweaks-Anthology) / The Gibberlings Three**, for the original Triple-Class HLA Tables behavior adapted by component #1 and the Remove Summoning Cap for Celestials behavior adapted by component #3; Tweaks Anthology credits Ardanis/GeN1e for the latter. No Tweaks Anthology files are included in this package.
-- **[Sword Coast Stratagems](https://github.com/Gibberlings3/SwordCoastStratagems)**, by David Wallace, for the original thief-skill-in-multiples-of-five tweak. Component #2 adapts that behavior and changes the UI patching method for Infinity UI++ compatibility.
-- **Infinity UI++**, whose IWDEE interface is the target of the compatibility patches.
-- **[WeiDU](https://github.com/WeiDUorg/weidu)** and the Infinity Engine modding community.
+- Skills and Abilities, by Grammarsalad and morpheus562.
+- Tweaks Anthology / The Gibberlings Three.
+- Sword Coast Stratagems, by David Wallace.
+- IWDification, by CamDawg and DavidW.
+- Bardic Wonders / The Artisan's Corner.
+- Infinity UI++.
+- WeiDU and the Infinity Engine modding community.
 
-## License and third-party attribution
-
-- See [LICENSE](LICENSE) for the license covering original IWDEE Tweaks and Fixes code and material.
-- See [THIRD_PARTY.md](THIRD_PARTY.md) for detailed third-party attribution and rights notices.
-
-## Notes
-
-This is an unofficial compatibility/tweak collection and is not part of Skills and Abilities, Tweaks Anthology, Sword Coast Stratagems, or Infinity UI++.
+No third-party packaged resources from those projects are redistributed by IWDEE Tweaks and Fixes. See `THIRD_PARTY.md` for detailed attribution and `LICENSE` for this project's license.

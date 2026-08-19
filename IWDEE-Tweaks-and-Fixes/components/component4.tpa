@@ -1,0 +1,295 @@
+ACTION_CLEAR_ARRAY iwtf_ebs_blocked_resources
+OUTER_SET iwtf_ebs_count = 0
+OUTER_SET iwtf_ebs_name = 0 - 1
+OUTER_SET iwtf_ebs_desc = 0 - 1
+OUTER_SPRINT iwtf_ebs_icon ~~
+OUTER_SPRINT iwtf_ebs_target ~~
+
+COPY_EXISTING ~SPCL920.SPL~ ~override~
+  READ_LONG 0x08 iwtf_ebs_name
+  READ_LONG 0x50 iwtf_ebs_desc
+  READ_ASCII 0x3a iwtf_ebs_icon
+  READ_LONG 0x64 iwtf_abil_off
+  READ_SHORT 0x68 iwtf_abil_num
+  READ_LONG 0x6a iwtf_fx_off
+  FOR (iwtf_abil = 0; iwtf_abil < iwtf_abil_num; ++iwtf_abil) BEGIN
+    READ_SHORT (iwtf_abil_off + 0x1e + (0x28 * iwtf_abil)) iwtf_fx_num
+    READ_SHORT (iwtf_abil_off + 0x20 + (0x28 * iwtf_abil)) iwtf_fx_idx
+    FOR (iwtf_fx = 0; iwtf_fx < iwtf_fx_num; ++iwtf_fx) BEGIN
+      SET iwtf_fx_pos = iwtf_fx_off + (0x30 * (iwtf_fx_idx + iwtf_fx))
+      READ_SHORT iwtf_fx_pos iwtf_opcode
+      PATCH_IF (iwtf_opcode = 251) BEGIN
+        READ_ASCII (iwtf_fx_pos + 0x14) iwtf_this_song
+        PATCH_IF (STRING_LENGTH ~%iwtf_this_song%~ > 0) BEGIN
+          SET iwtf_ebs_count += 1
+          SPRINT iwtf_ebs_target ~%iwtf_this_song%~
+        END
+      END ELSE PATCH_IF (iwtf_opcode = 206) BEGIN
+        READ_ASCII (iwtf_fx_pos + 0x14) iwtf_blocked_resource
+        PATCH_IF (STRING_LENGTH ~%iwtf_blocked_resource%~ > 0) BEGIN
+          DEFINE_ASSOCIATIVE_ARRAY iwtf_ebs_blocked_resources BEGIN
+            ~%iwtf_blocked_resource%~ => 0
+          END
+        END
+      END
+    END
+  END
+BUT_ONLY
+
+ACTION_IF (iwtf_ebs_count != 1) BEGIN
+  FAIL @53
+END
+ACTION_IF NOT FILE_EXISTS_IN_GAME ~%iwtf_ebs_target%.SPL~ BEGIN
+  FAIL @54
+END
+
+COPY_EXISTING ~#BARD1.SPL~ ~override/IWTFBS7.SPL~
+  PATCH_IF (iwtf_ebs_name >= 0) BEGIN
+    WRITE_LONG 0x08 iwtf_ebs_name
+  END ELSE BEGIN
+    SAY NAME1 @57
+  END
+  PATCH_IF (iwtf_ebs_desc >= 0) BEGIN
+    WRITE_LONG 0x50 iwtf_ebs_desc
+  END ELSE BEGIN
+    SAY UNIDENTIFIED_DESC @58
+  END
+  PATCH_IF (STRING_LENGTH ~%iwtf_ebs_icon%~ > 0) BEGIN
+    WRITE_ASCIIE 0x3a ~%iwtf_ebs_icon%~
+    LPF ALTER_SPELL_HEADER STR_VAR icon = EVAL ~%iwtf_ebs_icon%~ END
+  END
+  LPF ALTER_EFFECT
+    INT_VAR check_headers = 0
+    STR_VAR match_resource = ~#BARD1~ resource = ~IWTFBS7~
+  END
+  LPF ALTER_EFFECT
+    INT_VAR check_globals = 0 match_opcode = 251
+    STR_VAR resource = EVAL ~%iwtf_ebs_target%~
+  END
+
+OUTER_SET iwtf_bw_song_mechanics = 0
+OUTER_SET iwtf_bw_ebs_transformed = 0
+OUTER_SPRINT iwtf_bw_donor ~~
+ACTION_IF FILE_EXISTS_IN_GAME ~C0BARDX.SPL~ BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~C0BARDSX.SPL~ BEGIN
+    OUTER_SET iwtf_bw_song_mechanics = 1
+  END
+END
+
+ACTION_IF iwtf_bw_song_mechanics BEGIN
+  ACTION_IF NOT FILE_EXISTS_IN_GAME ~C0SINGI2.SPL~ BEGIN
+    FAIL @71
+  END
+  OUTER_SPRINT iwtf_bw_ebs_cleanup_donor ~~
+  ACTION_FOR_EACH iwtf_bw_cleanup_candidate IN FJBARDB SPCL542A SPCL751A FJBLADEB BEGIN
+    ACTION_IF (STRING_LENGTH ~%iwtf_bw_ebs_cleanup_donor%~ = 0) BEGIN
+      ACTION_IF RESOURCE_CONTAINS ~C0SINGI2.SPL~ ~%iwtf_bw_cleanup_candidate%~ BEGIN
+        OUTER_SPRINT iwtf_bw_ebs_cleanup_donor ~%iwtf_bw_cleanup_candidate%~
+      END
+    END
+  END
+  ACTION_IF (STRING_LENGTH ~%iwtf_bw_ebs_cleanup_donor%~ = 0) BEGIN
+    FAIL @78
+  END
+
+  ACTION_IF RESOURCE_CONTAINS ~%iwtf_ebs_target%.SPL~ ~C0BARDSX~ BEGIN
+    OUTER_SET iwtf_bw_ebs_transformed = 1
+    COPY_EXISTING ~%iwtf_ebs_target%.SPL~ ~override~
+      READ_LONG 0x64 iwtf_bw_abil_off
+      READ_SHORT 0x68 iwtf_bw_abil_num
+      READ_LONG 0x6a iwtf_bw_fx_off
+      SPRINT iwtf_bw_marker ~~
+      FOR (iwtf_bw_abil = 0; iwtf_bw_abil < iwtf_bw_abil_num; ++iwtf_bw_abil) BEGIN
+        READ_SHORT (iwtf_bw_abil_off + 0x1e + (0x28 * iwtf_bw_abil)) iwtf_bw_fx_num
+        READ_SHORT (iwtf_bw_abil_off + 0x20 + (0x28 * iwtf_bw_abil)) iwtf_bw_fx_idx
+        FOR (iwtf_bw_fx = 0; iwtf_bw_fx < iwtf_bw_fx_num; ++iwtf_bw_fx) BEGIN
+          SET iwtf_bw_fx_pos = iwtf_bw_fx_off + (0x30 * (iwtf_bw_fx_idx + iwtf_bw_fx))
+          READ_SHORT iwtf_bw_fx_pos iwtf_bw_opcode
+          PATCH_IF (iwtf_bw_opcode = 177) BEGIN
+            READ_ASCII (iwtf_bw_fx_pos + 0x14) iwtf_bw_res
+            PATCH_IF (~%iwtf_bw_res%~ STRING_COMPARE_CASE ~C0SINGIN~) AND
+                     (STRING_LENGTH ~%iwtf_bw_res%~ > 0) AND
+                     (STRING_LENGTH ~%iwtf_bw_marker%~ = 0) BEGIN
+              SPRINT iwtf_bw_marker ~%iwtf_bw_res%~
+            END
+          END
+        END
+      END
+      PATCH_IF (STRING_LENGTH ~%iwtf_bw_marker%~ = 0) BEGIN
+        PATCH_FAIL @59
+      END
+      INNER_ACTION BEGIN
+        ACTION_FOR_EACH iwtf_bw_switcher IN ~IWTFBS7~ ~SPCL920~ BEGIN
+          COPY_EXISTING ~%iwtf_bw_switcher%.SPL~ ~override~
+            LPF CLONE_EFFECT
+              INT_VAR silent = 1 match_opcode = 251 opcode = 326 target = 2 parameter1 = 0 parameter2 = 0 timing = 1
+              STR_VAR match_resource = EVAL ~%iwtf_ebs_target%~ resource = ~C0BARDX~
+            END
+            LPF CLONE_EFFECT
+              INT_VAR silent = 1 match_opcode = 251 opcode = 309 target = 2 parameter1 = 1 parameter2 = 0 timing = 4 duration = 1
+              STR_VAR match_resource = EVAL ~%iwtf_ebs_target%~ resource = EVAL ~%iwtf_bw_marker%~
+            END
+          BUT_ONLY
+        END
+      END
+    BUT_ONLY
+  END
+
+  ACTION_IF NOT iwtf_bw_ebs_transformed BEGIN
+    ACTION_IF FILE_EXISTS_IN_GAME ~SPCL542A.SPL~ BEGIN
+      ACTION_IF RESOURCE_CONTAINS ~SPCL542A.SPL~ ~C0BARDSX~ BEGIN
+        OUTER_SPRINT iwtf_bw_donor ~SPCL542A~
+      END
+    END
+    ACTION_IF (STRING_LENGTH ~%iwtf_bw_donor%~ = 0) BEGIN
+      ACTION_IF FILE_EXISTS_IN_GAME ~SPCL751A.SPL~ BEGIN
+        ACTION_IF RESOURCE_CONTAINS ~SPCL751A.SPL~ ~C0BARDSX~ BEGIN
+          OUTER_SPRINT iwtf_bw_donor ~SPCL751A~
+        END
+      END
+    END
+    ACTION_IF (STRING_LENGTH ~%iwtf_bw_donor%~ = 0) BEGIN
+      ACTION_IF FILE_EXISTS_IN_GAME ~FJBARDB.SPL~ BEGIN
+        ACTION_IF RESOURCE_CONTAINS ~FJBARDB.SPL~ ~C0BARDSX~ BEGIN
+          OUTER_SPRINT iwtf_bw_donor ~FJBARDB~
+        END
+      END
+    END
+    ACTION_IF (STRING_LENGTH ~%iwtf_bw_donor%~ = 0) BEGIN
+      ACTION_IF FILE_EXISTS_IN_GAME ~FJBLADEB.SPL~ BEGIN
+        ACTION_IF RESOURCE_CONTAINS ~FJBLADEB.SPL~ ~C0BARDSX~ BEGIN
+          OUTER_SPRINT iwtf_bw_donor ~FJBLADEB~
+        END
+      END
+    END
+    ACTION_IF (STRING_LENGTH ~%iwtf_bw_donor%~ = 0) BEGIN
+      FAIL @60
+    END
+
+    COPY_EXISTING ~%iwtf_ebs_target%.SPL~ ~override/IWTFBEFX.SPL~
+      LPF ALTER_EFFECT
+        INT_VAR silent = 1
+        STR_VAR match_resource = EVAL ~%iwtf_ebs_target%~ resource = ~IWTFBEFX~
+      END
+
+    OUTER_SPRINT iwtf_bw_marker ~~
+    COPY_EXISTING ~%iwtf_bw_donor%.SPL~ ~override~
+      READ_LONG 0x64 iwtf_bw_abil_off
+      READ_SHORT 0x68 iwtf_bw_abil_num
+      READ_LONG 0x6a iwtf_bw_fx_off
+      FOR (iwtf_bw_abil = 0; iwtf_bw_abil < iwtf_bw_abil_num; ++iwtf_bw_abil) BEGIN
+        READ_SHORT (iwtf_bw_abil_off + 0x1e + (0x28 * iwtf_bw_abil)) iwtf_bw_fx_num
+        READ_SHORT (iwtf_bw_abil_off + 0x20 + (0x28 * iwtf_bw_abil)) iwtf_bw_fx_idx
+        FOR (iwtf_bw_fx = 0; iwtf_bw_fx < iwtf_bw_fx_num; ++iwtf_bw_fx) BEGIN
+          SET iwtf_bw_fx_pos = iwtf_bw_fx_off + (0x30 * (iwtf_bw_fx_idx + iwtf_bw_fx))
+          READ_SHORT iwtf_bw_fx_pos iwtf_bw_opcode
+          PATCH_IF (iwtf_bw_opcode = 177) BEGIN
+            READ_ASCII (iwtf_bw_fx_pos + 0x14) iwtf_bw_res
+            PATCH_IF (~%iwtf_bw_res%~ STRING_COMPARE_CASE ~C0SINGIN~) AND
+                     (STRING_LENGTH ~%iwtf_bw_res%~ > 0) AND
+                     (STRING_LENGTH ~%iwtf_bw_marker%~ = 0) BEGIN
+              SPRINT iwtf_bw_marker ~%iwtf_bw_res%~
+            END
+          END
+        END
+      END
+      PATCH_IF (STRING_LENGTH ~%iwtf_bw_marker%~ = 0) BEGIN
+        PATCH_FAIL @59
+      END
+    BUT_ONLY
+    ACTION_IF NOT FILE_EXISTS_IN_GAME ~%iwtf_bw_marker%.EFF~ BEGIN
+      FAIL @61
+    END
+
+    COPY_EXISTING ~%iwtf_bw_donor%.SPL~ ~override/%iwtf_ebs_target%.SPL~
+      LPF ALTER_EFFECT
+        INT_VAR silent = 1
+        STR_VAR match_resource = EVAL ~%iwtf_bw_marker%~ resource = EVAL ~%iwtf_ebs_target%~
+      END
+    BUT_ONLY
+    COPY_EXISTING ~%iwtf_bw_marker%.EFF~ ~override/%iwtf_ebs_target%.EFF~
+      WRITE_ASCIIE 0x30 ~IWTFBEFX~ #8
+    BUT_ONLY
+
+    ACTION_IF NOT RESOURCE_CONTAINS ~C0BARDX.SPL~ ~%iwtf_ebs_target%~ BEGIN
+      COPY_EXISTING ~C0BARDX.SPL~ ~override~
+        LPF ADD_SPELL_EFFECT
+          INT_VAR opcode = 309 target = 1 parameter1 = 0 parameter2 = 0 timing = 1
+          STR_VAR resource = EVAL ~%iwtf_ebs_target%~
+        END
+      BUT_ONLY
+    END
+    ACTION_FOR_EACH iwtf_bw_switcher IN ~IWTFBS7~ ~SPCL920~ BEGIN
+      COPY_EXISTING ~%iwtf_bw_switcher%.SPL~ ~override~
+        LPF CLONE_EFFECT
+          INT_VAR silent = 1 match_opcode = 251 opcode = 326 target = 2 parameter1 = 0 parameter2 = 0 timing = 1
+          STR_VAR match_resource = EVAL ~%iwtf_ebs_target%~ resource = ~C0BARDX~
+        END
+        LPF CLONE_EFFECT
+          INT_VAR silent = 1 match_opcode = 251 opcode = 309 target = 2 parameter1 = 1 parameter2 = 0 timing = 4 duration = 1
+          STR_VAR match_resource = EVAL ~%iwtf_ebs_target%~ resource = EVAL ~%iwtf_ebs_target%~
+        END
+      BUT_ONLY
+    END
+  END
+
+  ACTION_FOR_EACH iwtf_bw_ebs_switcher IN ~SPCL920~ ~IWTFBS7~ BEGIN
+    COPY_EXISTING ~%iwtf_bw_ebs_switcher%.SPL~ ~override~
+      LPF ADD_SPELL_EFFECT
+        INT_VAR opcode = 309 target = 2 parameter1 = 1 parameter2 = 0 timing = 1
+        STR_VAR resource = ~C0BWHLAB~
+      END
+    BUT_ONLY
+  END
+  COPY_EXISTING ~IWTFBS7.SPL~ ~override~
+    LPF ADD_SPELL_EFFECT
+      INT_VAR opcode = 309 target = 2 parameter1 = 0 parameter2 = 0 timing = 1
+      STR_VAR resource = ~C0IWSONG~
+    END
+  BUT_ONLY
+  ACTION_IF NOT RESOURCE_CONTAINS ~C0SINGI2.SPL~ ~%iwtf_ebs_target%~ BEGIN
+    COPY_EXISTING ~C0SINGI2.SPL~ ~override~
+      LPF CLONE_EFFECT
+        INT_VAR silent = 1 match_opcode = 321
+        STR_VAR match_resource = EVAL ~%iwtf_bw_ebs_cleanup_donor%~ resource = EVAL ~%iwtf_ebs_target%~
+      END
+    BUT_ONLY
+  END
+END
+
+ACTION_PHP_EACH iwtf_ebs_blocked_resources AS iwtf_blocked_res => iwtf_unused BEGIN
+  OUTER_SET iwtf_is_song_switcher = 0
+  ACTION_IF FILE_EXISTS_IN_GAME ~%iwtf_blocked_res%.SPL~ BEGIN
+    COPY_EXISTING ~%iwtf_blocked_res%.SPL~ ~override~
+      READ_LONG 0x64 iwtf_switch_abil_off
+      READ_SHORT 0x68 iwtf_switch_abil_num
+      READ_LONG 0x6a iwtf_switch_fx_off
+      FOR (iwtf_switch_abil = 0; iwtf_switch_abil < iwtf_switch_abil_num; ++iwtf_switch_abil) BEGIN
+        READ_SHORT (iwtf_switch_abil_off + 0x1e + (0x28 * iwtf_switch_abil)) iwtf_switch_fx_num
+        READ_SHORT (iwtf_switch_abil_off + 0x20 + (0x28 * iwtf_switch_abil)) iwtf_switch_fx_idx
+        FOR (iwtf_switch_fx = 0; iwtf_switch_fx < iwtf_switch_fx_num; ++iwtf_switch_fx) BEGIN
+          SET iwtf_switch_fx_pos = iwtf_switch_fx_off + (0x30 * (iwtf_switch_fx_idx + iwtf_switch_fx))
+          READ_SHORT iwtf_switch_fx_pos iwtf_switch_opcode
+          PATCH_IF (iwtf_switch_opcode = 251) BEGIN
+            SET iwtf_is_song_switcher = 1
+          END
+        END
+      END
+    BUT_ONLY
+  END
+  ACTION_IF iwtf_is_song_switcher BEGIN
+    COPY_EXISTING ~SPCL920.SPL~ ~override~
+      LPF DELETE_EFFECT
+        INT_VAR silent = 1 match_opcode = 206
+        STR_VAR match_resource = EVAL ~%iwtf_blocked_res%~
+      END
+    BUT_ONLY
+  END
+END
+
+COPY_EXISTING ~SPCL920.SPL~ ~override~
+  LPF ADD_SPELL_EFFECT
+    INT_VAR opcode = 171 target = 1 timing = 1 insert_point = 0
+    STR_VAR resource = ~IWTFBS7~
+  END
+BUT_ONLY

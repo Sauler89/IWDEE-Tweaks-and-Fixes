@@ -1,0 +1,62 @@
+// Infinity UI++-safe equivalent of SCS accelerate_thief_levelling.tpa.
+// Patch only the current-skill +/- calls. Calls that use thief_skill[1]
+// for IWDEE setup bookkeeping are intentionally left untouched.
+COPY_EXISTING ~UI.MENU~ ~override~
+  COUNT_REGEXP_INSTANCES ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, true)~ thief_plus_calls
+  COUNT_REGEXP_INSTANCES ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, false)~ thief_minus_calls
+
+  PATCH_IF ((thief_plus_calls = 0) || (thief_minus_calls = 0)) BEGIN
+    PATCH_FAIL @34
+  END
+
+  REPLACE_TEXTUALLY
+    ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, true)~
+    ~for dwSkillStep = 1, 5 do createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill[ currentChargenThiefSkill ].id, true) end~
+
+  REPLACE_TEXTUALLY
+    ~createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill\[currentChargenThiefSkill\].id, false)~
+    ~for dwSkillStep = 1, 5 do createCharScreen:OnThiefSkillPlusMinusButtonClick(chargen.thief_skill[ currentChargenThiefSkill ].id, false) end~
+
+  PATCH_PRINT ~Infinity UI++ thief-skill calls patched safely: plus=%thief_plus_calls%, minus=%thief_minus_calls%.~
+BUT_ONLY
+
+// Match SCS behavior for point awards too: START_POINTS and LEVEL_POINTS are
+// rounded to the nearest multiple of five (remainders 0-2 down, 3-4 up).
+// THIEFSKL.2DA's standard layout is row label, START_POINTS, LEVEL_POINTS.
+COPY_EXISTING ~THIEFSKL.2DA~ ~override~
+  COUNT_2DA_COLS thief_cols
+  PATCH_IF (thief_cols < 3) BEGIN
+    PATCH_FAIL @35
+  END
+  COUNT_2DA_ROWS thief_cols thief_rows
+  FOR (thief_row = 0; thief_row < thief_rows; ++thief_row) BEGIN
+    READ_2DA_ENTRY thief_row 1 thief_cols thief_start
+    READ_2DA_ENTRY thief_row 2 thief_cols thief_level
+
+    PATCH_IF IS_AN_INT thief_start BEGIN
+      SET thief_rem = thief_start MODULO 5
+      PATCH_IF (thief_rem > 0) BEGIN
+        SET thief_rounded = ((thief_start / 5) * 5) + ((thief_rem >= 3) ? 5 : 0)
+        SET_2DA_ENTRY thief_row 1 thief_cols thief_rounded
+      END
+    END
+
+    PATCH_IF IS_AN_INT thief_level BEGIN
+      SET thief_rem = thief_level MODULO 5
+      PATCH_IF (thief_rem > 0) BEGIN
+        SET thief_rounded = ((thief_level / 5) * 5) + ((thief_rem >= 3) ? 5 : 0)
+        SET_2DA_ENTRY thief_row 2 thief_cols thief_rounded
+      END
+    END
+  END
+BUT_ONLY
+
+/*************************************************************************/
+// Optional component 3: Tweaks Anthology #2340 adaptation for IWDEE
+// Remove Summoning Cap for Celestials (Planetars and Devas)
+//
+// Enhanced Edition engines externalize the celestial cap in SUMMLIMT.2DA.
+// Tweaks Anthology sets the CELESTIAL limit to 999 when this table exists.
+// IWDEE is excluded by TA's component-level game check, so this component
+// applies the same table-level behavior specifically to IWDEE.
+/*************************************************************************/
