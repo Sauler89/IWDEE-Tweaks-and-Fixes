@@ -61,6 +61,8 @@ Bardic Wonders is not a dependency for component #4. If another implementation h
 
 ### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs
 
+**Optional component:** this component is completely optional. Install it only if you already use Bardic Wonders' **Revised Bard Song Mechanics** and want those mechanics extended to IWDEE's six classic selectable Bard Songs.
+
 Compatibility extension for **Bardic Wonders' Revised Bard Song Mechanics**.
 
 On IWDEE, the six classic selectable Bard Songs can escape Bardic Wonders' normal song-discovery condition and remain modal even while its revised runtime is installed. Component #5 extends the installed revised mechanics to `#BARD1` through `#BARD6` without redistributing Bardic Wonders files.
@@ -75,7 +77,7 @@ The component:
 - registers the classic songs with `C0SINGI2` cleanup handling;
 - uses explicit 8-byte resref writes where required by SPL/EFF fields.
 
-**Requirements:** Bardic Wonders' Revised Bard Song Mechanics runtime (`C0BARDX.SPL`, `C0BARDSX.SPL`, and `C0SINGI2.SPL`) must already exist.
+**Requirement if installed:** Bardic Wonders' **Revised Bard Song Mechanics** must already be installed. Component #5 requires its runtime resources (`C0BARDX.SPL`, `C0BARDSX.SPL`, and `C0SINGI2.SPL`) and will not install without them.
 
 **Runtime validation:** all six classic IWDEE songs apply their intended effects, use the Bardic Wonders cooldown behavior, remain active while the Bard attacks or casts, switch correctly between songs, and interoperate with `C0IWSONG` / `C0SINGI2` state and cleanup handling.
 
@@ -93,12 +95,12 @@ These fixes are part of the v0.3 source rather than separate hotfix layers.
 1. Install Infinity UI++.
 2. Install Ranger/Bard kits and class-overhaul mods whose final resources should be detected.
 3. Install Bard/class/song mods that should modify the base Bard Song resources before the compatibility layer.
-4. Install Bardic Wonders **Revised Bard Song Mechanics** if desired.
+4. If you plan to use component #5, install Bardic Wonders **Revised Bard Song Mechanics**.
 5. Install IWDEE Tweaks and Fixes **#0**.
 6. Optionally install **#1**.
 7. If used, install Skills and Abilities **#710** and **#720**; skip **#730**.
 8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors.
-9. Install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics and after other tweaks to the six classic IWDEE songs.
+9. Optionally install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics and after other tweaks to the six classic IWDEE songs.
 
 ## Tested configuration
 
@@ -110,7 +112,7 @@ Final v0.3 validation includes a clean WeiDU installation of components #0 throu
 
 - **Infinity UI++:** required before components #0 and #2.
 - **Skills and Abilities:** optional. #710/#720 are supported; skip #730 when using component #0.
-- **Bardic Wonders:** optional for #0-#4; required for #5 because #5 extends its installed Revised Bard Song Mechanics runtime.
+- **Bardic Wonders:** completely optional for the mod as a whole. It is required only if you choose component #5, which extends Bardic Wonders' installed **Revised Bard Song Mechanics** to the six classic IWDEE songs.
 - **Tweaks Anthology:** do not combine its #2340 with component #3. An XP-cap removal such as #2090 is recommended for component #1.
 - **Sword Coast Stratagems:** do not combine SCS #4115 with component #2.
 
