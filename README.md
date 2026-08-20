@@ -48,6 +48,16 @@ The component:
 
 Adds dedicated HLA handling for **Fighter/Mage/Thief** and **Fighter/Mage/Cleric**, adapting the behavior of Tweaks Anthology component #2300 to IWDEE.
 
+The expanded tables retain the **Extra 6th-, 7th-, and 8th-Level Spell** HLAs and trade some abilities from the non-mage classes for additional high-level mage abilities:
+
+- **Fighter/Mage/Cleric**
+  - **Loses:** Deathblow, Greater Deathblow, War Cry
+  - **Gains:** Improved Alacrity, Dragon's Breath, Summon Planetar / Summon Dark Planetar, Comet
+
+- **Fighter/Mage/Thief**
+  - **Loses:** Deathblow, Greater Deathblow, War Cry, Alchemy, Scribe Scrolls
+  - **Gains:** Energy Blades, Improved Alacrity, Dragon's Breath, Summon Planetar / Summon Dark Planetar, Comet
+
 The tables are built from the installation's current resources when necessary so earlier mod changes are preserved. An XP-cap removal such as Tweaks Anthology #2090 is recommended for normal access to the high-level mage abilities.
 
 ### 2. Thief Skill Points in Multiples of Five
