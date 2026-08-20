@@ -1,6 +1,15 @@
 IWDEE Tweaks and Fixes - Changelog
 ==================================
 
+v0.3a
+-----
+- Added component #4 compatibility for Skills and Abilities component #131's separate Enhanced Skald Song: a dedicated `IWTFSK7.SPL` selector is built from resources already installed by S&A.
+- The compatibility layer does not alter `MOSKLD1A.SPL` or any Enhanced Skald Song gameplay effects; the incorrect singer bonuses reported in S&A are an upstream issue and remain under S&A's control.
+- Replaced the unchanged stock portrait icon for Curran Strongheart's War Chant with IWDEE's native Resist Fear icon.
+- Replaced the unchanged stock portrait icon for Tymora's Melody with IWDEE's native Good Luck icon.
+- Other classic Bard Songs retain the Bard Song note, and third-party icon replacements are preserved.
+- The selector integration and icon changes pass installation and binary-resource validation with WeiDU 24900; the icon corrections were also confirmed in game.
+
 v0.3
 ----
 - Integrated Ranger Tracking HLA cleanup into component #0.

@@ -1,5 +1,5 @@
 /*************************************************************************/
-// IWDEE Tweaks and Fixes v0.3
+// IWDEE Tweaks and Fixes v0.3a
 //
 // Component 0: Enable BG2-style HLAs in IWDEE
 // Component 1: Expanded Triple-Class HLA Tables
@@ -14,7 +14,7 @@
 
 BACKUP ~IWDEE-Tweaks-and-Fixes/backup~
 AUTHOR ~Sauler~
-VERSION ~v0.3~
+VERSION ~v0.3a~
 
 LANGUAGE ~English~
          ~english~

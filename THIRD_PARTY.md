@@ -6,7 +6,7 @@ IWDEE Tweaks and Fixes includes compatibility work and adaptations inspired by e
 
 **Authors / maintainers credited by the project:** Grammarsalad and morpheus562.
 
-IWDEE Tweaks and Fixes component #0 interoperates with the IWDEE HLA conventions used by Skills and Abilities, including compatibility markers and install-order expectations for Skills and Abilities components #710 and #720.
+IWDEE Tweaks and Fixes component #0 interoperates with the IWDEE HLA conventions used by Skills and Abilities, including compatibility markers and install-order expectations for Skills and Abilities components #710 and #720. Component #4 can also detect component #131's separately supplied Enhanced Skald Song and build an IWDEE Tweaks and Fixes-owned selector from resources already present in the installation. It does not alter the S&A song payload or its gameplay effects.
 
 No Skills and Abilities files are redistributed by IWDEE Tweaks and Fixes.
 
