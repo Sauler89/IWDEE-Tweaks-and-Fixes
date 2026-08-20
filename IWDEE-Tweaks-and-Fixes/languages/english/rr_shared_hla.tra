@@ -1,0 +1,36 @@
+// Rogue Rebalancing-derived Bard shared HLA strings
+// CC BY-NC-SA 3.0; see THIRD_PARTY.md
+
+@8102 = ~Alchemy
+
+With cleverness innate to the class, an experienced bard has seen enough potions in his or her adventuring career to simulate the creation of one. However, the costs for any raw materials that are used in the process must be paid. This ability allows a bard to brew one of the potions from the following list:
+
+1) Potion of Mind Focusing
+2) Potion of Clarity
+3) Potion of Regeneration
+4) Potion of Defense
+5) Potion of Superior Healing
+6) Elixir of Health
+7) Oil of Speed
+8) Potion of Freedom
+9) Potion of Frost Giant Strength, only usable by thieves or bards
+
+Note: brewing potions is a delicate task which can only be undertaken in safe (non-hostile) areas.~
+
+@8200 = ~Scribe Scrolls~
+@8201 = ~Scribe Scrolls
+
+This ability allows an experienced spellcaster to scribe a spell from his spellbook onto a scroll. Only a spell that is currently memorized may be scribed in this manner. Furthermore, the cost of any raw materials that are used in the process must be covered in full. Finally, inscribing a scroll removes one instance of the spell in question from the caster's memory.
+
+Note: scribing scrolls is a delicate task which can only be undertaken in safe (non-hostile) areas.~
+
+@8222 = ~(Select a spell level:)~
+@8230 = ~1st level spells (50 gp)~
+@8231 = ~2nd level spells (100 gp)~
+@8232 = ~3rd level spells (150 gp)~
+@8233 = ~4th level spells (250 gp)~
+@8234 = ~5th level spells (500 gp)~
+@8235 = ~6th level spells (1000 gp)~
+@8250 = ~(Do not scribe any scrolls)~
+@8260 = ~(Choose which spell to scribe onto a scroll:)~
+@8261 = ~(Select a different spell level)~

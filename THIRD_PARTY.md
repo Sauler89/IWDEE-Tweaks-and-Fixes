@@ -6,7 +6,7 @@ IWDEE Tweaks and Fixes includes compatibility work and adaptations inspired by e
 
 **Authors / maintainers credited by the project:** Grammarsalad and morpheus562.
 
-IWDEE Tweaks and Fixes component #0 interoperates with the IWDEE HLA conventions used by Skills and Abilities, including compatibility markers and install-order expectations for Skills and Abilities components #710 and #720. Component #4 can also detect component #131's separately supplied Enhanced Skald Song and build an IWDEE Tweaks and Fixes-owned selector from resources already present in the installation. It does not alter the S&A song payload or its gameplay effects.
+IWDEE Tweaks and Fixes component #0 interoperates with the IWDEE HLA conventions used by Skills and Abilities, including compatibility markers and install-order expectations for Skills and Abilities components #710 and #720.
 
 No Skills and Abilities files are redistributed by IWDEE Tweaks and Fixes.
 
@@ -55,6 +55,28 @@ No Infinity UI++ files are redistributed by IWDEE Tweaks and Fixes. Rights in In
 
 IWDEE Tweaks and Fixes is distributed as a WeiDU mod and benefits from the tools, documentation, research, and conventions developed by the wider Infinity Engine modding community.
 
+## Icewind Dale II Giant Vermin reference
+
+Components #6/#7 recreate the mechanical progression of Icewind Dale II's **Giant Vermin** spell inside IWDEE. The IWD2 `SPPR410.SPL` and its `00SBTL7`, `00SBTL9`, `00SBTL11`, `00SBTL13`, and `00SBTL15` creature resources were inspected only to determine caster-level thresholds, species, statistics, and natural-attack profiles.
+
+No Icewind Dale II SPL, CRE, ITM, animation, script, sound, or other packaged game resource is included. The installed component builds new mod-owned resources dynamically from files already present in the user's IWDEE installation.
+
+The Infinity Engine Structures Description Project (IESDP) was used as the technical reference for SPL, CRE, ITM, opcode 331, animation, and identifier fields.
+
 ---
 
 If any attribution above is incomplete or inaccurate, please open an issue so it can be corrected.
+
+
+## Rogue Rebalancing - Thief HLA Revisions
+
+The optional **Enable BG2-style HLAs in IWDEE -> With Rogue Rebalancing Thief HLA Revisions** variant is an IWDEE-specific integration of the **Thief High Level Ability revisions** component from **Rogue Rebalancing**, originally by aVENGER.
+
+The RR-derived binary resources, Alchemy helper dialogue/script, RR ability text, and the RR-derived portions of `components/component0_rr_thief_hla.tpa` originate from or adapt the current RR master snapshot supplied for this integration. Those materials remain under Rogue Rebalancing's **Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported** license. The RR-derived English string entries added to `languages/english/setup.tra` are covered by the same third-party license. A copy of RR's license notice is included as `RR_LICENSE.html` in that directory.
+
+The optional RR variant uses the alternative **BG2-style HLA icons created by Daulmakan** from Rogue Rebalancing's `rr_core/bam/bg2s` artwork set for Danger Sense, Evasion, Crippling Strike, Acid Trap, and Insightful Strike. Credit for that artwork remains with Daulmakan/Rogue Rebalancing under the RR distribution terms.
+
+IWDEE Tweaks and Fixes does not import Rogue Rebalancing's broad `RR#AFIX` macro. The surrounding WeiDU integration is purpose-built for IWDEE: it discovers active Thief HLA tables dynamically, preserves mod-added HLA entries, leaves the stock and ZS Shadowdancer HLA routes alone, makes component #1 recognize RR Alchemy / Crippling Strike when producing the Fighter/Mage/Thief triple-class result, and adapts RR's Exploding Trap secondary-effect rules onto an already-installed Epic Thieving scaling trap structure without copying or replacing Epic Thieving assets.
+
+Rogue Rebalancing project documentation: `https://avenger981.github.io/doc/doc/rr_core.html`.
+Source snapshot used for this integration: commit `feb03f527077f44ec49faa314530eda1f8aa95f3` from `FredrikLindgren/rr` (24 April 2026), a CamDawg-authored merge of `CamDawg/rr` master. This is the exact snapshot supplied for the IWDEE port.

@@ -1,0 +1,126 @@
+// ----------------------------------------------------------------------
+// Rogue Rebalancing shared Bard HLA compatibility for IWDEE
+//
+// Component 8 already ports RR's Thief HLA revisions. RR also revises the
+// two stock HLAs shared by Thieves and Bards: Alchemy and Scribe Scrolls.
+// Apply only those exact vanilla Bard entries here; all other Bard/Bard-kit
+// HLA content (including Bardic Wonders custom HLAs) is preserved.
+// ----------------------------------------------------------------------
+
+LOAD_TRA ~IWDEE-Tweaks-and-Fixes/languages/english/rr_shared_hla.tra~
+
+ACTION_CLEAR_ARRAY iwtf_rr_bard_kits
+ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_bard_kits BEGIN
+  BARD => 0
+END
+
+// IWDEE KITLIST CLASS=5 is Bard. Discover installed Bard kits dynamically so
+// kit-specific HLA tables receive the same two shared-HLA revisions.
+COPY_EXISTING ~KITLIST.2DA~ ~override~
+  COUNT_2DA_COLS iwtf_rr_bard_kit_cols
+  PATCH_IF (iwtf_rr_bard_kit_cols >= 9) BEGIN
+    COUNT_2DA_ROWS iwtf_rr_bard_kit_cols iwtf_rr_bard_kit_rows
+    FOR (iwtf_rr_bard_kit_row = 1; iwtf_rr_bard_kit_row < iwtf_rr_bard_kit_rows; ++iwtf_rr_bard_kit_row) BEGIN
+      READ_2DA_ENTRY iwtf_rr_bard_kit_row 8 iwtf_rr_bard_kit_cols iwtf_rr_bard_class
+      PATCH_IF IS_AN_INT iwtf_rr_bard_class BEGIN
+        PATCH_IF (iwtf_rr_bard_class = 5) BEGIN
+          READ_2DA_ENTRY iwtf_rr_bard_kit_row 1 iwtf_rr_bard_kit_cols iwtf_rr_bard_kit_name
+          PATCH_IF (~%iwtf_rr_bard_kit_name%~ STRING_COMPARE_CASE ~*~) BEGIN
+            DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_bard_kits BEGIN
+              ~%iwtf_rr_bard_kit_name%~ => 0
+            END
+          END
+        END
+      END
+    END
+  END
+BUT_ONLY
+
+// Read LUABBR into an action-scope route map, then retain only Bard routes.
+ACTION_CLEAR_ARRAY iwtf_rr_bard_all_routes
+COPY_EXISTING ~LUABBR.2DA~ ~override~
+  COUNT_2DA_COLS iwtf_rr_bard_luabbr_cols
+  COUNT_2DA_ROWS iwtf_rr_bard_luabbr_cols iwtf_rr_bard_luabbr_rows
+  FOR (iwtf_rr_bard_row = 0; iwtf_rr_bard_row < iwtf_rr_bard_luabbr_rows; ++iwtf_rr_bard_row) BEGIN
+    READ_2DA_ENTRY iwtf_rr_bard_row 0 iwtf_rr_bard_luabbr_cols iwtf_rr_bard_kit
+    READ_2DA_ENTRY iwtf_rr_bard_row 1 iwtf_rr_bard_luabbr_cols iwtf_rr_bard_abbr
+    PATCH_IF (~%iwtf_rr_bard_kit%~ STRING_COMPARE_CASE ~*~) AND
+             (~%iwtf_rr_bard_abbr%~ STRING_COMPARE_CASE ~*~) BEGIN
+      DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_bard_all_routes BEGIN
+        ~%iwtf_rr_bard_kit%~ => ~%iwtf_rr_bard_abbr%~
+      END
+    END
+  END
+BUT_ONLY
+
+ACTION_CLEAR_ARRAY iwtf_rr_bard_tables
+ACTION_PHP_EACH iwtf_rr_bard_all_routes AS iwtf_rr_bard_route_kit => iwtf_rr_bard_route_abbr BEGIN
+  ACTION_IF VARIABLE_IS_SET $iwtf_rr_bard_kits(~%iwtf_rr_bard_route_kit%~) BEGIN
+    ACTION_IF FILE_EXISTS_IN_GAME ~LU%iwtf_rr_bard_route_abbr%.2DA~ BEGIN
+      ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_bard_tables BEGIN
+        ~%iwtf_rr_bard_route_abbr%~ => 0
+      END
+    END
+  END
+END
+
+ACTION_PHP_EACH iwtf_rr_bard_tables AS iwtf_rr_bard_abbr => iwtf_rr_bard_unused BEGIN
+  COPY_EXISTING ~LU%iwtf_rr_bard_abbr%.2DA~ ~override~
+    COUNT_2DA_COLS iwtf_rr_bard_cols
+    PATCH_IF (iwtf_rr_bard_cols >= 9) BEGIN
+      COUNT_2DA_ROWS iwtf_rr_bard_cols iwtf_rr_bard_rows
+      FOR (iwtf_rr_bard_hla_row = 0; iwtf_rr_bard_hla_row < iwtf_rr_bard_rows; ++iwtf_rr_bard_hla_row) BEGIN
+        READ_2DA_ENTRY iwtf_rr_bard_hla_row 1 iwtf_rr_bard_cols iwtf_rr_bard_ability
+        READ_2DA_ENTRY iwtf_rr_bard_hla_row 7 iwtf_rr_bard_cols iwtf_rr_bard_prereq
+        READ_2DA_ENTRY iwtf_rr_bard_hla_row 8 iwtf_rr_bard_cols iwtf_rr_bard_excluded
+
+        PATCH_IF (~%iwtf_rr_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+          SET_2DA_ENTRY iwtf_rr_bard_hla_row 1 iwtf_rr_bard_cols ~GA_RR#ALCHB~
+        END ELSE PATCH_IF (~%iwtf_rr_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+          SET_2DA_ENTRY iwtf_rr_bard_hla_row 1 iwtf_rr_bard_cols ~GA_RR#SCRL~
+          // RR permits Scribe Scrolls to be selected once.
+          SET_2DA_ENTRY iwtf_rr_bard_hla_row 6 iwtf_rr_bard_cols ~1~
+        END
+
+        PATCH_IF (~%iwtf_rr_bard_prereq%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+          SET_2DA_ENTRY iwtf_rr_bard_hla_row 7 iwtf_rr_bard_cols ~GA_RR#ALCHB~
+        END ELSE PATCH_IF (~%iwtf_rr_bard_prereq%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+          SET_2DA_ENTRY iwtf_rr_bard_hla_row 7 iwtf_rr_bard_cols ~GA_RR#SCRL~
+        END
+
+        PATCH_IF (~%iwtf_rr_bard_excluded%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+          SET_2DA_ENTRY iwtf_rr_bard_hla_row 8 iwtf_rr_bard_cols ~GA_RR#ALCHB~
+        END ELSE PATCH_IF (~%iwtf_rr_bard_excluded%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+          SET_2DA_ENTRY iwtf_rr_bard_hla_row 8 iwtf_rr_bard_cols ~GA_RR#SCRL~
+        END
+      END
+      PRETTY_PRINT_2DA
+    END
+  BUT_ONLY
+END
+
+// RR's Bard-specific Alchemy shell uses the Alchemy helper already installed
+// by the Thief HLA integration above.
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#ALCHB.SPL~ ~override~
+  SAY NAME1 @8101 SAY NAME2 @8101
+  SAY UNIDENTIFIED_DESC @8102 SAY DESC @8102
+
+// RR Scribe Scrolls: summon an invisible helper, open a spell-selection
+// dialogue, charge the material cost, remove one memorized instance, and give
+// the corresponding scroll. IWDEE Bards only receive the 1st-6th level menus.
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/actors/RR#SCRL.CRE~ ~override~
+  SAY NAME1 @8200 SAY NAME2 @8200
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#SCRL.EFF~ ~override~
+
+COMPILE ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL_BASE.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL_L1.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL_L2.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL_L3.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL_L4.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL_L5.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL_L6.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#SCRL.BAF~
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#SCRL.SPL~ ~override~
+  SAY NAME1 @8200 SAY NAME2 @8200
+  SAY UNIDENTIFIED_DESC @8201 SAY DESC @8201

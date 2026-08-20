@@ -1,32 +1,12 @@
 # IWDEE Tweaks and Fixes
 
-**Version 0.3b**
+> **Rogue Rebalancing Thief HLA variant:** component #0 offers mutually exclusive Standard and Rogue Rebalancing Thief HLA choices. The RR choice dynamically patches active Thief/Thief-kit HLA tables, preserves mod-added HLA entries, leaves the stock Shadowdancer and ZS Shadowdancer HLA tables unchanged, and interoperates with Artisan Kitpack, A7 Sharpshooter, ZS Shadowdancer Overhaul, ZSTweaks potion revisions, Epic Thieving's trap-setting overhaul, and the mod's component #1. The integrated RR HLA set has completed in-game validation on IWDEE.
+
+**Development version 0.4-dev**
 
 A WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
-
-## Screenshots
-
-In-game screenshots from the validated IWDEE v2.7.3.0 test setup using Infinity UI++ and Skills and Abilities #710/#720. They show the HLA level-up entry point, HLA selection interface, high-level spell/ability availability, and custom-kit HLA handling.
-
-<p align="center">
-  <img src="screenshots/6.jpg" width="49%" alt="ABILITIES button on the IWDEE level-up screen">
-  <img src="screenshots/2.jpg" width="49%" alt="Mage HLA selection screen">
-</p>
-
-<p align="center">
-  <img src="screenshots/1.jpg" width="49%" alt="Mage level 9 spellbook with selected HLAs">
-  <img src="screenshots/3.jpg" width="49%" alt="High-level abilities available in game">
-</p>
-
-<p align="center">
-  <img src="screenshots/4.jpg" width="49%" alt="Custom-kit HLA selection and descriptions">
-  <img src="screenshots/5.jpg" width="49%" alt="Custom-kit HLA selection with prerequisites and multiple picks">
-</p>
-
-<p align="center">
-  <img src="screenshots/7.jpg" width="75%" alt="Icewind Dale Enhanced Edition v2.7.3.0">
-</p>
+> **Stable baseline:** v0.3b is the current stable release on `main` and contains components #0 through #5. Development for v0.4 takes place separately on `v0.4-dev`. All v0.3b fixes are synchronized into this development branch.
 
 ## Components
 
@@ -35,8 +15,10 @@ In-game screenshots from the validated IWDEE v2.7.3.0 test setup using Infinity 
 Standalone Infinity UI++ support for the BG2-style HLA level-up workflow in IWDEE.
 
 The component:
-
 - enables the HLA interface already present in Infinity UI++;
+- creates `LUNUMAB.2DA` from the bundled IWDEE fallback when required and otherwise preserves the current table while applying the tested `FIRST_LEVEL` progression;
+- creates the local `MOHLA01.ITM` compatibility marker when missing;
+- remains compatible with Skills and Abilities #710/#720 while replacing the IWDEE-enabling role of #730;
 - applies the IWDEE HLA compatibility fixes used by the current setup;
 - repairs the Bardic Wonders vanilla-class HLA routing issue when detected, removing only misplaced `C0BWHL*` Bard HLA rows from the vanilla Paladin table and restoring them to the vanilla Bard table while leaving Bard kits unchanged;
 - removes redundant Tracking from Ranger/Ranger-kit HLA tables only when that class or kit already receives Tracking normally;
@@ -44,6 +26,10 @@ The component:
 - recognizes native and compatible replacement Tracking resources used by modded installations.
 
 **Requirements:** IWDEE and Infinity UI++ installed first.
+
+The optional **Rogue Rebalancing Thief HLA Revisions** variant replaces the compatible vanilla Thief HLA entries with RR's Danger Sense, Evasion, Crippling Strike/Insightful Strike, Acid Trap, and Alchemy revisions while preserving unrelated mod-added HLAs. If an Epic Thieving-style **Epic Trap Setting** structure is detected, its Set Death Trap and Set Traps-scaling Exploding Trap damage/radius progression are preserved rather than overwritten. The existing Epic Exploding Trap tiers receive RR-compatible secondary-effect behavior: a successful Save vs. Breath avoids knockback/knockdown, and exceptionally large/heavy creatures are excluded from those secondary effects. RR's separate Spike Trap rewrite remains skipped because Epic Thieving has replaced that HLA with Set Death Trap, while Time Trap is still replaced by Acid Trap.
+
+For Bards, the RR variant also replaces only the two vanilla shared HLAs: **Alchemy** uses RR's Bard-specific implementation and **Scribe Scrolls** uses RR's full spell-selection workflow. Other Bard and Bard-kit HLAs, including Bardic Wonders additions, are preserved.
 
 ### 1. Expanded Triple-Class HLA Tables
 
@@ -73,7 +59,7 @@ IWDEE adaptation of Tweaks Anthology #2340. It changes only the `CELESTIAL` limi
 
 This component has been validated in-game on IWDEE v2.7.3.0 with multiple celestial summons active simultaneously.
 
-### 4. Make Enhanced Bard Song Switchable (Experimental)
+### 4. Make Enhanced Bard Song Switchable
 
 Creates a seventh selectable Bard Song entry for the BG2-style **Enhanced Bard Song** HLA and dynamically follows the installation's current Bard Song resources instead of assuming vanilla names.
 
@@ -90,11 +76,9 @@ The component:
 
 **Runtime validation:** Enhanced Bard Song is selectable, switches correctly with the normal songs, keeps the Bardic Wonders cooldown behavior, remains active while the Bard attacks or casts, applies the real EBS effects, and displays the corresponding portrait status icons.
 
-The classic-song icon corrections are validated in game: Curran Strongheart's War Chant uses **Resist Fear**, Tymora's Melody uses **Good Luck**, and the other classic songs retain the Bard Song note.
+Bardic Wonders and Skills and Abilities are not dependencies for component #4. Install Skills and Abilities #131 before component #4 if you want the separate Enhanced Skald Song selector. If another implementation has already supplied `#BARD7.SPL`, the component stops rather than stacking two EBS selectors.
 
-Bardic Wonders and Skills and Abilities are not dependencies for component #4. Install Skills and Abilities #131 before component #4 if you want the separate Enhanced Skald Song selector.
-
-### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs (Experimental)
+### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs
 
 **Optional component:** this component is completely optional. Install it only if you already use Bardic Wonders' **Revised Bard Song Mechanics** and want those mechanics extended to IWDEE's six classic selectable Bard Songs.
 
@@ -117,25 +101,74 @@ The component:
 
 **Runtime validation:** all six classic IWDEE songs apply their intended effects, use the Bardic Wonders cooldown behavior, remain active while the Bard attacks or casts, switch correctly between songs, and interoperate with `C0IWSONG` / `C0SINGI2` state and cleanup handling. With Bardic Wonders' optional overhead-visual component installed, all six classic songs also display the same overhead visual used by supported Bardic Wonders songs.
 
+### 6/7. Rework Giant Insect as IWD2-Style Giant Vermin
+
+Optional rework of `SPPR418.SPL` that replaces Giant Insect's random Bombardier/Boring Beetle result with the level-based species progression used by **Giant Vermin** in Icewind Dale II.
+
+| Caster level | Summoned creature | IWD2-derived combat profile |
+|---:|---|---|
+| 7-8 | Fire Beetle | 15 HP, AC 4, THAC0 19, 1 APR, 1d8 slashing |
+| 9-10 | Beetle | 24 HP, AC 4, THAC0 19, 1 APR, 1d2 piercing |
+| 11-12 | Bombardier Beetle | 24 HP, AC 4, THAC0 19, 1 APR, 1d12 slashing |
+| 13-14 | Boring Beetle | 36 HP, AC 3, THAC0 15, 1 APR, 1d20 slashing |
+| 15+ | Rhinoceros Beetle | 84 HP, AC 2, THAC0 12, 2 APR, 1d20 slashing |
+
+The installer offers two mutually exclusive variants:
+
+- **#6 — IWDEE-Balanced Progression (recommended):** summons 2 Fire Beetles, 3 Beetles, 2 Bombardier Beetles, 2 Boring Beetles, or 1 Rhinoceros Beetle at the five respective tiers.
+- **#7 — IWD2-Faithful Progression:** summons exactly one beetle at every tier, matching IWD2's original quantity.
+
+The component:
+
+- changes species at caster levels 9, 11, 13, and 15, with the number determined by the selected installation variant;
+- implements the IWD2 duration of **10 rounds per caster level** through level-aware spell headers;
+- retains the installation's current Giant Insect casting icon, range, casting time, projectile, casting effects, and top-level metadata;
+- builds dedicated summoned creatures and natural weapons dynamically from the installation's current IWDEE resources;
+- builds the Fire and base Beetle tiers from native `BEETLEG.CRE`, applying IWDEE's dedicated Fire Beetle animation to the former;
+- retains species-specific behavior such as the Bombardier Beetle cloud while using IWDEE's normal summoned-creature AI;
+- removes kill XP, gold, dialogue, death variables, droppable loot, and corpses from the dedicated summons;
+- respects the normal summoning cap;
+- does not redistribute any Icewind Dale II creature, spell, item, or script resource.
+
+**Development status:** structural installation and binary-resource validation pass with WeiDU 24900. In-game validation is still required before this component is included in a stable release.
+
+## v0.3 Bard Song fixes consolidated
+
+The final #4/#5 implementation incorporates the installation/runtime bugs identified during testing:
+
+- short resrefs written through `WRITE_ASCIIE` are written explicitly as **8-byte** resref fields;
+- `IWTFBEFX.SPL` is created as a new preserved EBS payload resource without a `BUT_ONLY` guard that would suppress creation of a previously nonexistent destination;
+- Bardic Wonders' optional overhead visual is mirrored onto all six classic IWDEE songs when available.
+
+The v0.3b vanilla Bard/Paladin HLA routing repair is also included in both v0.4 component #0 variants.
+
 ## Recommended install order
 
 1. Install Infinity UI++.
 2. Install Ranger/Bard kits and class-overhaul mods whose final resources should be detected.
 3. Install Bard/class/song mods that should modify the base Bard Song resources before the compatibility layer.
 4. Install Bardic Wonders components you plan to use before the corresponding compatibility fix: its HLA overhaul before IWDEE Tweaks and Fixes #0, and Revised Bard Song Mechanics / optional Bard Song Overhead Visual Effect before #5.
-5. Install IWDEE Tweaks and Fixes **#0**.
+5. Install IWDEE Tweaks and Fixes **#0** (choose either Standard or Rogue Rebalancing Thief HLA Revisions).
 6. Optionally install **#1**.
 7. If used, install Skills and Abilities **#710** and **#720**; skip **#730**.
 8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors, and after Skills and Abilities **#131** if its Enhanced Skald Song is used.
-9. Optionally install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics and after other tweaks to the six classic IWDEE songs.
+9. Optionally install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics / Bard Song Overhead Visual Effect and after other tweaks to the six classic IWDEE songs.
+10. Optionally install one Giant Vermin variant, **#6 or #7**, after mods that revise `SPPR418.SPL` or the native IWDEE beetles, so it can preserve their final compatible resources while applying the IWD2 progression.
+
+## Tested configuration
+
+Development and compatibility testing was performed on IWDEE v2.7.3.0 with Infinity UI++ and, for the expanded HLA test setup, Skills and Abilities #710/#720.
+
+Stable v0.3b validation includes the Bardic Wonders vanilla Bard/Paladin HLA routing repair and the classic-song overhead visual fix. The integrated RR Thief HLA variant in v0.4-dev has also completed in-game validation; the newly added RR Bard shared-HLA layer still requires focused in-game verification of Bard Alchemy and Scribe Scrolls.
 
 ## Compatibility notes
 
-- **Infinity UI++:** required (install early)
-- **Skills and Abilities:** optional. Components that add new abilities and update existing abilities are supported. Component #4 can add a selector for #131's Enhanced Skald Song when #131 is installed first, without changing its song effects. Not compatible with component **"Add HLAs to IWDEE (Lefreut UI Required)"**
-- **Bardic Wonders:** completely optional for the mod as a whole. Component #0 contains a targeted repair for the tested IWDEE vanilla Bard/Paladin HLA routing issue when Bardic Wonders' HLA rows are already present. Bardic Wonders is required only if you choose component #5, which extends its installed **Revised Bard Song Mechanics** to the six classic IWDEE songs and also mirrors its optional overhead visual when that resource is installed.
-- **Tweaks Anthology:** not compatible with component that expand HLA triple-class table. An XP-cap removal such as #2090 is recommended for component #1.
-- **Sword Coast Stratagems:** SCS #4115 not compatible with component #2.
+- **Infinity UI++:** required before components #0 and #2.
+- **Skills and Abilities:** optional. #710/#720 are supported; skip #730 when using component #0. Component #4 can add a selector for #131's Enhanced Skald Song when #131 is installed first, without changing its song effects.
+- **Bardic Wonders:** completely optional for the mod as a whole. Component #0 contains the targeted v0.3b repair for the tested IWDEE vanilla Bard/Paladin HLA routing issue when Bardic Wonders' HLA rows are already present. Bardic Wonders is required only if you choose component #5, which extends its installed **Revised Bard Song Mechanics** to the six classic IWDEE songs and mirrors its optional overhead visual when that resource is installed.
+- **Tweaks Anthology:** do not combine its #2340 with component #3. An XP-cap removal such as #2090 is recommended for component #1.
+- **Sword Coast Stratagems:** do not combine SCS #4115 with component #2.
+- **Spell revisions:** install Giant Vermin component #6 or #7 after other mods that alter Giant Insect or its beetles. The selected variant intentionally defines the final summon progression and spell description.
 
 ## Credits and attribution
 
@@ -144,7 +177,9 @@ The component:
 - Sword Coast Stratagems, by David Wallace.
 - IWDification, by CamDawg and DavidW.
 - Bardic Wonders / The Artisan's Corner.
+- Rogue Rebalancing, by aVENGER.
 - Infinity UI++.
 - WeiDU and the Infinity Engine modding community.
+- Icewind Dale II's Giant Vermin spell and summoned-beetle progression, used as a mechanical reference only.
 
-No third-party packaged resources from those projects are redistributed by IWDEE Tweaks and Fixes. See `THIRD_PARTY.md` for detailed attribution and `LICENSE` for this project's license.
+Third-party resources bundled for the optional RR HLA integration remain under their original license and attribution. See `THIRD_PARTY.md` for details and `LICENSE` for this project's license.

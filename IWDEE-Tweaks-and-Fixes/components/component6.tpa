@@ -1,0 +1,355 @@
+/*************************************************************************/
+// Components 6/7: Rework Giant Insect as IWD2-style Giant Vermin
+// Component 6 uses the balanced summon counts; component 7 uses one beetle.
+//
+// IWD2 reference progression:
+//   caster 7-8   -> Fire Beetle        (00SBTL7)
+//   caster 9-10  -> Beetle             (00SBTL9)
+//   caster 11-12 -> Bombardier Beetle  (00SBTL11)
+//   caster 13-14 -> Boring Beetle      (00SBTL13)
+//   caster 15+   -> Rhinoceros Beetle  (00SBTL15)
+//
+// No IWD2 game files are distributed. Each summoned creature and natural
+// weapon is built from the installation's current IWDEE resources so earlier
+// compatibility patches remain present.
+/*************************************************************************/
+
+DEFINE_ACTION_FUNCTION iwtf_build_giant_vermin_creature
+  INT_VAR
+    iwtf_gv_hp = 1
+    iwtf_gv_animation = 0
+    iwtf_gv_ac = 10
+    iwtf_gv_thac0 = 20
+    iwtf_gv_attacks = 1
+    iwtf_gv_level = 1
+    iwtf_gv_power = 1
+    iwtf_gv_constitution = 15
+    iwtf_gv_dice_sides = 2
+    iwtf_gv_damage_type = 1
+  STR_VAR
+    iwtf_gv_source = ~~
+    iwtf_gv_destination = ~~
+    iwtf_gv_weapon_destination = ~~
+    iwtf_gv_race_script = ~~
+BEGIN
+  COPY_EXISTING ~%iwtf_gv_source%.CRE~ ~override/%iwtf_gv_destination%.CRE~
+    READ_LONG 0x10 iwtf_gv_cre_flags
+    WRITE_LONG 0x10 (iwtf_gv_cre_flags BOR 2) // no corpse
+    WRITE_LONG 0x14 0                         // no kill XP
+    WRITE_LONG 0x18 iwtf_gv_power
+    WRITE_LONG 0x1c 0                         // no gold
+    WRITE_SHORT 0x24 iwtf_gv_hp
+    WRITE_SHORT 0x26 iwtf_gv_hp
+    PATCH_IF (iwtf_gv_animation > 0) BEGIN
+      WRITE_LONG 0x28 iwtf_gv_animation
+    END
+
+    // Convert IWD2's ascending AC and BAB values to native IWDEE fields.
+    WRITE_SHORT 0x46 iwtf_gv_ac
+    WRITE_SHORT 0x48 iwtf_gv_ac
+    WRITE_BYTE 0x52 iwtf_gv_thac0
+    WRITE_BYTE 0x53 iwtf_gv_attacks
+
+    // The IWD2 summon CREs have no innate elemental, magical or physical DR.
+    FOR (iwtf_gv_resistance = 0x59; iwtf_gv_resistance <= 0x63; ++iwtf_gv_resistance) BEGIN
+      WRITE_BYTE iwtf_gv_resistance 0
+    END
+
+    WRITE_BYTE 0x234 iwtf_gv_level
+    WRITE_BYTE 0x235 iwtf_gv_level
+    WRITE_BYTE 0x236 iwtf_gv_level
+    WRITE_BYTE 0x237 4       // unvoiced / neither
+    WRITE_BYTE 0x238 15      // Strength
+    WRITE_BYTE 0x239 0
+    WRITE_BYTE 0x23a 3       // Intelligence
+    WRITE_BYTE 0x23b 3       // Wisdom
+    WRITE_BYTE 0x23c 18      // Dexterity
+    WRITE_BYTE 0x23d iwtf_gv_constitution
+    WRITE_BYTE 0x23e 3       // Charisma
+    WRITE_BYTE 0x23f 10      // morale
+    WRITE_BYTE 0x240 0       // never breaks morale
+
+    // Preserve only the species-specific racial script (Bombardier cloud),
+    // then use IWDEE's normal summoned-creature AI.
+    WRITE_ASCII 0x248 ~~ #8
+    WRITE_ASCII 0x250 ~~ #8
+    WRITE_ASCIIE 0x258 ~%iwtf_gv_race_script%~ #8
+    WRITE_ASCII 0x260 ~~ #8
+    WRITE_ASCII 0x268 ~GNSUMMM~ #8
+
+    WRITE_BYTE 0x270 128     // opcode 331 replaces this with the summoner's side
+    WRITE_BYTE 0x271 2       // MONSTER
+    WRITE_BYTE 0x273 255     // NO_CLASS
+    WRITE_BYTE 0x274 0
+    WRITE_BYTE 0x275 6       // SUMMONED: obey the normal summoning cap
+    WRITE_BYTE 0x27b 34      // neutral
+    WRITE_ASCII 0x280 ~~ #32 // no death variable
+    WRITE_ASCII 0x2cc ~~ #8  // no dialogue
+
+    // Find the equipped natural weapon, replace it with a mod-owned clone,
+    // and reproduce the damage dice used by the corresponding IWD2 summon.
+    READ_LONG 0x2b8 iwtf_gv_slots_offset
+    READ_LONG 0x2bc iwtf_gv_items_offset
+    READ_LONG 0x2c0 iwtf_gv_items_count
+    READ_SHORT (iwtf_gv_slots_offset + 0x12) iwtf_gv_weapon_index
+    PATCH_IF (iwtf_gv_weapon_index = 0xffff) OR
+             (iwtf_gv_weapon_index >= iwtf_gv_items_count) BEGIN
+      PATCH_FAIL @87
+    END
+    READ_ASCII (iwtf_gv_items_offset + (0x14 * iwtf_gv_weapon_index)) iwtf_gv_source_weapon
+    PATCH_IF (STRING_LENGTH ~%iwtf_gv_source_weapon%~ = 0) BEGIN
+      PATCH_FAIL @87
+    END
+    WRITE_ASCIIE (iwtf_gv_items_offset + (0x14 * iwtf_gv_weapon_index)) ~%iwtf_gv_weapon_destination%~ #8
+
+    // All carried resources remain available to the creature but cannot be
+    // stolen or dropped as loot.
+    FOR (iwtf_gv_item = 0; iwtf_gv_item < iwtf_gv_items_count; ++iwtf_gv_item) BEGIN
+      SET iwtf_gv_item_entry = iwtf_gv_items_offset + (0x14 * iwtf_gv_item)
+      READ_LONG (iwtf_gv_item_entry + 0x10) iwtf_gv_item_flags
+      WRITE_LONG (iwtf_gv_item_entry + 0x10) (iwtf_gv_item_flags BOR 0x0a)
+    END
+
+    INNER_ACTION BEGIN
+      COPY_EXISTING ~%iwtf_gv_source_weapon%.ITM~ ~override/%iwtf_gv_weapon_destination%.ITM~
+        READ_LONG 0x64 iwtf_gv_weapon_header_offset
+        READ_SHORT 0x68 iwtf_gv_weapon_header_count
+        FOR (iwtf_gv_header = 0; iwtf_gv_header < iwtf_gv_weapon_header_count; ++iwtf_gv_header) BEGIN
+          SET iwtf_gv_header_offset = iwtf_gv_weapon_header_offset + (0x38 * iwtf_gv_header)
+          READ_BYTE (iwtf_gv_header_offset) iwtf_gv_attack_type
+          PATCH_IF (iwtf_gv_attack_type = 1) OR (iwtf_gv_attack_type = 3) BEGIN
+            WRITE_BYTE (iwtf_gv_header_offset + 0x16) iwtf_gv_dice_sides
+            WRITE_BYTE (iwtf_gv_header_offset + 0x18) 1
+            WRITE_SHORT (iwtf_gv_header_offset + 0x1a) 0
+            WRITE_SHORT (iwtf_gv_header_offset + 0x1c) iwtf_gv_damage_type
+          END
+        END
+      BUT_ONLY
+    END
+  BUT_ONLY
+END
+
+// Fire Beetle: 15 HP, AC 4, THAC0 19, 1 APR, 1d8 slashing.
+LAF iwtf_build_giant_vermin_creature
+  INT_VAR
+    iwtf_gv_hp = 15
+    iwtf_gv_animation = 0xe210
+    iwtf_gv_ac = 4
+    iwtf_gv_thac0 = 19
+    iwtf_gv_attacks = 1
+    iwtf_gv_level = 7
+    iwtf_gv_power = 7
+    iwtf_gv_constitution = 15
+    iwtf_gv_dice_sides = 8
+    iwtf_gv_damage_type = 3
+  STR_VAR
+    iwtf_gv_source = ~BEETLEG~
+    iwtf_gv_destination = ~IWGVC07~
+    iwtf_gv_weapon_destination = ~IWGVW07~
+END
+
+// Beetle: 24 HP, AC 4, THAC0 19, 1 APR, 1d2 piercing.
+LAF iwtf_build_giant_vermin_creature
+  INT_VAR
+    iwtf_gv_hp = 24
+    iwtf_gv_ac = 4
+    iwtf_gv_thac0 = 19
+    iwtf_gv_attacks = 1
+    iwtf_gv_level = 9
+    iwtf_gv_power = 9
+    iwtf_gv_constitution = 15
+    iwtf_gv_dice_sides = 2
+    iwtf_gv_damage_type = 1
+  STR_VAR
+    iwtf_gv_source = ~BEETLEG~
+    iwtf_gv_destination = ~IWGVC09~
+    iwtf_gv_weapon_destination = ~IWGVW09~
+END
+
+// Bombardier Beetle: 24 HP, AC 4, THAC0 19, 1 APR, 1d12 slashing.
+LAF iwtf_build_giant_vermin_creature
+  INT_VAR
+    iwtf_gv_hp = 24
+    iwtf_gv_ac = 4
+    iwtf_gv_thac0 = 19
+    iwtf_gv_attacks = 1
+    iwtf_gv_level = 7
+    iwtf_gv_power = 7
+    iwtf_gv_constitution = 15
+    iwtf_gv_dice_sides = 12
+    iwtf_gv_damage_type = 3
+  STR_VAR
+    iwtf_gv_source = ~GISBOMB~
+    iwtf_gv_destination = ~IWGVC11~
+    iwtf_gv_weapon_destination = ~IWGVW11~
+    iwtf_gv_race_script = ~BBCLOUD~
+END
+
+// Boring Beetle: 36 HP, AC 3, THAC0 15, 1 APR, 1d20 slashing.
+LAF iwtf_build_giant_vermin_creature
+  INT_VAR
+    iwtf_gv_hp = 36
+    iwtf_gv_ac = 3
+    iwtf_gv_thac0 = 15
+    iwtf_gv_attacks = 1
+    iwtf_gv_level = 13
+    iwtf_gv_power = 13
+    iwtf_gv_constitution = 15
+    iwtf_gv_dice_sides = 20
+    iwtf_gv_damage_type = 3
+  STR_VAR
+    iwtf_gv_source = ~GISBORB~
+    iwtf_gv_destination = ~IWGVC13~
+    iwtf_gv_weapon_destination = ~IWGVW13~
+END
+
+// Rhinoceros Beetle: 84 HP, AC 2, THAC0 12, 2 APR, 1d20 slashing.
+LAF iwtf_build_giant_vermin_creature
+  INT_VAR
+    iwtf_gv_hp = 84
+    iwtf_gv_ac = 2
+    iwtf_gv_thac0 = 12
+    iwtf_gv_attacks = 2
+    iwtf_gv_level = 15
+    iwtf_gv_power = 15
+    iwtf_gv_constitution = 16
+    iwtf_gv_dice_sides = 20
+    iwtf_gv_damage_type = 3
+  STR_VAR
+    iwtf_gv_source = ~BEETRHIN~
+    iwtf_gv_destination = ~IWGVC15~
+    iwtf_gv_weapon_destination = ~IWGVW15~
+END
+
+ACTION_FOR_EACH iwtf_gv_table IN IWGVT07 IWGVT09 IWGVT11 IWGVT13 IWGVT15 BEGIN
+  COPY ~IWDEE-Tweaks-and-Fixes/2da/%iwtf_gv_table%.2DA~ ~override/%iwtf_gv_table%.2DA~
+END
+
+COPY_EXISTING ~SPPR418.SPL~ ~override~
+  READ_LONG 0x64 iwtf_gv_ability_offset
+  READ_SHORT 0x68 iwtf_gv_ability_count
+  PATCH_IF (iwtf_gv_ability_count < 1) BEGIN
+    PATCH_FAIL @86
+  END
+
+  READ_BYTE (iwtf_gv_ability_offset + 0x00) iwtf_gv_spell_form
+  READ_BYTE (iwtf_gv_ability_offset + 0x01) iwtf_gv_header_flags
+  READ_SHORT (iwtf_gv_ability_offset + 0x02) iwtf_gv_location
+  READ_ASCII (iwtf_gv_ability_offset + 0x04) iwtf_gv_icon
+  READ_BYTE (iwtf_gv_ability_offset + 0x0c) iwtf_gv_target
+  READ_BYTE (iwtf_gv_ability_offset + 0x0d) iwtf_gv_target_count
+  READ_SHORT (iwtf_gv_ability_offset + 0x0e) iwtf_gv_range
+  READ_SHORT (iwtf_gv_ability_offset + 0x12) iwtf_gv_speed
+  READ_SHORT (iwtf_gv_ability_offset + 0x14) iwtf_gv_times_per_day
+  READ_SHORT (iwtf_gv_ability_offset + 0x16) iwtf_gv_unused_dice_sides
+  READ_SHORT (iwtf_gv_ability_offset + 0x18) iwtf_gv_unused_dice_count
+  READ_SHORT (iwtf_gv_ability_offset + 0x1a) iwtf_gv_unused_enchantment
+  READ_SHORT (iwtf_gv_ability_offset + 0x1c) iwtf_gv_unused_damage_type
+  READ_SHORT (iwtf_gv_ability_offset + 0x22) iwtf_gv_charges
+  READ_SHORT (iwtf_gv_ability_offset + 0x24) iwtf_gv_charge_depletion
+  READ_SHORT (iwtf_gv_ability_offset + 0x26) iwtf_gv_projectile
+
+  // Remove the old random 2-3 beetle headers while retaining casting effects
+  // and all top-level spell metadata supplied by earlier mods.
+  LPF DELETE_SPELL_HEADER
+    INT_VAR
+      header_type = (0 - 1)
+      min_level = (0 - 1)
+  END
+
+  // WeiDU 24900 has no built-in function for adding SPL ability headers.
+  // Build a canonical V1 spell layout directly: 50 headers, the original
+  // casting feature blocks first, then the 50 ability feature blocks. Some
+  // EE engine paths treat the leading blocks as casting effects even when
+  // the casting index points elsewhere, so the canonical order is required.
+  SET iwtf_gv_new_header_count = 50
+  SET iwtf_gv_header_bytes = iwtf_gv_new_header_count * 0x28
+  SET iwtf_gv_effect_bytes = iwtf_gv_new_header_count * 0x30
+  READ_LONG 0x64 iwtf_gv_new_header_offset
+  READ_SHORT 0x70 iwtf_gv_casting_count
+  // DELETE_SPELL_HEADER removes and compacts every ability effect but does
+  // not always rebase the casting-effect index. At this point only casting
+  // effects remain, so their canonical starting index is necessarily zero.
+  WRITE_SHORT 0x6e 0
+  INSERT_BYTES (iwtf_gv_new_header_offset) (iwtf_gv_header_bytes)
+  SET iwtf_gv_new_effect_offset = iwtf_gv_new_header_offset + iwtf_gv_header_bytes
+  SET iwtf_gv_ability_effect_offset = iwtf_gv_new_effect_offset + (iwtf_gv_casting_count * 0x30)
+  INSERT_BYTES (iwtf_gv_ability_effect_offset) (iwtf_gv_effect_bytes)
+  WRITE_SHORT 0x68 iwtf_gv_new_header_count
+  WRITE_LONG 0x6a iwtf_gv_new_effect_offset
+  WRITE_SHORT 0x6e 0
+
+  // One header per caster level gives the exact IWD2 duration of ten rounds
+  // per level. Levels above 50 use the level-50 header.
+  FOR (iwtf_gv_caster_level = 1; iwtf_gv_caster_level <= 50; ++iwtf_gv_caster_level) BEGIN
+    SPRINT iwtf_gv_summon_table ~IWGVT07~
+    SET iwtf_gv_summon_count = 1
+    PATCH_IF (iwtf_gv_balanced_mode = 1) BEGIN
+      SET iwtf_gv_summon_count = 2
+    END
+    PATCH_IF (iwtf_gv_caster_level >= 9) BEGIN
+      SPRINT iwtf_gv_summon_table ~IWGVT09~
+      PATCH_IF (iwtf_gv_balanced_mode = 1) BEGIN
+        SET iwtf_gv_summon_count = 3
+      END
+    END
+    PATCH_IF (iwtf_gv_caster_level >= 11) BEGIN
+      SPRINT iwtf_gv_summon_table ~IWGVT11~
+      PATCH_IF (iwtf_gv_balanced_mode = 1) BEGIN
+        SET iwtf_gv_summon_count = 2
+      END
+    END
+    PATCH_IF (iwtf_gv_caster_level >= 13) BEGIN
+      SPRINT iwtf_gv_summon_table ~IWGVT13~
+    END
+    PATCH_IF (iwtf_gv_caster_level >= 15) BEGIN
+      SPRINT iwtf_gv_summon_table ~IWGVT15~
+      SET iwtf_gv_summon_count = 1
+    END
+
+    SET iwtf_gv_header_offset = iwtf_gv_new_header_offset + ((iwtf_gv_caster_level - 1) * 0x28)
+    WRITE_BYTE (iwtf_gv_header_offset + 0x00) iwtf_gv_spell_form
+    WRITE_BYTE (iwtf_gv_header_offset + 0x01) iwtf_gv_header_flags
+    WRITE_SHORT (iwtf_gv_header_offset + 0x02) iwtf_gv_location
+    WRITE_ASCIIE (iwtf_gv_header_offset + 0x04) ~%iwtf_gv_icon%~ #8
+    WRITE_BYTE (iwtf_gv_header_offset + 0x0c) iwtf_gv_target
+    WRITE_BYTE (iwtf_gv_header_offset + 0x0d) iwtf_gv_target_count
+    WRITE_SHORT (iwtf_gv_header_offset + 0x0e) iwtf_gv_range
+    WRITE_SHORT (iwtf_gv_header_offset + 0x10) iwtf_gv_caster_level
+    WRITE_SHORT (iwtf_gv_header_offset + 0x12) iwtf_gv_speed
+    WRITE_SHORT (iwtf_gv_header_offset + 0x14) iwtf_gv_times_per_day
+    WRITE_SHORT (iwtf_gv_header_offset + 0x16) iwtf_gv_unused_dice_sides
+    WRITE_SHORT (iwtf_gv_header_offset + 0x18) iwtf_gv_unused_dice_count
+    WRITE_SHORT (iwtf_gv_header_offset + 0x1a) iwtf_gv_unused_enchantment
+    WRITE_SHORT (iwtf_gv_header_offset + 0x1c) iwtf_gv_unused_damage_type
+    WRITE_SHORT (iwtf_gv_header_offset + 0x1e) 1
+    WRITE_SHORT (iwtf_gv_header_offset + 0x20) (iwtf_gv_casting_count + iwtf_gv_caster_level - 1)
+    WRITE_SHORT (iwtf_gv_header_offset + 0x22) iwtf_gv_charges
+    WRITE_SHORT (iwtf_gv_header_offset + 0x24) iwtf_gv_charge_depletion
+    WRITE_SHORT (iwtf_gv_header_offset + 0x26) iwtf_gv_projectile
+
+    SET iwtf_gv_effect_offset = iwtf_gv_ability_effect_offset + ((iwtf_gv_caster_level - 1) * 0x30)
+    WRITE_SHORT (iwtf_gv_effect_offset + 0x00) 331
+    WRITE_BYTE (iwtf_gv_effect_offset + 0x02) 1
+    WRITE_BYTE (iwtf_gv_effect_offset + 0x03) 0
+    WRITE_LONG (iwtf_gv_effect_offset + 0x04) iwtf_gv_summon_count
+    WRITE_LONG (iwtf_gv_effect_offset + 0x08) 0
+    WRITE_BYTE (iwtf_gv_effect_offset + 0x0c) 0
+    WRITE_BYTE (iwtf_gv_effect_offset + 0x0d) 3
+    WRITE_LONG (iwtf_gv_effect_offset + 0x0e) (60 * iwtf_gv_caster_level)
+    WRITE_BYTE (iwtf_gv_effect_offset + 0x12) 100
+    WRITE_BYTE (iwtf_gv_effect_offset + 0x13) 0
+    WRITE_ASCIIE (iwtf_gv_effect_offset + 0x14) ~%iwtf_gv_summon_table%~ #8
+    WRITE_LONG (iwtf_gv_effect_offset + 0x1c) 0
+    WRITE_LONG (iwtf_gv_effect_offset + 0x20) 0
+    WRITE_LONG (iwtf_gv_effect_offset + 0x24) 0
+    WRITE_LONG (iwtf_gv_effect_offset + 0x28) 0
+    WRITE_LONG (iwtf_gv_effect_offset + 0x2c) 0
+  END
+
+  PATCH_IF (iwtf_gv_balanced_mode = 1) BEGIN
+    SAY UNIDENTIFIED_DESC @94
+  END ELSE BEGIN
+    SAY UNIDENTIFIED_DESC @85
+  END
+BUT_ONLY

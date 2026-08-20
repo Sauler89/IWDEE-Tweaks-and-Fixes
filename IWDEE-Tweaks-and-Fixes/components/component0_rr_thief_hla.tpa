@@ -1,0 +1,439 @@
+// ----------------------------------------------------------------------
+// Optional Rogue Rebalancing Thief HLA Revisions for IWDEE
+//
+// This is an IWDEE-specific integration of Rogue Rebalancing's Thief HLA
+// revision. RR-derived assets/strings are licensed separately under
+// CC BY-NC-SA 3.0; see THIRD_PARTY.md and third_party/rogue_rebalancing.
+// ----------------------------------------------------------------------
+
+// Only the one STATE.IDS composite used by RR's Alchemy helper is needed.
+// Do not launch RR#AFIX: its unrelated fixes are intentionally outside scope.
+APPEND ~STATE.IDS~ ~0x80101FEF CD_STATE_NOTVALID~ UNLESS ~CD_STATE_NOTVALID~
+
+// Mod-owned marker for the RR HLA subcomponent. Besides making the installed
+// variant easy to detect, this allows REQUIRE_PREDICATE to distinguish our own
+// RR#THL01.SPL from an unrelated pre-existing RR installation on re-install.
+COPY_EXISTING ~SW1H01.ITM~ ~override/IWRRHL01.ITM~
+  WRITE_ASCII 0x08 ~~ #8
+BUT_ONLY
+
+// Patch one Epic Thieving Exploding Trap payload while preserving its tiered
+// damage/radius and any later third-party effects. The caller validates that
+// the payload has exactly one Wing Buffet (235) and one knockdown (39) effect.
+DEFINE_ACTION_FUNCTION IWTF_RR_PATCH_EPIC_EXPLODING
+  INT_VAR
+    iwtf_rr_epic_save = 0
+  STR_VAR
+    iwtf_rr_epic_res = ~~
+BEGIN
+  COPY_EXISTING ~%iwtf_rr_epic_res%.SPL~ ~override~
+    // Remove only protections previously inserted by this compatibility layer.
+    LPF DELETE_EFFECT
+      INT_VAR silent = 1 check_globals = 0 check_headers = 1 match_opcode = 324 match_parameter1 = 146 match_parameter2 = 104
+      STR_VAR match_resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+    LPF DELETE_EFFECT
+      INT_VAR silent = 1 check_globals = 0 check_headers = 1 match_opcode = 324 match_parameter1 = 142 match_parameter2 = 104
+      STR_VAR match_resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+    LPF DELETE_EFFECT
+      INT_VAR silent = 1 check_globals = 0 check_headers = 1 match_opcode = 324 match_parameter1 = 182 match_parameter2 = 105
+      STR_VAR match_resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+    LPF DELETE_EFFECT
+      INT_VAR silent = 1 check_globals = 0 check_headers = 1 match_opcode = 324 match_parameter1 = 184 match_parameter2 = 105
+      STR_VAR match_resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+
+    // RR: a successful Save vs. Breath avoids knockback/knockdown. Keep Epic
+    // Thieving's tiered penalty and all other fields unchanged.
+    LPF ALTER_EFFECT
+      INT_VAR check_globals = 0 check_headers = 1 match_opcode = 235 savingthrow = 2 savebonus = iwtf_rr_epic_save
+    END
+    LPF ALTER_EFFECT
+      INT_VAR check_globals = 0 check_headers = 1 match_opcode = 39 savingthrow = 2 savebonus = iwtf_rr_epic_save
+    END
+
+    // RR's EE exclusions for exceptionally large/heavy creatures. Each clone
+    // is inserted immediately above Wing Buffet, after Epic's damage and any
+    // preceding compatibility effects have already resolved.
+    LPF CLONE_EFFECT
+      INT_VAR silent = 1 multi_match = 1 check_globals = 0 check_headers = 1
+              match_opcode = 235 opcode = 324 target = 2 parameter1 = 146 parameter2 = 104
+              timing = 0 resist_dispel = 0 duration = 1 savingthrow = 0 savebonus = 0 special = 0
+      STR_VAR insert = above resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+    LPF CLONE_EFFECT
+      INT_VAR silent = 1 multi_match = 1 check_globals = 0 check_headers = 1
+              match_opcode = 235 opcode = 324 target = 2 parameter1 = 142 parameter2 = 104
+              timing = 0 resist_dispel = 0 duration = 1 savingthrow = 0 savebonus = 0 special = 0
+      STR_VAR insert = above resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+    LPF CLONE_EFFECT
+      INT_VAR silent = 1 multi_match = 1 check_globals = 0 check_headers = 1
+              match_opcode = 235 opcode = 324 target = 2 parameter1 = 182 parameter2 = 105
+              timing = 0 resist_dispel = 0 duration = 1 savingthrow = 0 savebonus = 0 special = 0
+      STR_VAR insert = above resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+    LPF CLONE_EFFECT
+      INT_VAR silent = 1 multi_match = 1 check_globals = 0 check_headers = 1
+              match_opcode = 235 opcode = 324 target = 2 parameter1 = 184 parameter2 = 105
+              timing = 0 resist_dispel = 0 duration = 1 savingthrow = 0 savebonus = 0 special = 0
+      STR_VAR insert = above resource = EVAL ~%iwtf_rr_epic_res%~
+    END
+  BUT_ONLY
+END
+
+// ----------------------------------------------------------------------
+// Discover the HLA tables actually used by Thieves and Thief kits.
+// This avoids RR's old fixed list and preserves modded kit-specific tables.
+// Stock and ZS Shadowdancer routes are left alone, matching RR's normal
+// non-Refinements behavior while preserving other kits that borrow Shadow HLAs.
+// ----------------------------------------------------------------------
+
+ACTION_CLEAR_ARRAY iwtf_rr_routes
+COPY_EXISTING ~LUABBR.2DA~ ~override~
+  COUNT_2DA_COLS iwtf_rr_luabbr_cols
+  COUNT_2DA_ROWS iwtf_rr_luabbr_cols iwtf_rr_luabbr_rows
+  FOR (iwtf_rr_row = 0; iwtf_rr_row < iwtf_rr_luabbr_rows; ++iwtf_rr_row) BEGIN
+    READ_2DA_ENTRY iwtf_rr_row 0 iwtf_rr_luabbr_cols iwtf_rr_kit
+    READ_2DA_ENTRY iwtf_rr_row 1 iwtf_rr_luabbr_cols iwtf_rr_abbr
+    PATCH_IF (~%iwtf_rr_kit%~ STRING_COMPARE_CASE ~*~) AND
+             (~%iwtf_rr_abbr%~ STRING_COMPARE_CASE ~*~) BEGIN
+      DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_routes BEGIN
+        ~%iwtf_rr_kit%~ => ~%iwtf_rr_abbr%~
+      END
+    END
+  END
+BUT_ONLY
+
+ACTION_CLEAR_ARRAY iwtf_rr_thief_kits
+ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_thief_kits BEGIN
+  THIEF              => 0
+  FIGHTER_THIEF      => 0
+  MAGE_THIEF         => 0
+  CLERIC_THIEF       => 0
+  FIGHTER_MAGE_THIEF => 0
+END
+
+// IWDEE KITLIST CLASS=4 is Thief. Add every installed Thief kit dynamically.
+COPY_EXISTING ~KITLIST.2DA~ ~override~
+  COUNT_2DA_COLS iwtf_rr_kit_cols
+  PATCH_IF (iwtf_rr_kit_cols >= 9) BEGIN
+    COUNT_2DA_ROWS iwtf_rr_kit_cols iwtf_rr_kit_rows
+    FOR (iwtf_rr_kit_row = 1; iwtf_rr_kit_row < iwtf_rr_kit_rows; ++iwtf_rr_kit_row) BEGIN
+      READ_2DA_ENTRY iwtf_rr_kit_row 8 iwtf_rr_kit_cols iwtf_rr_class
+      PATCH_IF IS_AN_INT iwtf_rr_class BEGIN
+        PATCH_IF (iwtf_rr_class = 4) BEGIN
+          READ_2DA_ENTRY iwtf_rr_kit_row 1 iwtf_rr_kit_cols iwtf_rr_kit_name
+          PATCH_IF (~%iwtf_rr_kit_name%~ STRING_COMPARE_CASE ~*~) BEGIN
+            DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_thief_kits BEGIN
+              ~%iwtf_rr_kit_name%~ => 0
+            END
+          END
+        END
+      END
+    END
+  END
+BUT_ONLY
+
+// Seed RR's original non-Refinements Thief/multiclass table coverage explicitly.
+// Dynamic KITLIST/LUABBR discovery below then adds modded kit-specific tables.
+// This is important for multiclass routes such as FIGHTER_MAGE_THIEF, which are
+// LUABBR class routes rather than KITLIST entries and therefore must not depend
+// on kit discovery alone.
+ACTION_CLEAR_ARRAY iwtf_rr_tables
+ACTION_CLEAR_ARRAY iwtf_rr_swash_tables
+ACTION_FOR_EACH iwtf_rr_core_abbr IN Th0 Th1 Th2 Th3 FT0 MT0 CT0 FMT BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~LU%iwtf_rr_core_abbr%.2DA~ BEGIN
+    ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_tables BEGIN
+      ~%iwtf_rr_core_abbr%~ => 0
+    END
+  END
+END
+ACTION_IF FILE_EXISTS_IN_GAME ~LUTh1.2DA~ BEGIN
+  ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_swash_tables BEGIN
+    ~Th1~ => 0
+  END
+END
+ACTION_PHP_EACH iwtf_rr_routes AS iwtf_rr_route_kit => iwtf_rr_route_abbr BEGIN
+  ACTION_IF VARIABLE_IS_SET $iwtf_rr_thief_kits(~%iwtf_rr_route_kit%~) BEGIN
+    OUTER_SPRINT iwtf_rr_table ~LU%iwtf_rr_route_abbr%.2DA~
+    ACTION_IF FILE_EXISTS_IN_GAME ~%iwtf_rr_table%~ BEGIN
+      // RR's normal non-Refinements block deliberately omits Shadowdancer.
+      // Preserve both IWDEE's stock Shadowdancer and ZS Shadowdancer's custom
+      // HLA design. Other kits (including Artisan Trickster, which may borrow
+      // individual Shadowdancer HLAs) remain eligible for exact vanilla-HLA
+      // substitutions.
+      ACTION_IF NOT ((~%iwtf_rr_route_kit%~ STRING_EQUAL_CASE ~SHADOWDANCER~) OR
+                     (~%iwtf_rr_route_kit%~ STRING_EQUAL_CASE ~ZS_SHADOWDANCER~)) BEGIN
+        ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_tables BEGIN
+          ~%iwtf_rr_route_abbr%~ => 0
+        END
+        ACTION_IF (~%iwtf_rr_route_kit%~ STRING_EQUAL_CASE ~SWASHBUCKLER~) BEGIN
+          ACTION_DEFINE_ASSOCIATIVE_ARRAY iwtf_rr_swash_tables BEGIN
+            ~%iwtf_rr_route_abbr%~ => 0
+          END
+        END
+      END
+    END
+  END
+END
+
+ACTION_PHP_EACH iwtf_rr_tables AS iwtf_rr_abbr => iwtf_rr_unused BEGIN
+  OUTER_SET iwtf_rr_is_swash = 0
+  ACTION_IF VARIABLE_IS_SET $iwtf_rr_swash_tables(~%iwtf_rr_abbr%~) BEGIN
+    OUTER_SET iwtf_rr_is_swash = 1
+  END
+
+  COPY_EXISTING ~LU%iwtf_rr_abbr%.2DA~ ~override~
+    COUNT_2DA_COLS iwtf_rr_cols
+    PATCH_IF (iwtf_rr_cols >= 9) BEGIN
+      READ_2DA_ENTRIES_NOW ~iwtf_rr_hla_rows~ iwtf_rr_cols
+      FOR (iwtf_rr_hla_row = 0; iwtf_rr_hla_row < iwtf_rr_hla_rows; ++iwtf_rr_hla_row) BEGIN
+        READ_2DA_ENTRY_FORMER ~iwtf_rr_hla_rows~ iwtf_rr_hla_row 1 iwtf_rr_ability
+        READ_2DA_ENTRY_FORMER ~iwtf_rr_hla_rows~ iwtf_rr_hla_row 7 iwtf_rr_prereq
+        READ_2DA_ENTRY_FORMER ~iwtf_rr_hla_rows~ iwtf_rr_hla_row 8 iwtf_rr_excluded
+        SPRINT iwtf_rr_new_ability ~~
+        SPRINT iwtf_rr_new_prereq ~%iwtf_rr_prereq%~
+        SPRINT iwtf_rr_new_excluded ~%iwtf_rr_excluded%~
+
+        PATCH_IF (~%iwtf_rr_ability%~ STRING_EQUAL_CASE ~GA_SPCL912~) BEGIN
+          SPRINT iwtf_rr_new_ability ~GA_RR#THL04~
+        END ELSE PATCH_IF (~%iwtf_rr_ability%~ STRING_EQUAL_CASE ~GA_SPCL913~) BEGIN
+          SPRINT iwtf_rr_new_ability ~GA_RR#THL02~
+        END ELSE PATCH_IF (~%iwtf_rr_ability%~ STRING_EQUAL_CASE ~GA_SPCL914~) BEGIN
+          SPRINT iwtf_rr_new_ability ~GA_RR#THL03~
+        END ELSE PATCH_IF (~%iwtf_rr_ability%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+          SPRINT iwtf_rr_new_ability ~GA_RR#ALCHT~
+        END ELSE PATCH_IF (~%iwtf_rr_ability%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+          PATCH_IF iwtf_rr_is_swash BEGIN
+            SPRINT iwtf_rr_new_ability ~GA_RR#THL05~
+            SPRINT iwtf_rr_new_prereq ~*~
+          END ELSE PATCH_IF (~%iwtf_rr_prereq%~ STRING_EQUAL_CASE ~AP_SPCL915~) BEGIN
+            SPRINT iwtf_rr_new_ability ~GA_RR#THL01~
+            SPRINT iwtf_rr_new_prereq ~GA_SPCL916~
+          END ELSE BEGIN
+            PATCH_WARN @96
+          END
+        END
+
+        // Preserve prerequisite/exclusion relationships when an exact vanilla
+        // HLA resref was replaced. This is narrower than REPLACE_TEXTUALLY.
+        PATCH_IF (~%iwtf_rr_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL912~) BEGIN
+          SPRINT iwtf_rr_new_prereq ~GA_RR#THL04~
+        END ELSE PATCH_IF (~%iwtf_rr_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL913~) BEGIN
+          SPRINT iwtf_rr_new_prereq ~GA_RR#THL02~
+        END ELSE PATCH_IF (~%iwtf_rr_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL914~) BEGIN
+          SPRINT iwtf_rr_new_prereq ~GA_RR#THL03~
+        END ELSE PATCH_IF (~%iwtf_rr_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+          SPRINT iwtf_rr_new_prereq ~GA_RR#ALCHT~
+        END
+
+        PATCH_IF (~%iwtf_rr_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL912~) BEGIN
+          SPRINT iwtf_rr_new_excluded ~GA_RR#THL04~
+        END ELSE PATCH_IF (~%iwtf_rr_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL913~) BEGIN
+          SPRINT iwtf_rr_new_excluded ~GA_RR#THL02~
+        END ELSE PATCH_IF (~%iwtf_rr_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL914~) BEGIN
+          SPRINT iwtf_rr_new_excluded ~GA_RR#THL03~
+        END ELSE PATCH_IF (~%iwtf_rr_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+          SPRINT iwtf_rr_new_excluded ~GA_RR#ALCHT~
+        END
+
+        PATCH_IF (STRING_LENGTH ~%iwtf_rr_new_ability%~ > 0) BEGIN
+          SET_2DA_ENTRY_LATER ~iwtf_rr_hla_out~ iwtf_rr_hla_row 1 ~%iwtf_rr_new_ability%~
+        END
+        PATCH_IF (~%iwtf_rr_new_prereq%~ STRING_COMPARE_CASE ~%iwtf_rr_prereq%~) BEGIN
+          SET_2DA_ENTRY_LATER ~iwtf_rr_hla_out~ iwtf_rr_hla_row 7 ~%iwtf_rr_new_prereq%~
+        END
+        PATCH_IF (~%iwtf_rr_new_excluded%~ STRING_COMPARE_CASE ~%iwtf_rr_excluded%~) BEGIN
+          SET_2DA_ENTRY_LATER ~iwtf_rr_hla_out~ iwtf_rr_hla_row 8 ~%iwtf_rr_new_excluded%~
+        END
+      END
+      SET_2DA_ENTRIES_NOW ~iwtf_rr_hla_out~ iwtf_rr_cols
+      PRETTY_PRINT_2DA
+    END ELSE BEGIN
+      PATCH_WARN @95
+    END
+  BUT_ONLY
+END
+
+// ----------------------------------------------------------------------
+// RR HLA resources. EE-specific conversions from the current RR master are
+// applied here; existing game resources are patched narrowly where possible.
+// ----------------------------------------------------------------------
+
+// Use Daulmakan's alternative BG2-style RR HLA icons (the artwork from RR's
+// optional "BG2-style icons for RR content" component) while keeping the same
+// RR resrefs expected by the SPLs.
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/bam/bg2s/RR#THL2B.BAM~ ~override/RR#THL2B.BAM~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL02.SPL~ ~override~
+  SAY NAME1 @8000 SAY NAME2 @8000
+  SAY UNIDENTIFIED_DESC @8001 SAY DESC @8001
+  LPF CLONE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 opcode = 321 parameter1 = 0 duration = 0 STR_VAR insert = first END
+  LPF DELETE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 END
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/bam/bg2s/RR#THL3B.BAM~ ~override/RR#THL3B.BAM~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL03.SPL~ ~override~
+  // RR's original BG2 file relies on a BG2 dialog.tlk name strref. Assign the
+  // name explicitly on IWDEE so it cannot resolve to an unrelated line.
+  SAY NAME1 @8006 SAY NAME2 @8006
+  SAY UNIDENTIFIED_DESC @8003 SAY DESC @8003
+  LPF ALTER_EFFECT
+    INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 match_parameter1 = 14094 parameter1 = RESOLVE_STR_REF (@8002)
+  END
+  LPF CLONE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 opcode = 321 parameter1 = 0 duration = 0 STR_VAR insert = first match_resource = RR#THL03 END
+  LPF DELETE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 STR_VAR match_resource = RR#THL03 END
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/bam/bg2s/RR#THL1B.BAM~ ~override/RR#THL1B.BAM~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL01.SPL~ ~override~
+  SAY NAME1 @8004 SAY NAME2 @8004
+  SAY UNIDENTIFIED_DESC @8005 SAY DESC @8005
+  LPF CLONE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 opcode = 321 parameter1 = 0 duration = 0 STR_VAR insert = first END
+  LPF DELETE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 END
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL1A.SPL~ ~override~
+  LPF ALTER_EFFECT
+    INT_VAR check_globals = 0 check_headers = 1 match_opcode = 139 match_parameter1 = 14042 parameter1 = RESOLVE_STR_REF (@716)
+  END
+  LPF ALTER_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 177 match_parameter2 = 3 opcode = 324 parameter2 = 103 END
+  LPF ALTER_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 177 match_parameter2 = 4 opcode = 324 parameter2 = 104 END
+  LPF CLONE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 opcode = 321 parameter1 = 0 duration = 0 STR_VAR insert = first END
+  LPF DELETE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 END
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL1A.EFF~ ~override~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/bam/bg2s/RR#THL4B.BAM~ ~override/RR#THL4B.BAM~
+     ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/bam/RR#TRPAC.BAM~ ~override~
+     ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/vvc/RR#TRPAC.VVC~ ~override~
+     ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/vvc/RR#THL04.VVC~ ~override~
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL04.SPL~ ~override~
+  SAY NAME1 @8010 SAY NAME2 @8010
+  SAY UNIDENTIFIED_DESC @8011 SAY DESC @8011
+
+ADD_PROJECTILE ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/pro/RR#THL4B.PRO~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL4B.SPL~ ~override~
+  LPF ALTER_SPELL_HEADER INT_VAR projectile = RR#THL4B END
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL4B.EFF~ ~override~
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/bam/bg2s/RR#THL5B.BAM~ ~override/RR#THL5B.BAM~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL05.SPL~ ~override~
+  SAY NAME1 @8012 SAY NAME2 @8012
+  SAY UNIDENTIFIED_DESC @8013 SAY DESC @8013
+  LPF CLONE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 opcode = 321 parameter1 = 0 duration = 0 STR_VAR insert = first END
+  LPF DELETE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 206 END
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/items/RR#INV.ITM~ ~override~
+     ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#ALCH.EFF~ ~override~
+
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/actors/RR#ALCH.CRE~ ~override~
+  // RR#ALCH.CRE carries a BG2 dialog.tlk name strref; in IWDEE that strref
+  // resolves to an unrelated string ("Fiery Pandemonium"). Give the invisible
+  // Alchemy dialogue helper an explicit cross-game-safe display name instead.
+  SAY NAME1 @8101 SAY NAME2 @8101
+
+COMPILE ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#ALCH.D~
+        ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/compile/RR#ALCH.BAF~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#ALCHT.SPL~ ~override~
+  // Same cross-game strref safeguard as RR Evasion: RR calls this HLA Alchemy.
+  SAY NAME1 @8101 SAY NAME2 @8101
+  SAY UNIDENTIFIED_DESC @8100 SAY DESC @8100
+
+// ----------------------------------------------------------------------
+// Epic Thieving component #200 replaces the stock Spike/Exploding/Time Trap
+// shells with a Set Traps-scaling trap system. Its SPCL910 becomes Set Death
+// Trap and SPCL911 becomes a dispatcher for MESTE03S-MESTE06S. Those changes
+// are conceptually incompatible with RR's Spike/Exploding Trap rewrites.
+// Detect the installed structure rather than relying on a TP2/component number:
+// preserve Epic's Death/Exploding Trap design, while Time Trap is still replaced
+// by RR Acid Trap through the HLA-table substitution above.
+// ----------------------------------------------------------------------
+
+OUTER_SET iwtf_rr_epic_trap_setting = 0
+ACTION_IF FILE_EXISTS_IN_GAME ~MESTE03S.SPL~ BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~MESTE06S.SPL~ BEGIN
+    ACTION_IF RESOURCE_CONTAINS ~SPCL911.SPL~ ~MESTE03S~ BEGIN
+      ACTION_IF RESOURCE_CONTAINS ~SPCL911.SPL~ ~MESTE06S~ BEGIN
+        ACTION_IF RESOURCE_CONTAINS ~SPCL910.SPL~ ~MESTS03S~ BEGIN
+          OUTER_SET iwtf_rr_epic_trap_setting = 1
+        END
+      END
+    END
+  END
+END
+
+ACTION_IF iwtf_rr_epic_trap_setting BEGIN
+  // Epic Thieving's Exploding Trap is a Set Traps-scaled dispatcher. Keep its
+  // tiered damage, save penalty, projectile/radius, visuals, and any later
+  // third-party effects, but make the secondary knockback/knockdown obey RR's
+  // successful-save avoidance and large/heavy-creature exclusions.
+  OUTER_SET iwtf_rr_epic_patchable = 1
+  ACTION_FOR_EACH iwtf_rr_epic_res IN MESTE03 MESTE04 MESTE05 MESTE06 BEGIN
+    ACTION_IF NOT FILE_EXISTS_IN_GAME ~%iwtf_rr_epic_res%.SPL~ BEGIN
+      OUTER_SET iwtf_rr_epic_patchable = 0
+    END ELSE BEGIN
+      OUTER_SET iwtf_rr_epic_wing_count = 0
+      OUTER_SET iwtf_rr_epic_down_count = 0
+      COPY_EXISTING ~%iwtf_rr_epic_res%.SPL~ ~override~
+        READ_LONG 0x64 iwtf_rr_epic_abil_off
+        READ_SHORT 0x68 iwtf_rr_epic_abil_num
+        READ_LONG 0x6a iwtf_rr_epic_fx_off
+        FOR (iwtf_rr_epic_abil = 0; iwtf_rr_epic_abil < iwtf_rr_epic_abil_num; ++iwtf_rr_epic_abil) BEGIN
+          READ_SHORT (iwtf_rr_epic_abil_off + 0x1e + (0x28 * iwtf_rr_epic_abil)) iwtf_rr_epic_fx_num
+          READ_SHORT (iwtf_rr_epic_abil_off + 0x20 + (0x28 * iwtf_rr_epic_abil)) iwtf_rr_epic_fx_idx
+          FOR (iwtf_rr_epic_fx = 0; iwtf_rr_epic_fx < iwtf_rr_epic_fx_num; ++iwtf_rr_epic_fx) BEGIN
+            SET iwtf_rr_epic_fx_pos = iwtf_rr_epic_fx_off + (0x30 * (iwtf_rr_epic_fx_idx + iwtf_rr_epic_fx))
+            READ_SHORT iwtf_rr_epic_fx_pos iwtf_rr_epic_opcode
+            PATCH_IF (iwtf_rr_epic_opcode = 235) BEGIN
+              SET iwtf_rr_epic_wing_count += 1
+            END ELSE PATCH_IF (iwtf_rr_epic_opcode = 39) BEGIN
+              SET iwtf_rr_epic_down_count += 1
+            END
+          END
+        END
+      BUT_ONLY
+      ACTION_IF (iwtf_rr_epic_wing_count != 1) OR (iwtf_rr_epic_down_count != 1) BEGIN
+        OUTER_SET iwtf_rr_epic_patchable = 0
+      END
+    END
+  END
+
+  ACTION_IF iwtf_rr_epic_patchable BEGIN
+    LAF IWTF_RR_PATCH_EPIC_EXPLODING INT_VAR iwtf_rr_epic_save = 0     STR_VAR iwtf_rr_epic_res = ~MESTE03~ END
+    LAF IWTF_RR_PATCH_EPIC_EXPLODING INT_VAR iwtf_rr_epic_save = 0 - 1 STR_VAR iwtf_rr_epic_res = ~MESTE04~ END
+    LAF IWTF_RR_PATCH_EPIC_EXPLODING INT_VAR iwtf_rr_epic_save = 0 - 2 STR_VAR iwtf_rr_epic_res = ~MESTE05~ END
+    LAF IWTF_RR_PATCH_EPIC_EXPLODING INT_VAR iwtf_rr_epic_save = 0 - 3 STR_VAR iwtf_rr_epic_res = ~MESTE06~ END
+
+    COPY_EXISTING ~SPCL911.SPL~ ~override~
+      SAY UNIDENTIFIED_DESC @98 SAY DESC @98
+    BUT_ONLY
+    PRINT @97
+  END ELSE BEGIN
+    PRINT @99
+  END
+END ELSE BEGIN
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/bam/RR#TRPEX.BAM~ ~override~
+     ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/vvc/RR#TRPEX.VVC~ ~override~
+     ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL6A.EFF~ ~override~
+     ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL6B.EFF~ ~override~
+ADD_PROJECTILE ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/pro/RR#TRPEX.PRO~
+COPY ~IWDEE-Tweaks-and-Fixes/third_party/rogue_rebalancing/spells/RR#THL06.SPL~ ~override~
+  LPF ALTER_SPELL_HEADER INT_VAR projectile = RR#TRPEX END
+  LPF DELETE_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 177 STR_VAR match_resource = RR#THL6B END
+  LPF ALTER_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 177 match_parameter2 = 4 opcode = 324 parameter2 = 104 STR_VAR resource = RR#THL06 END
+  LPF ALTER_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 177 match_parameter2 = 5 opcode = 324 parameter2 = 105 STR_VAR resource = RR#THL06 END
+
+COPY_EXISTING ~SPCL911.SPL~ ~override~
+  SAY UNIDENTIFIED_DESC @8016 SAY DESC @8016
+  LPF ALTER_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 252 STR_VAR match_resource = ~SPCL911B~ resource = ~RR#THL06~ END
+  LPF ALTER_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 215 STR_VAR match_resource = ~SPSETSCD~ resource = ~RR#TRPEX~ END
+BUT_ONLY
+
+COPY_EXISTING ~SPCL910.SPL~ ~override~
+  SAY UNIDENTIFIED_DESC @8017 SAY DESC @8017
+BUT_ONLY
+COPY_EXISTING ~SPCL910B.SPL~ ~override~
+  WRITE_LONG 0x34 1
+  LPF ALTER_EFFECT INT_VAR check_globals = 0 check_headers = 1 match_opcode = 12 match_parameter2 = 4194304 parameter2 = 1048576 END
+BUT_ONLY
+END

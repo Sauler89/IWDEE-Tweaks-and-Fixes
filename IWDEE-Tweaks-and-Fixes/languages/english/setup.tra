@@ -1,3 +1,23 @@
+@14 = ~Enable BG2-style HLAs in IWDEE~
+@15 = ~Without Rogue Rebalancing Thief HLA Revisions~
+@16 = ~With Rogue Rebalancing Thief HLA Revisions~
+@17 = ~Rogue Rebalancing Thief HLA resources are already present. Do not install this variant on top of another installation of RR Thief HLA Revisions.~
+@18 = ~KITLIST.2DA or LUABBR.2DA is missing; the active Thief HLA tables cannot be discovered safely.~
+@19 = ~One or more core IWDEE Thief HLA resources required by the Rogue Rebalancing revision are missing.~
+@95 = ~WARNING: A discovered Thief HLA table did not contain the columns required for safe HLA patching and was left unchanged.~
+@96 = ~WARNING: Scribe Scrolls was found in a Thief HLA table with a nonstandard prerequisite. It was preserved rather than forcing Crippling Strike over another mod's design.~
+@97 = ~Epic Thieving-style Set Traps scaling was detected. Set Death Trap and the tiered Exploding Trap damage/radius progression are preserved; Exploding Trap receives Rogue Rebalancing-compatible secondary-effect saves and large/heavy-creature exclusions, while the remaining RR Thief HLA revisions (including Time Trap -> Acid Trap) are applied.~
+@98 = ~Set Exploding Trap
+
+With this ability, the character can set a deadly trap that explodes when an enemy comes near. The trap grows more powerful with the character's Set Traps skill and can only be triggered by enemies. A successful Save vs. Breath reduces the fire damage by half and avoids the knockback/knockdown effects. Exceptionally large or heavy creatures (Dragons, Giants, Stone and Iron Golems) are immune to the knockback/knockdown effects but still take fire damage.
+  Set Traps 0-149: Deals 10d6 fire damage to all enemies within 15 feet (Save vs. Breath for half).
+  Set Traps 150-199: Deals 12d6 fire damage to all enemies within 20 feet (Save vs. Breath at -1 for half).
+  Set Traps 200-249: Deals 14d6 fire damage to all enemies within 25 feet (Save vs. Breath at -2 for half).
+  Set Traps 250 and above: Deals 16d6 fire damage to all enemies within 30 feet (Save vs. Breath at -3 for half).
+
+Although the radius of the explosion grows as the trap gets more powerful, the proximity needed to trigger the trap does not change.~
+@99 = ~WARNING: Epic Thieving-style Exploding Trap resources were detected, but their installed secondary-effect structure did not match the supported one-Wing-Buffet/one-knockdown layout. The Set Traps scaling resources were preserved without forcing the RR secondary-effect compatibility patch.~
+
 @0 = ~Enable BG2-style HLAs in IWDEE (standalone Infinity UI++ support)~
 @1 = ~This component is only for Icewind Dale: Enhanced Edition.~
 @2 = ~Infinity UI++ must be installed first.~
@@ -46,6 +66,9 @@
 @56 = ~#BARD7.SPL already exists. Another mod appears to provide an Enhanced Bard Song selector; do not install two implementations.~
 @57 = ~Enhanced Bard Song~
 @58 = ~Enhanced Bard Song: Selects Enhanced Bard Song as the active Bard Song.~
+@59 = ~A Revised Bard Song Mechanics wrapper was detected, but its song-payload marker could not be identified safely.~
+@60 = ~Revised Bard Song Mechanics was detected, but no already-transformed Bard Song wrapper could be found to use as a structural template.~
+@61 = ~The EFF resource used by the detected Revised Bard Song Mechanics wrapper is missing.~
 @62 = ~Enhanced Skald Song~
 @63 = ~Enhanced Skald Song: Selects the Skills and Abilities Enhanced Skald Song as the active Bard Song.~
 @64 = ~WARNING: Skills and Abilities component #131 was detected, but its Enhanced Skald Song resources did not match the supported selector structure. The standard Enhanced Bard Song changes were installed, but the separate Skald selector was skipped. Skills and Abilities resources and song effects were not modified.~
@@ -60,3 +83,117 @@
 @77 = ~A Bard Song resource referenced by one of IWDEE's classic selectors is missing.~
 @78 = ~Revised Bard Song Mechanics was detected, but C0SINGI2 does not contain a usable song-cleanup entry to clone safely.~
 @79 = ~An internal IWDEE classic Bard Song selector could not be mapped to its song index.~
+
+@80 = ~Rework Giant Insect as IWD2-Style Giant Vermin~
+@81 = ~SPPR418.SPL is missing; Giant Insect cannot be reworked safely.~
+@82 = ~BEETLEG.CRE is missing; the Fire Beetle and base Beetle tiers cannot be built from native IWDEE resources.~
+@83 = ~GNSUMMM.BCS is missing; the reworked beetles cannot use IWDEE's normal summoned-creature AI.~
+@84 = ~One or more bundled Giant Vermin summoning tables is missing. Re-extract the complete mod package and try again.~
+@85 = ~Level: 4
+Sphere: Animal, Summoning
+Range: Sight of Caster
+Duration: 10 rounds/level
+Casting Time: 7
+Area of Effect: Special
+Saving Throw: None
+
+This spell summons a small insect to the caster, then enlarges it to giant size, creating a fearsome ally. The strength and kind of insect varies according to the caster's level: a Fire Beetle at levels 7-8, a Beetle at levels 9-10, a Bombardier Beetle at levels 11-12, a Boring Beetle at levels 13-14, and a Rhinoceros Beetle at level 15 and above. Only one beetle is summoned.~
+@86 = ~SPPR418.SPL has no usable ability header from which to preserve its current casting configuration.~
+@87 = ~A native IWDEE beetle creature does not contain a usable equipped natural weapon. The Giant Vermin creature could not be built safely.~
+@88 = ~GISBOMB.CRE is missing; the Bombardier Beetle tier cannot be built from IWDEE's summoned beetle resource.~
+@89 = ~GISBORB.CRE is missing; the Boring Beetle tier cannot be built from IWDEE's summoned beetle resource.~
+@90 = ~BEETRHIN.CRE is missing; the Rhinoceros Beetle tier cannot be built from native IWDEE resources.~
+@92 = ~IWDEE-Balanced Progression (Recommended): multiple lesser beetles, one Rhinoceros Beetle~
+@93 = ~IWD2-Faithful Progression: one beetle at every caster level~
+@94 = ~Level: 4
+Sphere: Animal, Summoning
+Range: Sight of Caster
+Duration: 10 rounds/level
+Casting Time: 7
+Area of Effect: Special
+Saving Throw: None
+
+This spell summons small insects to the caster, then enlarges them to giant size, creating fearsome allies. Their number, strength, and kind vary according to the caster's level: two Fire Beetles at levels 7-8, three Beetles at levels 9-10, two Bombardier Beetles at levels 11-12, two Boring Beetles at levels 13-14, and one Rhinoceros Beetle at level 15 and above.~
+
+
+// Rogue Rebalancing-derived Thief HLA strings (CC BY-NC-SA 3.0; see THIRD_PARTY.md)
+@716 = ~Crippled~
+@8000 = ~Danger Sense~
+@8001 = ~Danger Sense
+
+By studying his surroundings intently, an experienced Thief can predict the actions of his opponents through cunning insight and extraordinary perception. Any potentially hostile actions are perceived in advance, giving the Thief enough time to react appropriately. This uncanny sense for impending danger almost borders on precognition and grants the Thief a +5 bonus to his armor class and all saving throws for 5 rounds after this ability is activated. Furthermore, as the Thief cannot be surprised nor caught off guard while using this ability, he is not susceptible to backstab attacks until the duration expires.~
+
+@8002 = ~Evades effects~
+@8006 = ~Evasion~
+@8003 = ~Evasion
+
+Thieves of exceptional skill can avoid damage from energy discharges, such as breath weapons, fireball spells and the like through a combination of superior reflexes and extraordinary agility. Through nearly superhuman effort, a Thief can position himself out of harm's way mere seconds before an energy discharge reaches him. After activating this ability the Thief can evade the effects of the following spells: Burning Hands, Fireball, Lightning Bolt, Call Lightning, Flame Strike, Cone of Cold, Sunfire, Chain Lightning, Delayed Blast Fireball and all forms of Dragon's Breath. The Evasion ability expires after five rounds.
+
+Requires: Danger Sense~
+
+@8004 = ~Crippling Strike~
+@8005 = ~Crippling Strike
+
+An experienced Thief can use the knowledge of his opponent's weak spots to gain an advantage in combat. During the round when this ability is activated, every attack of the Thief deals maximum damage and may weaken his target. On each successful hit the victim must make a saving throw vs. death (with a -4 penalty) or have its strength score lowered to 10 for the next five rounds. Note: Constructs, Elementals, Slimes and Undead creatures are completely unaffected by this ability.
+
+Requires: Assassination~
+
+@8010 = ~Set Acid Trap~
+@8011 = ~Set Acid Trap
+
+This ability allows the rogue to set a powerful trap that splashes nearby opponents with a highly vitriolic alchemical mixture which deals 10d6 points of acid damage. Once the acid engulfs a target it becomes difficult to remove. Afflicted opponents must make a saving throw vs. breath or take an additional 2d6 points of acid damage during each of the following three rounds. Creatures who are particularly vulnerable to acid damage (such as Trolls) do not get a saving throw.~
+
+@8012 = ~Insightful Strike~
+@8013 = ~Insightful Strike
+
+An experienced Swashbuckler can use the knowledge of his opponent's weak spots to gain an advantage in combat. During the round when this ability is activated, the Swashbuckler receives a +5 bonus to his critical hit rolls and deals maximum damage with each attack.~
+
+@8014 = ~Avoid Death
+
+With a superhuman effort, a high-level rogue can avoid almost certain death. The effect lasts for 5 rounds and during this time the rogue's save vs. death receives a bonus of 5, hit points are increased by 20 and the rogue becomes immune to death magic for the duration of the ability.
+
+Requires: Danger Sense~
+
+@8016 = ~Set Exploding Trap
+
+By mixing unstable alchemical compounds together, a rogue can set a trap which unleashes a powerful explosion when triggered. The force of the blast causes 15d6 points of fire damage and may knock nearby opponents off their feet. Enemies may attempt to save vs. breath in order to reduce the damage by half and avoid being knocked down. Exceptionally large or heavy creatures (Dragons, Giants, Stone and Iron Golems) cannot be knocked down.~
+
+@8017 = ~Set Spike Trap
+
+This ability allows the rogue to set a powerful spring-loaded spike trap that deals 20d6 points of piercing damage to the unsuspecting creature that sets it off.~
+
+@8101 = ~Alchemy~
+@8100 = ~Alchemy
+
+With cleverness innate to the class, an experienced thief has seen enough potions in his or her adventuring career to simulate the creation of one. However, the costs for any raw materials that are used in the process must be paid. This ability allows a thief to brew one of the potions from the following list:
+
+1) Potion of Master Thievery
+2) Potion of Perception
+3) Potion of Invisibility
+4) Potion of Defense
+5) Potion of Superior Healing
+6) Elixir of Health
+7) Oil of Speed
+8) Oil of Fiery Burning
+9) Potion of Frost Giant Strength, only usable by thieves or bards
+
+Note: brewing potions is a delicate task which can only be undertaken in safe (non-hostile) areas.~
+
+@8120 = ~This ability cannot be used in a hostile environment~
+@8121 = ~(With cleverness innate to the class, an experienced rogue has seen enough potions in his or her adventuring career to simulate the creation of one. However, the costs for any raw materials that are used in the process must be paid.)~
+@8122 = ~(This ability allows a rogue to brew one of the potions from the following list:)~
+@8123 = ~(Due to his advanced alchemical knowledge, a Bounty Hunter can make three times as many potions as a regular rogue in one setting.)~
+@8130 = ~Potion of Master Thievery (200 gp)~
+@8131 = ~Potion of Perception (175 gp)~
+@8132 = ~Potion of Invisibility (125 gp)~
+@8133 = ~Potion of Defense (350 gp)~
+@8134 = ~Potion of Superior Healing (325 gp)~
+@8135 = ~Elixir of Health (125 gp)~
+@8136 = ~Oil of Speed (250 gp)~
+@8137 = ~Oil of Fiery Burning (250 gp)~
+@8138 = ~Potion of Frost Giant Strength (375 gp)~
+@8140 = ~Potion of Mind Focusing (250 gp)~
+@8141 = ~Potion of Clarity (350 gp)~
+@8142 = ~Potion of Regeneration (250 gp)~
+@8143 = ~Potion of Freedom (125 gp)~
+@8150 = ~(Do not brew any potions)~

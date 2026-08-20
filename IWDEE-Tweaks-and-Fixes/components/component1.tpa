@@ -141,12 +141,14 @@ COPY_EXISTING ~LUFMT.2DA~ ~override~
           SPRINT new_ability ~GA_SPWI921~
           SET improved_alacrity = 1
         END
-      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+      END ELSE PATCH_IF ((~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL918~) OR
+                     (~%old_ability%~ STRING_EQUAL_CASE ~GA_RR#ALCHT~)) BEGIN
         PATCH_IF (energy_blades == 0) BEGIN
           SPRINT new_ability ~GA_SPWI920~
           SET energy_blades = 1
         END
-      END ELSE PATCH_IF (~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+      END ELSE PATCH_IF ((~%old_ability%~ STRING_EQUAL_CASE ~GA_SPCL919~) OR
+                     (~%old_ability%~ STRING_EQUAL_CASE ~GA_RR#THL01~)) BEGIN
         PATCH_IF (comet == 0) BEGIN
           SPRINT new_ability ~GA_SPWI925~
           SET comet = 1

@@ -1,6 +1,32 @@
 IWDEE Tweaks and Fixes - Changelog
 ==================================
 
+v0.4-dev (unreleased)
+---------------------
+- Synced all v0.3b fixes into the v0.4 development branch: component #0 now includes the validated Bardic Wonders vanilla Bard/Paladin HLA routing repair in both the Standard and Rogue Rebalancing HLA variants, and component #5 mirrors Bardic Wonders' optional overhead Bard Song visual onto all six classic IWDEE songs when `C0BSNGEF.SPL` is present.
+- Added Rogue Rebalancing's Bard-specific Alchemy and full Scribe Scrolls implementations to the RR HLA variant, replacing only the vanilla Bard `SPCL918`/`SPCL919` HLA entries while preserving Bardic Wonders and other custom Bard HLAs.
+- Added structural compatibility with Epic Thieving's Epic Trap Setting: preserve Set Death Trap and the scaling Exploding Trap damage/radius tiers, add RR-compatible successful-save avoidance and large/heavy-creature exclusions to Exploding Trap's secondary knockback/knockdown effects, and still replace Time Trap with Acid Trap.
+- Added mutually exclusive component #0 choices for standard Thief HLAs or Rogue Rebalancing Thief HLA Revisions.
+- RR Thief HLA integration discovers active Thief HLA tables dynamically, preserves mod-added HLA entries, skips stock/ZS Shadowdancer routes, preserves A7 Sharpshooter's Missile Trap, and uses installed potion resources for RR Alchemy.
+- Component #1 recognizes RR Alchemy and Crippling Strike so the Fighter/Mage/Thief result matches the RR-recommended Triple-Class -> RR order semantics.
+- Synced the v0.4 development baseline with the stable v0.3a component #4 fixes, including Skills and Abilities #131 Enhanced Skald Song selector compatibility and the Curran Strongheart / Tymora portrait icon corrections.
+- Completed in-game validation of the integrated RR HLA variant: Acid Trap, Epic-compatible Exploding Trap, Alchemy, Crippling Strike, Danger Sense, Evasion, Insightful Strike, BG2-style RR icons, Fighter/Mage/Thief tables, A7 Sharpshooter preservation, and ZS Shadowdancer preservation.
+- Added mutually exclusive Giant Vermin installation choices: an IWDEE-balanced progression (recommended) summoning 2/3/2/2/1 beetles across the five caster-level tiers, and the IWD2-faithful one-beetle progression.
+- Made component #6 recover safely from the noncanonical SPPR418 layout produced by the earlier v0.4-dev test build by normalizing the retained casting-effect index after deleting old ability headers.
+- Fixed Giant Vermin summoning an immediate Fire Beetle at casting time zero and a second beetle on spell completion by retaining casting feature blocks at the start of SPPR418's feature table and placing level-scaled summon effects after them.
+- Fixed component #6 installation on IWDEE by using the native `BEETLEG.CRE` source for the Fire/Base Beetle tiers and applying IWDEE's Fire Beetle animation (`0xE210`) to the former; removed invalid `BEETFIRE.CRE` and `BEETLE.CRE` requirements.
+- Split component #6's native creature checks so a skipped installation now identifies the exact missing CRE resource.
+- Added optional mutually exclusive components #6/#7: Rework Giant Insect as IWD2-Style Giant Vermin.
+- Replaced the random 2-3 creature Giant Insect result with a configurable level-scaled progression: Fire at caster levels 7-8, Beetle at 9-10, Bombardier at 11-12, Boring at 13-14, and Rhinoceros at 15+.
+- Reconstructed the IWD2 summoned-creature combat profiles as native IWDEE V1.0 creatures without redistributing IWD2 game files.
+- Added dedicated natural weapons with the IWD2 damage dice while preserving species-specific IWDEE attack effects and behavior.
+- Implemented the IWD2 duration of 10 rounds per caster level with exact level-aware spell headers through level 50.
+- Preserved the installation's current Giant Insect icon, targeting, range, casting time, projectile, casting effects, and top-level spell metadata.
+- Dedicated summons award no XP, carry no gold, drop no loot, leave no corpse, use no death variables or dialogue, and count toward the normal summoning cap.
+- Updated the Giant Insect spell description to document the new progression.
+- Passed WeiDU 24900 structural installation and binary-resource validation; in-game validation remains pending.
+- Development work is isolated from the stable v0.3b `main` baseline.
+
 v0.3b
 -----
 - Added a Bardic Wonders HLA compatibility repair for IWDEE installations where Bardic Wonders Bard HLA rows are routed to the vanilla Paladin table: component #0 removes only the misplaced `C0BWHL*` rows from the vanilla Paladin table and restores the intended vanilla Bard HLA set without altering Bard kits.
