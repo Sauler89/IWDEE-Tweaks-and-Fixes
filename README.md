@@ -1,6 +1,6 @@
 # IWDEE Tweaks and Fixes
 
-**Version 0.3a**
+**Version 0.3b**
 
 A WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
@@ -38,6 +38,7 @@ The component:
 
 - enables the HLA interface already present in Infinity UI++;
 - applies the IWDEE HLA compatibility fixes used by the current setup;
+- repairs the Bardic Wonders vanilla-class HLA routing issue when detected, removing only misplaced `C0BWHL*` Bard HLA rows from the vanilla Paladin table and restoring them to the vanilla Bard table while leaving Bard kits unchanged;
 - removes redundant Tracking from Ranger/Ranger-kit HLA tables only when that class or kit already receives Tracking normally;
 - preserves shared HLA tables by cloning and rerouting only affected Ranger classes/kits;
 - recognizes native and compatible replacement Tracking resources used by modded installations.
@@ -109,18 +110,19 @@ The component:
 - preserves already-transformed songs instead of replacing their wrappers;
 - maintains Bardic Wonders' IWDEE selection state with `C0IWSONG` values 1-6;
 - registers the classic songs with `C0SINGI2` cleanup handling;
+- mirrors Bardic Wonders' optional overhead visual on all six classic songs when `C0BSNGEF.SPL` is present;
 - uses explicit 8-byte resref writes where required by SPL/EFF fields.
 
 **Requirement if installed:** Bardic Wonders' **Revised Bard Song Mechanics** must already be installed. Component #5 requires its runtime resources (`C0BARDX.SPL`, `C0BARDSX.SPL`, and `C0SINGI2.SPL`) and will not install without them.
 
-**Runtime validation:** all six classic IWDEE songs apply their intended effects, use the Bardic Wonders cooldown behavior, remain active while the Bard attacks or casts, switch correctly between songs, and interoperate with `C0IWSONG` / `C0SINGI2` state and cleanup handling.
+**Runtime validation:** all six classic IWDEE songs apply their intended effects, use the Bardic Wonders cooldown behavior, remain active while the Bard attacks or casts, switch correctly between songs, and interoperate with `C0IWSONG` / `C0SINGI2` state and cleanup handling. With Bardic Wonders' optional overhead-visual component installed, all six classic songs also display the same overhead visual used by supported Bardic Wonders songs.
 
 ## Recommended install order
 
 1. Install Infinity UI++.
 2. Install Ranger/Bard kits and class-overhaul mods whose final resources should be detected.
 3. Install Bard/class/song mods that should modify the base Bard Song resources before the compatibility layer.
-4. If you plan to use component #5, install Bardic Wonders **Revised Bard Song Mechanics**.
+4. Install Bardic Wonders components you plan to use before the corresponding compatibility fix: its HLA overhaul before IWDEE Tweaks and Fixes #0, and Revised Bard Song Mechanics / optional Bard Song Overhead Visual Effect before #5.
 5. Install IWDEE Tweaks and Fixes **#0**.
 6. Optionally install **#1**.
 7. If used, install Skills and Abilities **#710** and **#720**; skip **#730**.
@@ -131,7 +133,7 @@ The component:
 
 - **Infinity UI++:** required (install early)
 - **Skills and Abilities:** optional. Components that add new abilities and update existing abilities are supported. Component #4 can add a selector for #131's Enhanced Skald Song when #131 is installed first, without changing its song effects. Not compatible with component **"Add HLAs to IWDEE (Lefreut UI Required)"**
-- **Bardic Wonders:** completely optional for the mod as a whole. It is required only if you choose component #5, which extends Bardic Wonders' installed **Revised Bard Song Mechanics** to the six classic IWDEE songs.
+- **Bardic Wonders:** completely optional for the mod as a whole. Component #0 contains a targeted repair for the tested IWDEE vanilla Bard/Paladin HLA routing issue when Bardic Wonders' HLA rows are already present. Bardic Wonders is required only if you choose component #5, which extends its installed **Revised Bard Song Mechanics** to the six classic IWDEE songs and also mirrors its optional overhead visual when that resource is installed.
 - **Tweaks Anthology:** not compatible with component that expand HLA triple-class table. An XP-cap removal such as #2090 is recommended for component #1.
 - **Sword Coast Stratagems:** SCS #4115 not compatible with component #2.
 

@@ -1,6 +1,12 @@
 IWDEE Tweaks and Fixes - Changelog
 ==================================
 
+v0.3b
+-----
+- Added a Bardic Wonders HLA compatibility repair for IWDEE installations where Bardic Wonders Bard HLA rows are routed to the vanilla Paladin table: component #0 removes only the misplaced `C0BWHL*` rows from the vanilla Paladin table and restores the intended vanilla Bard HLA set without altering Bard kits.
+- Extended Bardic Wonders' optional Bard Song overhead visual to the six classic IWDEE selectable songs when `C0BSNGEF.SPL` is present.
+- Both fixes were validated in game: vanilla Paladin no longer receives Bard HLAs, vanilla Bard receives the correct Bardic Wonders HLAs, kitted Bards remain unchanged, and all six classic songs display the overhead visual.
+
 v0.3a
 -----
 - Added component #4 compatibility for Skills and Abilities component #131's separate Enhanced Skald Song: a dedicated `IWTFSK7.SPL` selector is built from resources already installed by S&A.

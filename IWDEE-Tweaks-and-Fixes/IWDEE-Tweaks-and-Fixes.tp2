@@ -1,5 +1,5 @@
 /*************************************************************************/
-// IWDEE Tweaks and Fixes v0.3a
+// IWDEE Tweaks and Fixes v0.3b
 //
 // Component 0: Enable BG2-style HLAs in IWDEE
 // Component 1: Expanded Triple-Class HLA Tables
@@ -14,7 +14,7 @@
 
 BACKUP ~IWDEE-Tweaks-and-Fixes/backup~
 AUTHOR ~Sauler~
-VERSION ~v0.3a~
+VERSION ~v0.3b~
 
 LANGUAGE ~English~
          ~english~
@@ -28,6 +28,7 @@ REQUIRE_PREDICATE FILE_EXISTS ~IWDEE-Tweaks-and-Fixes/2da/LUNUMAB-IWDEE.2DA~ @4
 REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~SW1H01.ITM~ @5
 REQUIRE_PREDICATE !(MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~730~) @8
 INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component0.tpa~
+INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component0_bw_hla_fix.tpa~
 
 BEGIN @20 DESIGNATED 1
 REQUIRE_PREDICATE (GAME_IS ~iwdee~) @1

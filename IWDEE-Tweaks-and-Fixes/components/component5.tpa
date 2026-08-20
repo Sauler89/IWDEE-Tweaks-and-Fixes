@@ -232,4 +232,19 @@ ACTION_PHP_EACH iwtf_classic_song_payload AS iwtf_song_selector => iwtf_song_pay
       END
     BUT_ONLY
   END
+
+  // Bardic Wonders' optional overhead-visual component only patches songs
+  // it can identify through its original opcode-142 filter. The six classic
+  // IWDEE song resources do not pass that filter, so mirror BW's exact visual
+  // effect here after the Revised Bard Song shell has been built. C0BSNGEF
+  // exists only when the upstream overhead-visual component has supplied it.
+  ACTION_IF FILE_EXISTS_IN_GAME ~C0BSNGEF.SPL~ AND
+            !(RESOURCE_CONTAINS ~%iwtf_song_target%.SPL~ ~C0BSNGEF~) BEGIN
+    COPY_EXISTING ~%iwtf_song_target%.SPL~ ~override~
+      LPF ADD_SPELL_EFFECT
+        INT_VAR opcode = 326 target = 1 parameter1 = 0 parameter2 = 0 timing = 10
+        STR_VAR resource = ~C0BSNGEF~
+      END
+    BUT_ONLY
+  END
 END

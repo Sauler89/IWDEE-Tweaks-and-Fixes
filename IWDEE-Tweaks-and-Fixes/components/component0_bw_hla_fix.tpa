@@ -1,0 +1,167 @@
+// ----------------------------------------------------------------------
+// Bardic Wonders HLA compatibility
+// ----------------------------------------------------------------------
+// On some IWDEE installations, Bardic Wonders' HLA overhaul can leave its
+// C0BWHL* rows in the vanilla Paladin HLA table while the vanilla Bard misses
+// them. Bard kits are already routed correctly by Bardic Wonders and must not
+// be touched here.
+//
+// Repair only the unmistakable Bardic Wonders rows when that exact symptom is
+// detected. This keeps unrelated Paladin HLA content intact, restores the
+// intended vanilla Bard HLA set, and is reinstall-safe because every added
+// ability is checked for duplication.
+
+DEFINE_PATCH_FUNCTION IWTF_ADD_HLA_ROW_IF_MISSING
+  STR_VAR
+    row_label = ~1~
+    ability = ~*~
+    icon = ~*~
+    strref = ~*~
+    min_lev = ~1~
+    max_level = ~99~
+    num_allowed = ~1~
+    prerequisite = ~*~
+    excluded_by = ~*~
+    alignment_restrict = ~*~
+BEGIN
+  COUNT_2DA_COLS iwtf_bw_hla_cols
+  PATCH_IF ((iwtf_bw_hla_cols = 9) OR (iwtf_bw_hla_cols = 10)) BEGIN
+    COUNT_2DA_ROWS iwtf_bw_hla_cols iwtf_bw_hla_rows
+    READ_2DA_ENTRIES_NOW iwtf_bw_hla_file iwtf_bw_hla_cols
+    SET iwtf_bw_hla_found = 0
+    SET iwtf_bw_hla_empty_found = 0
+    SET iwtf_bw_hla_first_empty = iwtf_bw_hla_rows
+
+    FOR (iwtf_bw_hla_i = 0; iwtf_bw_hla_i < iwtf_bw_hla_file; ++iwtf_bw_hla_i) BEGIN
+      READ_2DA_ENTRY_FORMER iwtf_bw_hla_file iwtf_bw_hla_i 1 iwtf_bw_hla_value
+      PATCH_IF (~%iwtf_bw_hla_value%~ STRING_EQUAL_CASE ~%ability%~) BEGIN
+        SET iwtf_bw_hla_found = 1
+      END
+
+      PATCH_IF (iwtf_bw_hla_empty_found = 0) BEGIN
+        SET iwtf_bw_hla_empty_cols = 0
+        FOR (iwtf_bw_hla_j = 0; iwtf_bw_hla_j < iwtf_bw_hla_cols; ++iwtf_bw_hla_j) BEGIN
+          READ_2DA_ENTRY_FORMER iwtf_bw_hla_file iwtf_bw_hla_i iwtf_bw_hla_j iwtf_bw_hla_cell
+          PATCH_IF (~%iwtf_bw_hla_cell%~ STRING_EQUAL ~*~) BEGIN
+            SET iwtf_bw_hla_empty_cols += 1
+          END
+        END
+        PATCH_IF (iwtf_bw_hla_empty_cols = (iwtf_bw_hla_cols - 1)) BEGIN
+          SET iwtf_bw_hla_first_empty = iwtf_bw_hla_i
+          SET iwtf_bw_hla_empty_found = 1
+        END
+      END
+    END
+
+    PATCH_IF (iwtf_bw_hla_found = 0) BEGIN
+      PATCH_IF (iwtf_bw_hla_cols = 9) BEGIN
+        INSERT_2DA_ROW iwtf_bw_hla_first_empty iwtf_bw_hla_cols ~%row_label% %ability% %icon% %strref% %min_lev% %max_level% %num_allowed% %prerequisite% %excluded_by%~
+      END ELSE BEGIN
+        INSERT_2DA_ROW iwtf_bw_hla_first_empty iwtf_bw_hla_cols ~%row_label% %ability% %icon% %strref% %min_lev% %max_level% %num_allowed% %prerequisite% %excluded_by% %alignment_restrict%~
+      END
+    END
+    PRETTY_PRINT_2DA
+  END
+END
+
+OUTER_SPRINT iwtf_bw_bard_hla_abbr ~~
+OUTER_SPRINT iwtf_bw_paladin_hla_abbr ~~
+ACTION_PHP_EACH iwtf_hla_routes AS iwtf_bw_route_kit => iwtf_bw_route_abbr BEGIN
+  ACTION_IF (~%iwtf_bw_route_kit%~ STRING_EQUAL_CASE ~BARD~) BEGIN
+    OUTER_SPRINT iwtf_bw_bard_hla_abbr ~%iwtf_bw_route_abbr%~
+  END ELSE ACTION_IF (~%iwtf_bw_route_kit%~ STRING_EQUAL_CASE ~PALADIN~) BEGIN
+    OUTER_SPRINT iwtf_bw_paladin_hla_abbr ~%iwtf_bw_route_abbr%~
+  END
+END
+
+ACTION_IF (STRING_LENGTH ~%iwtf_bw_bard_hla_abbr%~ > 0) AND
+          (STRING_LENGTH ~%iwtf_bw_paladin_hla_abbr%~ > 0) AND
+          FILE_EXISTS_IN_GAME ~LU%iwtf_bw_bard_hla_abbr%.2DA~ AND
+          FILE_EXISTS_IN_GAME ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ AND
+          RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~C0BWHL~ BEGIN
+
+  OUTER_SET iwtf_bw_has_hl3 = 0
+  OUTER_SET iwtf_bw_has_hl4 = 0
+  OUTER_SET iwtf_bw_has_hl5 = 0
+  OUTER_SET iwtf_bw_has_hl7 = 0
+  OUTER_SET iwtf_bw_has_hl1 = 0
+  OUTER_SET iwtf_bw_has_hl2 = 0
+  OUTER_SET iwtf_bw_has_hl6 = 0
+  OUTER_SET iwtf_bw_has_hl8 = 0
+  OUTER_SET iwtf_bw_has_hl9 = 0
+  OUTER_SET iwtf_bw_has_hl0 = 0
+
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~GA_C0BWHL3~ BEGIN OUTER_SET iwtf_bw_has_hl3 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~GA_C0BWHL4~ BEGIN OUTER_SET iwtf_bw_has_hl4 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~GA_C0BWHL5~ BEGIN OUTER_SET iwtf_bw_has_hl5 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~AP_C0BWHL7~ BEGIN OUTER_SET iwtf_bw_has_hl7 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~AP_C0BWHL1~ BEGIN OUTER_SET iwtf_bw_has_hl1 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~GA_C0BWHL2~ BEGIN OUTER_SET iwtf_bw_has_hl2 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~GA_C0BWHL6~ BEGIN OUTER_SET iwtf_bw_has_hl6 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~AP_C0BWHL8~ BEGIN OUTER_SET iwtf_bw_has_hl8 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~AP_C0BWHL9~ BEGIN OUTER_SET iwtf_bw_has_hl9 = 1 END
+  ACTION_IF RESOURCE_CONTAINS ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~AP_C0BWHL0~ BEGIN OUTER_SET iwtf_bw_has_hl0 = 1 END
+
+  // Remove only Bardic Wonders HLA rows from the incorrectly targeted
+  // vanilla Paladin table. All native/third-party Paladin rows are preserved.
+  COPY_EXISTING ~LU%iwtf_bw_paladin_hla_abbr%.2DA~ ~override~
+    COUNT_2DA_COLS iwtf_bw_pal_cols
+    PATCH_IF ((iwtf_bw_pal_cols = 9) OR (iwtf_bw_pal_cols = 10)) BEGIN
+      COUNT_2DA_ROWS iwtf_bw_pal_cols iwtf_bw_pal_rows
+      FOR (iwtf_bw_pal_row = 0; iwtf_bw_pal_row < iwtf_bw_pal_rows; ++iwtf_bw_pal_row) BEGIN
+        READ_2DA_ENTRY iwtf_bw_pal_row 1 iwtf_bw_pal_cols iwtf_bw_pal_ability
+        PATCH_IF (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~GA_C0BWHL3~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~GA_C0BWHL4~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~GA_C0BWHL5~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~AP_C0BWHL7~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~AP_C0BWHL1~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~GA_C0BWHL2~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~GA_C0BWHL6~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~AP_C0BWHL8~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~AP_C0BWHL9~) OR
+                 (~%iwtf_bw_pal_ability%~ STRING_EQUAL_CASE ~AP_C0BWHL0~) BEGIN
+          REMOVE_2DA_ROW iwtf_bw_pal_row iwtf_bw_pal_cols
+          SET iwtf_bw_pal_rows -= 1
+          SET iwtf_bw_pal_row -= 1
+        END
+      END
+      PRETTY_PRINT_2DA
+    END
+  BUT_ONLY
+
+  // Apply the vanilla-Bard portion of Bardic Wonders' HLA component exactly
+  // as intended. These are the same stock HLA removals used upstream.
+  COPY_EXISTING ~LU%iwtf_bw_bard_hla_abbr%.2DA~ ~override~
+    COUNT_2DA_COLS iwtf_bw_bard_cols
+    PATCH_IF ((iwtf_bw_bard_cols = 9) OR (iwtf_bw_bard_cols = 10)) BEGIN
+      COUNT_2DA_ROWS iwtf_bw_bard_cols iwtf_bw_bard_rows
+      FOR (iwtf_bw_bard_row = 0; iwtf_bw_bard_row < iwtf_bw_bard_rows; ++iwtf_bw_bard_row) BEGIN
+        READ_2DA_ENTRY iwtf_bw_bard_row 1 iwtf_bw_bard_cols iwtf_bw_bard_ability
+        PATCH_IF (~%iwtf_bw_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL910~) OR
+                 (~%iwtf_bw_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL911~) OR
+                 (~%iwtf_bw_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL912~) OR
+                 (~%iwtf_bw_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL913~) OR
+                 (~%iwtf_bw_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL914~) OR
+                 (~%iwtf_bw_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL917~) OR
+                 (~%iwtf_bw_bard_ability%~ STRING_EQUAL_CASE ~GA_SPCL921~) BEGIN
+          REMOVE_2DA_ROW iwtf_bw_bard_row iwtf_bw_bard_cols
+          SET iwtf_bw_bard_rows -= 1
+          SET iwtf_bw_bard_row -= 1
+        END
+      END
+    END
+
+    PATCH_IF iwtf_bw_has_hl3 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL3~ ability = ~GA_C0BWHL3~ num_allowed = ~3~ END END
+    PATCH_IF iwtf_bw_has_hl4 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL4~ ability = ~GA_C0BWHL4~ num_allowed = ~3~ END END
+    PATCH_IF iwtf_bw_has_hl5 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL5~ ability = ~GA_C0BWHL5~ num_allowed = ~3~ END END
+    PATCH_IF iwtf_bw_has_hl7 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL7~ ability = ~AP_C0BWHL7~ num_allowed = ~1~ END END
+    PATCH_IF iwtf_bw_has_hl1 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL1~ ability = ~AP_C0BWHL1~ num_allowed = ~1~ prerequisite = ~AP_C0BWHL7~ END END
+    PATCH_IF iwtf_bw_has_hl2 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL2~ ability = ~GA_C0BWHL2~ num_allowed = ~16~ END END
+    PATCH_IF iwtf_bw_has_hl6 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL6~ ability = ~GA_C0BWHL6~ num_allowed = ~1~ END END
+    PATCH_IF iwtf_bw_has_hl8 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL8~ ability = ~AP_C0BWHL8~ num_allowed = ~1~ END END
+    PATCH_IF iwtf_bw_has_hl9 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL9~ ability = ~AP_C0BWHL9~ num_allowed = ~1~ prerequisite = ~GA_C0BWHLA~ END END
+    PATCH_IF iwtf_bw_has_hl0 BEGIN LPF IWTF_ADD_HLA_ROW_IF_MISSING STR_VAR row_label = ~C0BWHL0~ ability = ~AP_C0BWHL0~ num_allowed = ~1~ prerequisite = ~GA_C0BWHLB~ END END
+
+    PRETTY_PRINT_2DA
+  BUT_ONLY
+END
