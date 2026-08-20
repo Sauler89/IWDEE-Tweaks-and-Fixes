@@ -214,7 +214,7 @@ ACTION_PHP_EACH iwtf_rr_tables AS iwtf_rr_abbr => iwtf_rr_unused BEGIN
             SPRINT iwtf_rr_new_ability ~GA_RR#THL01~
             SPRINT iwtf_rr_new_prereq ~GA_SPCL916~
           END ELSE BEGIN
-            PATCH_WARN @96
+            PATCH_PRINT ~Compatibility note: Scribe Scrolls with a custom prerequisite was preserved.~
           END
         END
 
