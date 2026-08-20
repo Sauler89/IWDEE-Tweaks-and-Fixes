@@ -81,7 +81,7 @@ The component:
 
 The classic-song icon corrections are validated in game: Curran Strongheart's War Chant uses **Resist Fear**, Tymora's Melody uses **Good Luck**, and the other classic songs retain the Bard Song note.
 
-Bardic Wonders and Skills and Abilities are not dependencies for component #4. Install Skills and Abilities #131 before component #4 if you want the separate Enhanced Skald Song selector. Component #4 intentionally does not modify S&A's Enhanced Skald Song bonuses; the incorrect singer bonuses reported against current S&A releases are an upstream S&A issue. If another implementation has already supplied `#BARD7.SPL`, this component stops rather than stacking two EBS selectors.
+Bardic Wonders and Skills and Abilities are not dependencies for component #4. Install Skills and Abilities #131 before component #4 if you want the separate Enhanced Skald Song selector.
 
 ### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs (Experimental)
 
