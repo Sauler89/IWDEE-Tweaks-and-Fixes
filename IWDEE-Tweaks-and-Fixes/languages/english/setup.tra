@@ -46,6 +46,9 @@
 @56 = ~#BARD7.SPL already exists. Another mod appears to provide an Enhanced Bard Song selector; do not install two implementations.~
 @57 = ~Enhanced Bard Song~
 @58 = ~Enhanced Bard Song: Selects Enhanced Bard Song as the active Bard Song.~
+@62 = ~Enhanced Skald Song~
+@63 = ~Enhanced Skald Song: Selects the Skills and Abilities Enhanced Skald Song as the active Bard Song.~
+@64 = ~WARNING: Skills and Abilities component #131 was detected, but its Enhanced Skald Song resources did not match the supported selector structure. The standard Enhanced Bard Song changes were installed, but the separate Skald selector was skipped. Skills and Abilities resources and song effects were not modified.~
 
 @70 = ~Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs~
 @71 = ~Bardic Wonders-style Revised Bard Song Mechanics runtime resources were not detected. Install Revised Bard Song Mechanics first before using this compatibility component.~

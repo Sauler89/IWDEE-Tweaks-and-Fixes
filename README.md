@@ -1,6 +1,6 @@
 # IWDEE Tweaks and Fixes
 
-**Version 0.3**
+**Version 0.3a**
 
 A WeiDU collection for **Icewind Dale: Enhanced Edition**, focused on compatibility fixes and convenience tweaks for modded installations, especially installations using **Infinity UI++**.
 
@@ -71,13 +71,17 @@ The component:
 - creates `IWTFBS7.SPL` from the current IWDEE selector structure;
 - grants the selector when Enhanced Bard Song is selected as an HLA;
 - removes only `SPCL920` spell immunities that block genuine Bard Song switchers;
+- recognizes Skills and Abilities #131's separate Enhanced Skald Song and creates a dedicated `IWTFSK7.SPL` selector without changing the S&A song payload or its gameplay effects;
+- replaces only the unchanged stock Curran Strongheart and Tymora's Melody portrait icons with IWDEE's native **Resist Fear** and **Good Luck** icons, while preserving icons already changed by other mods;
 - integrates dynamically with Bardic Wonders' Revised Bard Song Mechanics when those runtime resources are present;
 - preserves the Bardic Wonders cooldown/aura behavior instead of reverting EBS to a vanilla modal song;
 - registers EBS with the installed `C0IWSONG` / `C0SINGI2` state and cleanup behavior where applicable.
 
 **Runtime validation:** Enhanced Bard Song is selectable, switches correctly with the normal songs, keeps the Bardic Wonders cooldown behavior, remains active while the Bard attacks or casts, applies the real EBS effects, and displays the corresponding portrait status icons.
 
-Bardic Wonders is not a dependency for component #4. If another implementation has already supplied `#BARD7.SPL`, the component stops rather than stacking two EBS selectors.
+The classic-song icon corrections are validated in game: Curran Strongheart's War Chant uses **Resist Fear**, Tymora's Melody uses **Good Luck**, and the other classic songs retain the Bard Song note.
+
+Bardic Wonders and Skills and Abilities are not dependencies for component #4. Install Skills and Abilities #131 before component #4 if you want the separate Enhanced Skald Song selector. Component #4 intentionally does not modify S&A's Enhanced Skald Song bonuses; the incorrect singer bonuses reported against current S&A releases are an upstream S&A issue. If another implementation has already supplied `#BARD7.SPL`, this component stops rather than stacking two EBS selectors.
 
 ### 5. Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs (Experimental)
 
@@ -110,13 +114,13 @@ The component:
 5. Install IWDEE Tweaks and Fixes **#0**.
 6. Optionally install **#1**.
 7. If used, install Skills and Abilities **#710** and **#720**; skip **#730**.
-8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors.
+8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors, and after Skills and Abilities **#131** if its Enhanced Skald Song is used.
 9. Optionally install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics and after other tweaks to the six classic IWDEE songs.
 
 ## Compatibility notes
 
 - **Infinity UI++:** required (install early)
-- **Skills and Abilities:** optional. Components that add new abilities and update existing abilities are supported. Not compatible with component **"Add HLAs to IWDEE (Lefreut UI Required)"**
+- **Skills and Abilities:** optional. Components that add new abilities and update existing abilities are supported. Component #4 can add a selector for #131's Enhanced Skald Song when #131 is installed first, without changing its song effects. Not compatible with component **"Add HLAs to IWDEE (Lefreut UI Required)"**
 - **Bardic Wonders:** completely optional for the mod as a whole. It is required only if you choose component #5, which extends Bardic Wonders' installed **Revised Bard Song Mechanics** to the six classic IWDEE songs.
 - **Tweaks Anthology:** not compatible with component that expand HLA triple-class table. An XP-cap removal such as #2090 is recommended for component #1.
 - **Sword Coast Stratagems:** SCS #4115 not compatible with component #2.

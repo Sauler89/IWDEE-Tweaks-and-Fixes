@@ -293,3 +293,182 @@ COPY_EXISTING ~SPCL920.SPL~ ~override~
     STR_VAR resource = ~IWTFBS7~
   END
 BUT_ONLY
+
+// IWDEE assigns all six classic songs to frames of the same PI_BARD icon.
+// Preserve third-party icon changes, but replace the two unchanged stock
+// entries whose effects already have clear native portrait icons.
+OUTER_SET iwtf_curran_count = 0
+OUTER_SPRINT iwtf_curran_target ~~
+ACTION_IF FILE_EXISTS_IN_GAME ~#BARD2.SPL~ BEGIN
+  COPY_EXISTING ~#BARD2.SPL~ ~override~
+    READ_LONG 0x64 iwtf_curran_abil_off
+    READ_SHORT 0x68 iwtf_curran_abil_num
+    READ_LONG 0x6a iwtf_curran_fx_off
+    FOR (iwtf_curran_abil = 0; iwtf_curran_abil < iwtf_curran_abil_num; ++iwtf_curran_abil) BEGIN
+      READ_SHORT (iwtf_curran_abil_off + 0x1e + (0x28 * iwtf_curran_abil)) iwtf_curran_fx_num
+      READ_SHORT (iwtf_curran_abil_off + 0x20 + (0x28 * iwtf_curran_abil)) iwtf_curran_fx_idx
+      FOR (iwtf_curran_fx = 0; iwtf_curran_fx < iwtf_curran_fx_num; ++iwtf_curran_fx) BEGIN
+        SET iwtf_curran_fx_pos = iwtf_curran_fx_off + (0x30 * (iwtf_curran_fx_idx + iwtf_curran_fx))
+        READ_SHORT iwtf_curran_fx_pos iwtf_curran_opcode
+        PATCH_IF (iwtf_curran_opcode = 251) BEGIN
+          READ_ASCII (iwtf_curran_fx_pos + 0x14) iwtf_curran_song
+          PATCH_IF (STRING_LENGTH ~%iwtf_curran_song%~ > 0) BEGIN
+            SET iwtf_curran_count += 1
+            SPRINT iwtf_curran_target ~%iwtf_curran_song%~
+          END
+        END
+      END
+    END
+  BUT_ONLY
+END
+ACTION_IF (iwtf_curran_count = 1) AND FILE_EXISTS_IN_GAME ~%iwtf_curran_target%.SPL~ BEGIN
+  COPY_EXISTING ~%iwtf_curran_target%.SPL~ ~override~
+    LPF ALTER_EFFECT
+      INT_VAR silent = 1 match_opcode = 142 match_parameter2 = 178 parameter2 = 37
+    END
+  BUT_ONLY
+END
+
+OUTER_SET iwtf_tymora_count = 0
+OUTER_SPRINT iwtf_tymora_target ~~
+ACTION_IF FILE_EXISTS_IN_GAME ~#BARD3.SPL~ BEGIN
+  COPY_EXISTING ~#BARD3.SPL~ ~override~
+    READ_LONG 0x64 iwtf_tymora_abil_off
+    READ_SHORT 0x68 iwtf_tymora_abil_num
+    READ_LONG 0x6a iwtf_tymora_fx_off
+    FOR (iwtf_tymora_abil = 0; iwtf_tymora_abil < iwtf_tymora_abil_num; ++iwtf_tymora_abil) BEGIN
+      READ_SHORT (iwtf_tymora_abil_off + 0x1e + (0x28 * iwtf_tymora_abil)) iwtf_tymora_fx_num
+      READ_SHORT (iwtf_tymora_abil_off + 0x20 + (0x28 * iwtf_tymora_abil)) iwtf_tymora_fx_idx
+      FOR (iwtf_tymora_fx = 0; iwtf_tymora_fx < iwtf_tymora_fx_num; ++iwtf_tymora_fx) BEGIN
+        SET iwtf_tymora_fx_pos = iwtf_tymora_fx_off + (0x30 * (iwtf_tymora_fx_idx + iwtf_tymora_fx))
+        READ_SHORT iwtf_tymora_fx_pos iwtf_tymora_opcode
+        PATCH_IF (iwtf_tymora_opcode = 251) BEGIN
+          READ_ASCII (iwtf_tymora_fx_pos + 0x14) iwtf_tymora_song
+          PATCH_IF (STRING_LENGTH ~%iwtf_tymora_song%~ > 0) BEGIN
+            SET iwtf_tymora_count += 1
+            SPRINT iwtf_tymora_target ~%iwtf_tymora_song%~
+          END
+        END
+      END
+    END
+  BUT_ONLY
+END
+ACTION_IF (iwtf_tymora_count = 1) AND FILE_EXISTS_IN_GAME ~%iwtf_tymora_target%.SPL~ BEGIN
+  COPY_EXISTING ~%iwtf_tymora_target%.SPL~ ~override~
+    LPF ALTER_EFFECT
+      INT_VAR silent = 1 match_opcode = 142 match_parameter2 = 179 parameter2 = 32
+    END
+  BUT_ONLY
+END
+
+// Skills and Abilities component #131 grants Skalds a separate Enhanced Bard
+// Song HLA through MOSKLD01. Give that HLA its own switchable selector, but do
+// not alter the S&A song payload or any of its gameplay effects.
+ACTION_IF MOD_IS_INSTALLED ~skills-and-abilities/skills-and-abilities.tp2~ ~131~ BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~MOSKLD01.SPL~ BEGIN
+    ACTION_CLEAR_ARRAY iwtf_sa_skald_blocked_resources
+    OUTER_SET iwtf_sa_skald_target_count = 0
+    OUTER_SET iwtf_sa_skald_name = 0 - 1
+    OUTER_SET iwtf_sa_skald_desc = 0 - 1
+    OUTER_SPRINT iwtf_sa_skald_icon ~~
+    OUTER_SPRINT iwtf_sa_skald_target ~~
+
+    COPY_EXISTING ~MOSKLD01.SPL~ ~override~
+      READ_LONG 0x08 iwtf_sa_skald_name
+      READ_LONG 0x50 iwtf_sa_skald_desc
+      READ_ASCII 0x3a iwtf_sa_skald_icon
+      READ_LONG 0x64 iwtf_sa_skald_abil_off
+      READ_SHORT 0x68 iwtf_sa_skald_abil_num
+      READ_LONG 0x6a iwtf_sa_skald_fx_off
+      FOR (iwtf_sa_skald_abil = 0; iwtf_sa_skald_abil < iwtf_sa_skald_abil_num; ++iwtf_sa_skald_abil) BEGIN
+        READ_SHORT (iwtf_sa_skald_abil_off + 0x1e + (0x28 * iwtf_sa_skald_abil)) iwtf_sa_skald_fx_num
+        READ_SHORT (iwtf_sa_skald_abil_off + 0x20 + (0x28 * iwtf_sa_skald_abil)) iwtf_sa_skald_fx_idx
+        FOR (iwtf_sa_skald_fx = 0; iwtf_sa_skald_fx < iwtf_sa_skald_fx_num; ++iwtf_sa_skald_fx) BEGIN
+          SET iwtf_sa_skald_fx_pos = iwtf_sa_skald_fx_off + (0x30 * (iwtf_sa_skald_fx_idx + iwtf_sa_skald_fx))
+          READ_SHORT iwtf_sa_skald_fx_pos iwtf_sa_skald_opcode
+          PATCH_IF (iwtf_sa_skald_opcode = 251) BEGIN
+            READ_ASCII (iwtf_sa_skald_fx_pos + 0x14) iwtf_sa_skald_song
+            PATCH_IF (STRING_LENGTH ~%iwtf_sa_skald_song%~ > 0) BEGIN
+              SET iwtf_sa_skald_target_count += 1
+              SPRINT iwtf_sa_skald_target ~%iwtf_sa_skald_song%~
+            END
+          END ELSE PATCH_IF (iwtf_sa_skald_opcode = 206) BEGIN
+            READ_ASCII (iwtf_sa_skald_fx_pos + 0x14) iwtf_sa_skald_blocked_resource
+            PATCH_IF (STRING_LENGTH ~%iwtf_sa_skald_blocked_resource%~ > 0) BEGIN
+              DEFINE_ASSOCIATIVE_ARRAY iwtf_sa_skald_blocked_resources BEGIN
+                ~%iwtf_sa_skald_blocked_resource%~ => 0
+              END
+            END
+          END
+        END
+      END
+    BUT_ONLY
+
+    ACTION_IF (iwtf_sa_skald_target_count = 1) AND FILE_EXISTS_IN_GAME ~%iwtf_sa_skald_target%.SPL~ BEGIN
+      COPY_EXISTING ~#BARD1.SPL~ ~override/IWTFSK7.SPL~
+        PATCH_IF (iwtf_sa_skald_name >= 0) BEGIN
+          WRITE_LONG 0x08 iwtf_sa_skald_name
+        END ELSE BEGIN
+          SAY NAME1 @62
+        END
+        PATCH_IF (iwtf_sa_skald_desc >= 0) BEGIN
+          WRITE_LONG 0x50 iwtf_sa_skald_desc
+        END ELSE BEGIN
+          SAY UNIDENTIFIED_DESC @63
+        END
+        PATCH_IF (STRING_LENGTH ~%iwtf_sa_skald_icon%~ > 0) BEGIN
+          WRITE_ASCIIE 0x3a ~%iwtf_sa_skald_icon%~
+          LPF ALTER_SPELL_HEADER STR_VAR icon = EVAL ~%iwtf_sa_skald_icon%~ END
+        END
+        LPF ALTER_EFFECT
+          INT_VAR check_headers = 0
+          STR_VAR match_resource = ~#BARD1~ resource = ~IWTFSK7~
+        END
+        LPF ALTER_EFFECT
+          INT_VAR check_globals = 0 match_opcode = 251
+          STR_VAR resource = EVAL ~%iwtf_sa_skald_target%~
+        END
+
+      ACTION_PHP_EACH iwtf_sa_skald_blocked_resources AS iwtf_sa_blocked_res => iwtf_sa_unused BEGIN
+        OUTER_SET iwtf_sa_is_song_switcher = 0
+        ACTION_IF FILE_EXISTS_IN_GAME ~%iwtf_sa_blocked_res%.SPL~ BEGIN
+          COPY_EXISTING ~%iwtf_sa_blocked_res%.SPL~ ~override~
+            READ_LONG 0x64 iwtf_sa_switch_abil_off
+            READ_SHORT 0x68 iwtf_sa_switch_abil_num
+            READ_LONG 0x6a iwtf_sa_switch_fx_off
+            FOR (iwtf_sa_switch_abil = 0; iwtf_sa_switch_abil < iwtf_sa_switch_abil_num; ++iwtf_sa_switch_abil) BEGIN
+              READ_SHORT (iwtf_sa_switch_abil_off + 0x1e + (0x28 * iwtf_sa_switch_abil)) iwtf_sa_switch_fx_num
+              READ_SHORT (iwtf_sa_switch_abil_off + 0x20 + (0x28 * iwtf_sa_switch_abil)) iwtf_sa_switch_fx_idx
+              FOR (iwtf_sa_switch_fx = 0; iwtf_sa_switch_fx < iwtf_sa_switch_fx_num; ++iwtf_sa_switch_fx) BEGIN
+                SET iwtf_sa_switch_fx_pos = iwtf_sa_switch_fx_off + (0x30 * (iwtf_sa_switch_fx_idx + iwtf_sa_switch_fx))
+                READ_SHORT iwtf_sa_switch_fx_pos iwtf_sa_switch_opcode
+                PATCH_IF (iwtf_sa_switch_opcode = 251) BEGIN
+                  SET iwtf_sa_is_song_switcher = 1
+                END
+              END
+            END
+          BUT_ONLY
+        END
+        ACTION_IF iwtf_sa_is_song_switcher BEGIN
+          COPY_EXISTING ~MOSKLD01.SPL~ ~override~
+            LPF DELETE_EFFECT
+              INT_VAR silent = 1 match_opcode = 206
+              STR_VAR match_resource = EVAL ~%iwtf_sa_blocked_res%~
+            END
+          BUT_ONLY
+        END
+      END
+
+      COPY_EXISTING ~MOSKLD01.SPL~ ~override~
+        LPF ADD_SPELL_EFFECT
+          INT_VAR opcode = 171 target = 1 timing = 1 insert_point = 0
+          STR_VAR resource = ~IWTFSK7~
+        END
+      BUT_ONLY
+    END ELSE BEGIN
+      PRINT @64
+    END
+  END ELSE BEGIN
+    PRINT @64
+  END
+END
