@@ -72,3 +72,15 @@ Validated in game with all six classic songs, including switching, cooldown beha
 - Bardic Wonders is optional for the mod as a whole; it is required only for component #5.
 - Install component #4 after mods that alter Bard Song selectors or `SPCL920.SPL`.
 - See `CHANGELOG.txt` for version history and `THIRD_PARTY.md` for detailed credits and attribution.
+
+## Credits and attribution
+
+- **Skills and Abilities**, by Grammarsalad and morpheus562.
+- **Tweaks Anthology** / The Gibberlings Three.
+- **Sword Coast Stratagems**, by David Wallace.
+- **IWDification**, by CamDawg and DavidW.
+- **Bardic Wonders** / The Artisan's Corner.
+- **Infinity UI++**.
+- **WeiDU** and the Infinity Engine modding community.
+
+See `THIRD_PARTY.md` for detailed attribution and licensing information.
