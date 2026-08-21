@@ -1,0 +1,7 @@
+IF
+  Global("IWTFDYE_GIVEN","GLOBAL",0)
+THEN
+  RESPONSE #100
+    GiveItemCreate("IWTFDYE",Player1,1,0,0)
+    SetGlobal("IWTFDYE_GIVEN","GLOBAL",1)
+END
