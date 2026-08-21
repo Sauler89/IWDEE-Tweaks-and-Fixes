@@ -1,0 +1,121 @@
+// ----------------------------------------------------------------------
+// Rogue Rebalancing shared-HLA compatibility for the vanilla Shadowdancer.
+//
+// RR itself deliberately omits Shadowdancer from its normal non-Refinements
+// Thief-HLA block. ZS Shadowdancer Overhaul provides a separate compatibility
+// component for the *vanilla* Shadowdancer with the four substitutions below.
+// Mirror those substitutions here so the IWDEE RR variant is complete even
+// without ZS's optional compatibility component.
+//
+// Important: ZS_SHADOWDANCER is intentionally NOT patched. The overhaul uses
+// its own LUZSSD HLA design (Shadow Dance, Shadow Strike, etc.) and removes or
+// replaces the stock shared HLAs by design. Only the exact SHADOWDANCER route
+// is eligible here, so installing ZS Shadowdancer Overhaul remains safe.
+// ----------------------------------------------------------------------
+
+OUTER_SPRINT iwtf_rr_sd_abbr ~~
+OUTER_SPRINT iwtf_rr_zssd_abbr ~~
+
+// Discover the active HLA route instead of assuming LUTh4. This keeps the
+// compatibility layer safe if another mod has cloned/rerouted the vanilla
+// Shadowdancer table before this component is installed.
+COPY_EXISTING ~LUABBR.2DA~ ~override~
+  COUNT_2DA_COLS iwtf_rr_sd_luabbr_cols
+  COUNT_2DA_ROWS iwtf_rr_sd_luabbr_cols iwtf_rr_sd_luabbr_rows
+  FOR (iwtf_rr_sd_row = 0; iwtf_rr_sd_row < iwtf_rr_sd_luabbr_rows; ++iwtf_rr_sd_row) BEGIN
+    READ_2DA_ENTRY iwtf_rr_sd_row 0 iwtf_rr_sd_luabbr_cols iwtf_rr_sd_kit
+    READ_2DA_ENTRY iwtf_rr_sd_row 1 iwtf_rr_sd_luabbr_cols iwtf_rr_sd_route
+    PATCH_IF (~%iwtf_rr_sd_kit%~ STRING_EQUAL_CASE ~SHADOWDANCER~) BEGIN
+      SPRINT iwtf_rr_sd_abbr ~%iwtf_rr_sd_route%~
+    END ELSE PATCH_IF (~%iwtf_rr_sd_kit%~ STRING_EQUAL_CASE ~ZS_SHADOWDANCER~) BEGIN
+      SPRINT iwtf_rr_zssd_abbr ~%iwtf_rr_sd_route%~
+    END
+  END
+BUT_ONLY
+
+ACTION_IF (STRING_LENGTH ~%iwtf_rr_sd_abbr%~ > 0) BEGIN
+  OUTER_SPRINT iwtf_rr_sd_table ~LU%iwtf_rr_sd_abbr%.2DA~
+  OUTER_SET iwtf_rr_sd_patch = 1
+
+  // If a replacement kit ever reuses exactly the same table as the vanilla
+  // Shadowdancer, preserve that table rather than risking its custom HLA set.
+  ACTION_IF (STRING_LENGTH ~%iwtf_rr_zssd_abbr%~ > 0) AND
+            (~%iwtf_rr_sd_abbr%~ STRING_EQUAL_CASE ~%iwtf_rr_zssd_abbr%~) BEGIN
+    OUTER_SET iwtf_rr_sd_patch = 0
+  END
+
+  ACTION_IF iwtf_rr_sd_patch AND FILE_EXISTS_IN_GAME ~%iwtf_rr_sd_table%~ BEGIN
+    COPY_EXISTING ~%iwtf_rr_sd_table%~ ~override~
+      COUNT_2DA_COLS iwtf_rr_sd_cols
+      PATCH_IF (iwtf_rr_sd_cols >= 9) BEGIN
+        READ_2DA_ENTRIES_NOW ~iwtf_rr_sd_rows~ iwtf_rr_sd_cols
+        FOR (iwtf_rr_sd_hla_row = 0; iwtf_rr_sd_hla_row < iwtf_rr_sd_rows; ++iwtf_rr_sd_hla_row) BEGIN
+          READ_2DA_ENTRY_FORMER ~iwtf_rr_sd_rows~ iwtf_rr_sd_hla_row 1 iwtf_rr_sd_ability
+          READ_2DA_ENTRY_FORMER ~iwtf_rr_sd_rows~ iwtf_rr_sd_hla_row 7 iwtf_rr_sd_prereq
+          READ_2DA_ENTRY_FORMER ~iwtf_rr_sd_rows~ iwtf_rr_sd_hla_row 8 iwtf_rr_sd_excluded
+
+          SPRINT iwtf_rr_sd_new_ability ~%iwtf_rr_sd_ability%~
+          SPRINT iwtf_rr_sd_new_prereq ~%iwtf_rr_sd_prereq%~
+          SPRINT iwtf_rr_sd_new_excluded ~%iwtf_rr_sd_excluded%~
+          OUTER_SET iwtf_rr_sd_set_unlimited = 0
+
+          // Match ZS Shadowdancer Overhaul's component 5001 semantics for the
+          // vanilla Shadowdancer: Scribe -> Crippling Strike, Evasion -> Danger
+          // Sense, Greater Evasion -> RR Evasion, and Alchemy -> RR Alchemy.
+          PATCH_IF (~%iwtf_rr_sd_ability%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+            SPRINT iwtf_rr_sd_new_ability ~GA_RR#THL01~
+            SPRINT iwtf_rr_sd_new_prereq ~GA_SPCL916~
+            SET iwtf_rr_sd_set_unlimited = 1
+          END ELSE PATCH_IF (~%iwtf_rr_sd_ability%~ STRING_EQUAL_CASE ~GA_SPCL913~) BEGIN
+            SPRINT iwtf_rr_sd_new_ability ~GA_RR#THL02~
+            SET iwtf_rr_sd_set_unlimited = 1
+          END ELSE PATCH_IF (~%iwtf_rr_sd_ability%~ STRING_EQUAL_CASE ~GA_SPCL914~) BEGIN
+            SPRINT iwtf_rr_sd_new_ability ~GA_RR#THL03~
+            SPRINT iwtf_rr_sd_new_prereq ~GA_RR#THL02~
+            SET iwtf_rr_sd_set_unlimited = 1
+          END ELSE PATCH_IF (~%iwtf_rr_sd_ability%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+            SPRINT iwtf_rr_sd_new_ability ~GA_RR#ALCHT~
+            SET iwtf_rr_sd_set_unlimited = 1
+          END
+
+          // Keep dependency/exclusion links coherent when they point at one of
+          // the exact stock HLAs replaced above.
+          PATCH_IF (~%iwtf_rr_sd_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL913~) BEGIN
+            SPRINT iwtf_rr_sd_new_prereq ~GA_RR#THL02~
+          END ELSE PATCH_IF (~%iwtf_rr_sd_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL914~) BEGIN
+            SPRINT iwtf_rr_sd_new_prereq ~GA_RR#THL03~
+          END ELSE PATCH_IF (~%iwtf_rr_sd_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+            SPRINT iwtf_rr_sd_new_prereq ~GA_RR#ALCHT~
+          END ELSE PATCH_IF (~%iwtf_rr_sd_new_prereq%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+            SPRINT iwtf_rr_sd_new_prereq ~GA_RR#THL01~
+          END
+
+          PATCH_IF (~%iwtf_rr_sd_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL913~) BEGIN
+            SPRINT iwtf_rr_sd_new_excluded ~GA_RR#THL02~
+          END ELSE PATCH_IF (~%iwtf_rr_sd_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL914~) BEGIN
+            SPRINT iwtf_rr_sd_new_excluded ~GA_RR#THL03~
+          END ELSE PATCH_IF (~%iwtf_rr_sd_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL918~) BEGIN
+            SPRINT iwtf_rr_sd_new_excluded ~GA_RR#ALCHT~
+          END ELSE PATCH_IF (~%iwtf_rr_sd_new_excluded%~ STRING_EQUAL_CASE ~GA_SPCL919~) BEGIN
+            SPRINT iwtf_rr_sd_new_excluded ~GA_RR#THL01~
+          END
+
+          PATCH_IF (~%iwtf_rr_sd_new_ability%~ STRING_COMPARE_CASE ~%iwtf_rr_sd_ability%~) BEGIN
+            SET_2DA_ENTRY_LATER ~iwtf_rr_sd_out~ iwtf_rr_sd_hla_row 1 ~%iwtf_rr_sd_new_ability%~
+          END
+          PATCH_IF iwtf_rr_sd_set_unlimited BEGIN
+            SET_2DA_ENTRY_LATER ~iwtf_rr_sd_out~ iwtf_rr_sd_hla_row 6 ~99~
+          END
+          PATCH_IF (~%iwtf_rr_sd_new_prereq%~ STRING_COMPARE_CASE ~%iwtf_rr_sd_prereq%~) BEGIN
+            SET_2DA_ENTRY_LATER ~iwtf_rr_sd_out~ iwtf_rr_sd_hla_row 7 ~%iwtf_rr_sd_new_prereq%~
+          END
+          PATCH_IF (~%iwtf_rr_sd_new_excluded%~ STRING_COMPARE_CASE ~%iwtf_rr_sd_excluded%~) BEGIN
+            SET_2DA_ENTRY_LATER ~iwtf_rr_sd_out~ iwtf_rr_sd_hla_row 8 ~%iwtf_rr_sd_new_excluded%~
+          END
+        END
+        SET_2DA_ENTRIES_NOW ~iwtf_rr_sd_out~ iwtf_rr_sd_cols
+        PRETTY_PRINT_2DA
+      END
+    BUT_ONLY
+  END
+END
