@@ -1,6 +1,6 @@
 # IWDEE Tweaks and Fixes
 
-> **Rogue Rebalancing Thief HLA variant:** component #0 offers mutually exclusive Standard and Rogue Rebalancing Thief HLA choices. The RR choice dynamically patches active Thief/Thief-kit HLA tables, preserves mod-added HLA entries, leaves the stock Shadowdancer and ZS Shadowdancer HLA tables unchanged, and interoperates with Artisan Kitpack, A7 Sharpshooter, ZS Shadowdancer Overhaul, ZSTweaks potion revisions, Epic Thieving's trap-setting overhaul, and the mod's component #1. The integrated RR HLA set has completed in-game validation on IWDEE.
+> **Rogue Rebalancing Thief HLA variant:** component #0 offers mutually exclusive Standard and Rogue Rebalancing Thief HLA choices. The RR choice dynamically patches active Thief/Thief-kit HLA tables, preserves mod-added HLA entries, applies RR's shared-HLA substitutions to the vanilla Shadowdancer, preserves ZS Shadowdancer Overhaul's separate custom HLA table, and interoperates with Artisan Kitpack, A7 Sharpshooter, ZS Shadowdancer Overhaul, ZSTweaks potion revisions, Epic Thieving's trap-setting overhaul, and the mod's component #1. The integrated RR HLA set has completed in-game validation on IWDEE.
 
 **Development version 0.4-dev**
 
@@ -28,6 +28,10 @@ The component:
 **Requirements:** IWDEE and Infinity UI++ installed first.
 
 The optional **Rogue Rebalancing Thief HLA Revisions** variant replaces the compatible vanilla Thief HLA entries with RR's Danger Sense, Evasion, Crippling Strike/Insightful Strike, Acid Trap, and Alchemy revisions while preserving unrelated mod-added HLAs. If an Epic Thieving-style **Epic Trap Setting** structure is detected, its Set Death Trap and Set Traps-scaling Exploding Trap damage/radius progression are preserved rather than overwritten. The existing Epic Exploding Trap tiers receive RR-compatible secondary-effect behavior: a successful Save vs. Breath avoids knockback/knockdown, and exceptionally large/heavy creatures are excluded from those secondary effects. RR's separate Spike Trap rewrite remains skipped because Epic Thieving has replaced that HLA with Set Death Trap, while Time Trap is still replaced by Acid Trap.
+
+For the **vanilla Shadowdancer**, the RR variant mirrors the dedicated compatibility behavior used by ZS Shadowdancer Overhaul's optional RR compatibility component: vanilla Scribe Scrolls becomes **Crippling Strike**, vanilla Evasion becomes **Danger Sense**, Greater Evasion becomes RR **Evasion**, and vanilla Alchemy becomes RR **Alchemy**. The active vanilla Shadowdancer HLA route is discovered dynamically rather than assuming a fixed table name.
+
+If **ZS Shadowdancer Overhaul** is installed, its replacement `ZS_SHADOWDANCER` remains untouched. ZS uses its own `LUZSSD` HLA design and intentionally replaces/removes the shared vanilla HLAs with abilities such as Shadow Dance and Shadow Strike. The compatibility layer therefore patches only the exact vanilla `SHADOWDANCER` route and never the `ZS_SHADOWDANCER` route. This also remains safe if ZS's optional component #5001 has already applied the same vanilla-Shadowdancer RR substitutions.
 
 For Bards, the RR variant also replaces only the two vanilla shared HLAs: **Alchemy** uses RR's Bard-specific implementation and **Scribe Scrolls** uses RR's full spell-selection workflow. Other Bard and Bard-kit HLAs, including Bardic Wonders additions, are preserved.
 
@@ -145,10 +149,10 @@ The v0.3b vanilla Bard/Paladin HLA routing repair is also included in both v0.4 
 ## Recommended install order
 
 1. Install Infinity UI++.
-2. Install Ranger/Bard kits and class-overhaul mods whose final resources should be detected.
+2. Install Ranger/Bard/Thief kits and class-overhaul mods whose final resources should be detected, including ZS Shadowdancer Overhaul if used.
 3. Install Bard/class/song mods that should modify the base Bard Song resources before the compatibility layer.
 4. Install Bardic Wonders components you plan to use before the corresponding compatibility fix: its HLA overhaul before IWDEE Tweaks and Fixes #0, and Revised Bard Song Mechanics / optional Bard Song Overhead Visual Effect before #5.
-5. Install IWDEE Tweaks and Fixes **#0** (choose either Standard or Rogue Rebalancing Thief HLA Revisions).
+5. Install IWDEE Tweaks and Fixes **#0** (choose either Standard or Rogue Rebalancing Thief HLA Revisions). If ZS Shadowdancer Overhaul is present, its `ZS_SHADOWDANCER` HLA table is preserved while the disabled vanilla Shadowdancer route can still receive the RR shared-HLA compatibility substitutions.
 6. Optionally install **#1**.
 7. If used, install Skills and Abilities **#710** and **#720**; skip **#730**.
 8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors, and after Skills and Abilities **#131** if its Enhanced Skald Song is used.
@@ -159,13 +163,14 @@ The v0.3b vanilla Bard/Paladin HLA routing repair is also included in both v0.4 
 
 Development and compatibility testing was performed on IWDEE v2.7.3.0 with Infinity UI++ and, for the expanded HLA test setup, Skills and Abilities #710/#720.
 
-Stable v0.3b validation includes the Bardic Wonders vanilla Bard/Paladin HLA routing repair and the classic-song overhead visual fix. The integrated RR Thief HLA variant in v0.4-dev has also completed in-game validation; the newly added RR Bard shared-HLA layer still requires focused in-game verification of Bard Alchemy and Scribe Scrolls.
+Stable v0.3b validation includes the Bardic Wonders vanilla Bard/Paladin HLA routing repair and the classic-song overhead visual fix. The integrated RR Thief HLA variant in v0.4-dev has also completed in-game validation for the previously tested Thief/kit paths; the newly added vanilla-Shadowdancer shared-HLA compatibility layer still requires focused in-game verification. ZS Shadowdancer Overhaul's separate `ZS_SHADOWDANCER` HLA design is intentionally preserved rather than converted to RR HLAs.
 
 ## Compatibility notes
 
 - **Infinity UI++:** required before components #0 and #2.
 - **Skills and Abilities:** optional. #710/#720 are supported; skip #730 when using component #0. Component #4 can add a selector for #131's Enhanced Skald Song when #131 is installed first, without changing its song effects.
 - **Bardic Wonders:** completely optional for the mod as a whole. Component #0 contains the targeted v0.3b repair for the tested IWDEE vanilla Bard/Paladin HLA routing issue when Bardic Wonders' HLA rows are already present. Bardic Wonders is required only if you choose component #5, which extends its installed **Revised Bard Song Mechanics** to the six classic IWDEE songs and mirrors its optional overhead visual when that resource is installed.
+- **ZS Shadowdancer Overhaul:** supported. Install the overhaul before the RR variant so its replacement kit and HLA routing can be detected. The custom `ZS_SHADOWDANCER`/`LUZSSD` HLA set is preserved. The vanilla `SHADOWDANCER` route receives RR Danger Sense, Evasion, Crippling Strike and Alchemy substitutions equivalent to ZS's optional RR compatibility component #5001; installing that optional ZS component as well is therefore unnecessary for this IWDEE RR integration.
 - **Tweaks Anthology:** do not combine its #2340 with component #3. An XP-cap removal such as #2090 is recommended for component #1.
 - **Sword Coast Stratagems:** do not combine SCS #4115 with component #2.
 - **Spell revisions:** install Giant Vermin component #6 or #7 after other mods that alter Giant Insect or its beetles. The selected variant intentionally defines the final summon progression and spell description.
@@ -178,6 +183,7 @@ Stable v0.3b validation includes the Bardic Wonders vanilla Bard/Paladin HLA rou
 - IWDification, by CamDawg and DavidW.
 - Bardic Wonders / The Artisan's Corner.
 - Rogue Rebalancing, by aVENGER.
+- ZS Shadowdancer Overhaul, by szaumoor/Kaelyn, for the vanilla-Shadowdancer RR compatibility mapping used as a reference.
 - Infinity UI++.
 - WeiDU and the Infinity Engine modding community.
 - Icewind Dale II's Giant Vermin spell and summoned-beetle progression, used as a mechanical reference only.
