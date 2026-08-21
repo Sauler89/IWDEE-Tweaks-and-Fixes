@@ -88,9 +88,11 @@ function iwtfCanStealSelectedItems()
     end
 
     -- The engine intentionally disables its own button test for multiple
-    -- selections. Reuse the eligibility established by the preceding
-    -- one-item state and retain lefreut's inventory-capacity safeguard.
-    return iwtfStealNativeEligible == true and selectedUnits + #store.groupItems <= 16
+    -- selections. Reuse the eligibility established by the preceding one-item
+    -- state. Inventory capacity is based on selected store rows/stacks, not on
+    -- the number of units inside a stack (for example, 64 arrows still occupy
+    -- one store row here).
+    return iwtfStealNativeEligible == true and selectedRows + #store.groupItems <= 16
 end
 
 function iwtfStealSelectedItems()
