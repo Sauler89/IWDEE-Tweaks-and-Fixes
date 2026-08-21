@@ -24,17 +24,9 @@ BUT_ONLY
 // gradient (0..114) and each hidden character color range:
 //   0 metal/decorations, 3 skin, 4 leather, 5 armor, 6 hair.
 // Resource names are ID<range>_<color>, e.g. ID5_63.
-ACTION_DEFINE_ARRAY iwtf_dye_ranges BEGIN
-  0
-  3
-  4
-  5
-  6
-END
-
-OUTER_FOR (iwtf_dye_range_index = 0; iwtf_dye_range_index < 5; ++iwtf_dye_range_index) BEGIN
-  OUTER_SET iwtf_dye_range = $iwtf_dye_ranges(%iwtf_dye_range_index%)
-
+// ACTION_FOR_EACH is used deliberately here instead of indexed WeiDU arrays;
+// this keeps the numeric range value directly usable by SPL effect fields.
+ACTION_FOR_EACH iwtf_dye_range IN 0 3 4 5 6 BEGIN
   OUTER_FOR (iwtf_dye_color = 0; iwtf_dye_color < 115; ++iwtf_dye_color) BEGIN
     OUTER_SPRINT iwtf_dye_spell ~ID%iwtf_dye_range%_%iwtf_dye_color%~
 
