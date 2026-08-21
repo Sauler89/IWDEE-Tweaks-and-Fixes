@@ -136,6 +136,23 @@ The component:
 
 **Development status:** structural installation and binary-resource validation pass with WeiDU 24900. In-game validation is still required before this component is included in a stable release.
 
+### 9. Enable Store Stealing
+
+Restores the Enhanced Edition store-stealing workflow in IWDEE when using Infinity UI++.
+
+The component:
+- enables Infinity UI++'s existing **STEAL** controls for IWDEE while preserving the engine's normal one-item `IsStealItemButtonClickable()` checks;
+- enables the store-level `User allowed to steal` flag only on real retail `.STO` resources that contain merchandise, leaving taverns, inns, temples, bags and other non-retail stores unchanged;
+- preserves every store's existing **Stealing Difficulty** instead of normalizing it, so intentionally protected stores remain protected;
+- uses the engine's own eligibility result, so non-Thieves keep a disabled STEAL button while Thieves and compatible Thief kits, including mod-added kits, can use the feature normally;
+- supports selecting and stealing multiple different store entries in one action by processing them sequentially through the native `OnStealItemButtonClick()` path, one selected entry at a time;
+- supports selectable quantities from a single stack, such as ammunition or other stackable merchandise, while treating the selected stack as one inventory row for the capacity safeguard;
+- preserves the engine's normal success/failure handling and merchant consequences after a failed theft attempt.
+
+**Requirement:** Infinity UI++ must be installed first. For best compatibility with mod-added or replaced shops, install component #9 after mods that add or revise store `.STO` resources.
+
+**Runtime validation:** single-item stealing, multiple selected items, selectable stack quantities, non-Thief button disabling, pure Thieves, mod-added Thief kits, normal stealable stores, intentionally non-stealable stores with Stealing Difficulty 100, and the engine's failed-theft consequences have all been tested in game. No crashes were observed in the tested single-item, multi-item, and stack-quantity cases.
+
 ## v0.3 Bard Song fixes consolidated
 
 The final #4/#5 implementation incorporates the installation/runtime bugs identified during testing:
@@ -152,25 +169,27 @@ The v0.3b vanilla Bard/Paladin HLA routing repair is also included in both v0.4 
 2. Install Ranger/Bard/Thief kits and class-overhaul mods whose final resources should be detected, including ZS Shadowdancer Overhaul if used.
 3. Install Bard/class/song mods that should modify the base Bard Song resources before the compatibility layer.
 4. Install Bardic Wonders components you plan to use before the corresponding compatibility fix: its HLA overhaul before IWDEE Tweaks and Fixes #0, and Revised Bard Song Mechanics / optional Bard Song Overhead Visual Effect before #5.
-5. Install IWDEE Tweaks and Fixes **#0** (choose either Standard or Rogue Rebalancing Thief HLA Revisions). If ZS Shadowdancer Overhaul is present, its `ZS_SHADOWDANCER` HLA table is preserved while the disabled vanilla Shadowdancer route can still receive the RR shared-HLA compatibility substitutions.
+5. Install IWDEE Tweaks and Fixes **#0** (choose either Standard or Rogue Rebalancing Thief HLA Revisions). If ZS Shadowdancer Overhaul is present, its `ZS_SHADOWDANCER` HLA table is preserved while the vanilla Shadowdancer route receives the RR shared-HLA compatibility substitutions.
 6. Optionally install **#1**.
 7. If used, install Skills and Abilities **#710** and **#720**; skip **#730**.
 8. Install IWDEE Tweaks and Fixes **#4** after mods that change `SPCL920.SPL` or Bard Song selectors, and after Skills and Abilities **#131** if its Enhanced Skald Song is used.
 9. Optionally install IWDEE Tweaks and Fixes **#5** after Bardic Wonders Revised Bard Song Mechanics / Bard Song Overhead Visual Effect and after other tweaks to the six classic IWDEE songs.
 10. Optionally install one Giant Vermin variant, **#6 or #7**, after mods that revise `SPPR418.SPL` or the native IWDEE beetles, so it can preserve their final compatible resources while applying the IWD2 progression.
+11. Optionally install **#9 Enable Store Stealing** after Infinity UI++ and after mods that add or replace store `.STO` resources, so those shops are included in the final store-stealing pass.
 
 ## Tested configuration
 
 Development and compatibility testing was performed on IWDEE v2.7.3.0 with Infinity UI++ and, for the expanded HLA test setup, Skills and Abilities #710/#720.
 
-Stable v0.3b validation includes the Bardic Wonders vanilla Bard/Paladin HLA routing repair and the classic-song overhead visual fix. The integrated RR Thief HLA variant in v0.4-dev has also completed in-game validation for the previously tested Thief/kit paths; the newly added vanilla-Shadowdancer shared-HLA compatibility layer still requires focused in-game verification. ZS Shadowdancer Overhaul's separate `ZS_SHADOWDANCER` HLA design is intentionally preserved rather than converted to RR HLAs.
+Stable v0.3b validation includes the Bardic Wonders vanilla Bard/Paladin HLA routing repair and the classic-song overhead visual fix. The integrated RR Thief HLA variant in v0.4-dev has completed in-game validation for the tested Thief/kit paths. The dedicated vanilla-Shadowdancer RR route has also been verified, while ZS Shadowdancer Overhaul's separate `ZS_SHADOWDANCER`/`LUZSSD` HLA design remains preserved. Component #9 has been validated in game with Infinity UI++ for single and multiple store thefts, stack quantities, non-Thief restrictions, mod-added Thief kits, store-specific Stealing Difficulty, and failed-theft merchant consequences.
 
 ## Compatibility notes
 
-- **Infinity UI++:** required before components #0 and #2.
+- **Infinity UI++:** required before components #0, #2 and #9.
 - **Skills and Abilities:** optional. #710/#720 are supported; skip #730 when using component #0. Component #4 can add a selector for #131's Enhanced Skald Song when #131 is installed first, without changing its song effects.
 - **Bardic Wonders:** completely optional for the mod as a whole. Component #0 contains the targeted v0.3b repair for the tested IWDEE vanilla Bard/Paladin HLA routing issue when Bardic Wonders' HLA rows are already present. Bardic Wonders is required only if you choose component #5, which extends its installed **Revised Bard Song Mechanics** to the six classic IWDEE songs and mirrors its optional overhead visual when that resource is installed.
 - **ZS Shadowdancer Overhaul:** supported. Install the overhaul before the RR variant so its replacement kit and HLA routing can be detected. The custom `ZS_SHADOWDANCER`/`LUZSSD` HLA set is preserved. The vanilla `SHADOWDANCER` route receives RR Danger Sense, Evasion, Crippling Strike and Alchemy substitutions equivalent to ZS's optional RR compatibility component #5001; installing that optional ZS component as well is therefore unnecessary for this IWDEE RR integration.
+- **Store mods:** install component #9 after mods that add or replace retail `.STO` resources if you want those stores included. Existing Stealing Difficulty values are preserved, including values that make a store intentionally impossible to rob.
 - **Tweaks Anthology:** do not combine its #2340 with component #3. An XP-cap removal such as #2090 is recommended for component #1.
 - **Sword Coast Stratagems:** do not combine SCS #4115 with component #2.
 - **Spell revisions:** install Giant Vermin component #6 or #7 after other mods that alter Giant Insect or its beetles. The selected variant intentionally defines the final summon progression and spell description.
@@ -184,6 +203,7 @@ Stable v0.3b validation includes the Bardic Wonders vanilla Bard/Paladin HLA rou
 - Bardic Wonders / The Artisan's Corner.
 - Rogue Rebalancing, by aVENGER.
 - ZS Shadowdancer Overhaul, by szaumoor/Kaelyn, for the vanilla-Shadowdancer RR compatibility mapping used as a reference.
+- lefreut / EEUITweaks, for the established sequential multi-item store-stealing approach used as the design reference for component #9.
 - Infinity UI++.
 - WeiDU and the Infinity Engine modding community.
 - Icewind Dale II's Giant Vermin spell and summoned-beetle progression, used as a mechanical reference only.
