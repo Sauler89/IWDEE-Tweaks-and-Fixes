@@ -59,6 +59,7 @@ REQUIRE_PREDICATE ((FILE_EXISTS_IN_GAME ~STATE.IDS~) AND
 INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component0.tpa~
 INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component0_bw_hla_fix.tpa~
 INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component0_rr_thief_hla.tpa~
+INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component0_rr_shadowdancer_hla.tpa~
 INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component0_rr_bard_shared_hla.tpa~
 
 BEGIN @20 DESIGNATED 1
