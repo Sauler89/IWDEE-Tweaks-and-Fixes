@@ -88,15 +88,15 @@ function iwtfCanStealSelectedItems()
         return false
     end
 
-    // Keep every native clickability check intact for the ordinary one-item case.
+    -- Keep every native clickability check intact for the ordinary one-item case.
     if selected == 1 then
         return storeScreen:IsStealItemButtonClickable()
     end
 
-    // IsStealItemButtonClickable() intentionally rejects multiple selections.
-    // For that case reproduce only the eligibility checks we need here; each
-    // actual theft below is revalidated natively after reducing the selection
-    // to exactly one item.
+    -- IsStealItemButtonClickable() intentionally rejects multiple selections.
+    -- For that case reproduce only the eligibility checks we need here; each
+    -- actual theft below is revalidated natively after reducing the selection
+    -- to exactly one item.
     return iwtfActorHasThiefClass() and selected + #store.groupItems <= 16
 end
 
@@ -118,8 +118,8 @@ function iwtfStealSelectedItems()
         local steal = 0
 
         for k, v in pairs(store.storeItems) do
-            // A previous native attempt left an item selected: stop rather than
-            // feed the engine an unsafe multiple-selection state.
+            -- A previous native attempt left an item selected: stop rather than
+            -- feed the engine an unsafe multiple-selection state.
             if v.highlight == 1 then
                 steal = 0
                 break
@@ -135,8 +135,8 @@ function iwtfStealSelectedItems()
 
         storeScreen:SelectStoreItem(steal - 1, true)
 
-        // Recheck the engine's normal one-item rules for every attempt. This
-        // preserves class/kit eligibility and any other native restrictions.
+        -- Recheck the engine's normal one-item rules for every attempt. This
+        -- preserves class/kit eligibility and any other native restrictions.
         if storeScreen:IsStealItemButtonClickable() then
             storeScreen:OnStealItemButtonClick()
         else
