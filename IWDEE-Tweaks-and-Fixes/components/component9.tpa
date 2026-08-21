@@ -59,13 +59,13 @@ COPY_EXISTING ~UI.MENU~ ~override~
     thiefName = thiefName:lower()
 
     local levels = characters[currentID].classlevel
-    if levels.first ~= nil and rgGetClassName(1):lower() == thiefName then
+    if levels.first and rgGetClassName(1):lower() == thiefName then
         return true
     end
-    if levels.second ~= nil and rgGetClassName(2):lower() == thiefName then
+    if levels.second and rgGetClassName(2):lower() == thiefName then
         return true
     end
-    if levels.third ~= nil and rgGetClassName(3):lower() == thiefName then
+    if levels.third and rgGetClassName(3):lower() == thiefName then
         return true
     end
 
