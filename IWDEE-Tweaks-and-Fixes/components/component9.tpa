@@ -45,59 +45,52 @@ COPY_EXISTING ~UI.MENU~ ~override~
   // Adapted from lefreut's Steal Multiple Items concept: selected entries are
   // collected, deselected, then stolen sequentially so the engine only ever
   // receives one selected store item per native stealing attempt.
+  //
+  // Infinity UI++'s character-screen currentID is not a reliable identifier
+  // for the actor currently using a store. Instead, cache the engine's own
+  // single-item steal eligibility as soon as exactly one unit is selected.
+  // That preserves the native thief/kit check and can then safely keep the
+  // button enabled when the user expands the selection to multiple items.
   REPLACE_TEXTUALLY
     ~function getStoreSlotHighlight(highlight)~
-    ~function iwtfActorHasThiefClass()
-    if currentID == nil or characters == nil or characters[currentID] == nil or characters[currentID].classlevel == nil then
-        return false
-    end
-
-    local thiefName = rgGetGameEngineString(1082,1082,1082,1082)
-    if thiefName == nil then
-        return false
-    end
-    thiefName = thiefName:lower()
-
-    local levels = characters[currentID].classlevel
-    if levels.first and rgGetClassName(1):lower() == thiefName then
-        return true
-    end
-    if levels.second and rgGetClassName(2):lower() == thiefName then
-        return true
-    end
-    if levels.third and rgGetClassName(3):lower() == thiefName then
-        return true
-    end
-
-    return false
-end
+    ~iwtfStealNativeEligible = nil
 
 function iwtfCanStealSelectedItems()
     if storeScreen:IsContainer() or storeScreen:IsSpriteOrderable() == false then
+        iwtfStealNativeEligible = nil
         return false
     end
 
-    local selected = 0
+    local selectedRows = 0
+    local selectedUnits = 0
+
     for _, v in pairs(store.storeItems) do
         if v.highlight == 1 then
-            selected = selected + 1
+            selectedRows = selectedRows + 1
+            local amount = v.amountSelected or 1
+            if amount < 1 then
+                amount = 1
+            end
+            selectedUnits = selectedUnits + amount
         end
     end
 
-    if selected == 0 then
+    if selectedRows == 0 then
+        iwtfStealNativeEligible = nil
         return false
     end
 
-    -- Keep every native clickability check intact for the ordinary one-item case.
-    if selected == 1 then
-        return storeScreen:IsStealItemButtonClickable()
+    -- With exactly one selected unit, defer completely to the engine and cache
+    -- the result. This is where the native Thief/kit eligibility check occurs.
+    if selectedUnits == 1 then
+        iwtfStealNativeEligible = storeScreen:IsStealItemButtonClickable()
+        return iwtfStealNativeEligible
     end
 
-    -- IsStealItemButtonClickable() intentionally rejects multiple selections.
-    -- For that case reproduce only the eligibility checks we need here; each
-    -- actual theft below is revalidated natively after reducing the selection
-    -- to exactly one item.
-    return iwtfActorHasThiefClass() and selected + #store.groupItems <= 16
+    -- The engine intentionally disables its own button test for multiple
+    -- selections. Reuse the eligibility established by the preceding
+    -- one-item state and retain lefreut's inventory-capacity safeguard.
+    return iwtfStealNativeEligible == true and selectedUnits + #store.groupItems <= 16
 end
 
 function iwtfStealSelectedItems()
