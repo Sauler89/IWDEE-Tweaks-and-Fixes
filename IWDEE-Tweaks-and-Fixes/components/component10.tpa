@@ -5,6 +5,45 @@
 // opcode 7 (Set Character Colours by Palette), matching the mechanism used by
 // native-style dye items. No dye is consumed.
 
+// WeiDU's bundled helper set does not provide ADD_SPELL_HEADER. These helper
+// spells are freshly CREATEd V1 SPLs, so we can add their single empty extended
+// header directly and then let the standard ADD_SPELL_EFFECT function attach
+// the opcode 7 effect.
+DEFINE_PATCH_FUNCTION IWTF_ADD_FRESH_SPELL_HEADER
+BEGIN
+  READ_LONG 0x64 iwtf_header_off
+  READ_LONG 0x6a iwtf_fx_off
+  READ_SHORT 0x68 iwtf_header_count
+
+  // CREATE ~spl~ produces a 0x72-byte V1 spell with both table offsets at
+  // 0x72 and no headers/effects. Keep this helper defensive in case WeiDU ever
+  // initializes the same structure slightly differently.
+  PATCH_IF iwtf_header_off = 0 BEGIN
+    SET iwtf_header_off = 0x72
+    WRITE_LONG 0x64 iwtf_header_off
+  END
+  PATCH_IF iwtf_fx_off = 0 BEGIN
+    SET iwtf_fx_off = iwtf_header_off
+    WRITE_LONG 0x6a iwtf_fx_off
+  END
+
+  INSERT_BYTES (iwtf_header_off + (iwtf_header_count * 0x28)) 0x28
+  SET iwtf_new_header = iwtf_header_off + (iwtf_header_count * 0x28)
+
+  WRITE_BYTE  (iwtf_new_header + 0x00) 1  // standard spell form
+  WRITE_BYTE  (iwtf_new_header + 0x02) 4  // ability location
+  WRITE_BYTE  (iwtf_new_header + 0x0c) 1  // self target
+  WRITE_SHORT (iwtf_new_header + 0x0e) 0  // range
+  WRITE_SHORT (iwtf_new_header + 0x10) 1  // minimum level
+  WRITE_SHORT (iwtf_new_header + 0x12) 0  // casting time
+  WRITE_SHORT (iwtf_new_header + 0x1e) 0  // effect count (updated below)
+  WRITE_SHORT (iwtf_new_header + 0x20) 0  // first effect index
+  WRITE_SHORT (iwtf_new_header + 0x26) 1  // no projectile
+
+  WRITE_SHORT 0x68 (iwtf_header_count + 1)
+  WRITE_LONG  0x6a (iwtf_fx_off + 0x28)
+END
+
 COPY_EXISTING ~SW1H01.ITM~ ~override/IWTFDYE.ITM~
   SAY NAME1 ~Chromatic Dye Kit~
   SAY NAME2 ~Chromatic Dye Kit~
@@ -24,8 +63,6 @@ BUT_ONLY
 // gradient (0..114) and each hidden character color range:
 //   0 metal/decorations, 3 skin, 4 leather, 5 armor, 6 hair.
 // Resource names are ID<range>_<color>, e.g. ID5_63.
-// ACTION_FOR_EACH is used deliberately here instead of indexed WeiDU arrays;
-// this keeps the numeric range value directly usable by SPL effect fields.
 ACTION_FOR_EACH iwtf_dye_range IN 0 3 4 5 6 BEGIN
   OUTER_FOR (iwtf_dye_color = 0; iwtf_dye_color < 115; ++iwtf_dye_color) BEGIN
     OUTER_SPRINT iwtf_dye_spell ~ID%iwtf_dye_range%_%iwtf_dye_color%~
@@ -34,7 +71,7 @@ ACTION_FOR_EACH iwtf_dye_range IN 0 3 4 5 6 BEGIN
     COPY_EXISTING ~%iwtf_dye_spell%.SPL~ ~override~
       WRITE_SHORT 0x1c 4
       WRITE_LONG 0x34 1
-      LPF ADD_SPELL_HEADER INT_VAR target = 1 range = 0 speed = 0 END
+      LPF IWTF_ADD_FRESH_SPELL_HEADER END
       LPF ADD_SPELL_EFFECT
         INT_VAR
           opcode         = 7
