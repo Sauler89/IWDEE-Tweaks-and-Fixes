@@ -117,3 +117,19 @@ Validated in game with vanilla and mod-added Thief kits; no crashes were observe
 - Install component #4 after mods that alter Bard Song selectors or `SPCL920.SPL`.
 - Install component #9 after mods that add or replace retail stores.
 - See `CHANGELOG.txt` for version history and `THIRD_PARTY.md` for detailed credits and attribution.
+
+## Credits and attribution
+
+- **Skills and Abilities**, by Grammarsalad and morpheus562.
+- **Tweaks Anthology** / The Gibberlings Three.
+- **Sword Coast Stratagems**, by David Wallace.
+- **IWDification**, by CamDawg and DavidW.
+- **Bardic Wonders** / The Artisan's Corner.
+- **Rogue Rebalancing**, by aVENGER.
+- **ZS Shadowdancer Overhaul**, by szaumoor / Kaelyn.
+- **lefreut / EEUITweaks**, for the sequential multi-item store-stealing approach used as a reference for component #9.
+- **Infinity UI++**.
+- **WeiDU** and the Infinity Engine modding community.
+- **Icewind Dale II Giant Vermin**, used as a mechanical reference for components #6/#7.
+
+See `THIRD_PARTY.md` for detailed attribution and licensing information.
