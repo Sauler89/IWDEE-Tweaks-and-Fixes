@@ -1,10 +1,11 @@
 // Restore the Enhanced Edition store-stealing controls in IWDEE while
-// preserving Infinity UI++'s existing store layout and clickability guard.
+// preserving Infinity UI++'s existing store layout and native stealing logic.
 //
-// This is intentionally conservative: the UI-side IsStealEnabled() gate is
-// bypassed only for IWDEE, while IsStealItemButtonClickable() remains intact.
-// Retail STO resources are marked stealable, but their existing stealing
-// difficulty values are preserved.
+// The UI-side IsStealEnabled() gate is bypassed only for IWDEE. Single-item
+// stealing still uses IsStealItemButtonClickable(), and multi-item stealing
+// processes the selected merchandise one item at a time through the native
+// OnStealItemButtonClick() path. Retail STO resources are marked stealable,
+// but their existing stealing difficulty values are preserved.
 
 COPY_EXISTING ~UI.MENU~ ~override~
   COUNT_REGEXP_INSTANCES
@@ -13,10 +14,25 @@ COPY_EXISTING ~UI.MENU~ ~override~
   COUNT_REGEXP_INSTANCES
     ~clickable lua "storeScreen:IsStealItemButtonClickable() and (not storeScreen:IsContainer()) and storeScreen:IsStealEnabled()"~
     iwtf_steal_clickable_calls
+  COUNT_REGEXP_INSTANCES
+    ~storeScreen:OnStealItemButtonClick()~
+    iwtf_steal_action_calls
+  COUNT_REGEXP_INSTANCES
+    ~function getStoreSlotHighlight(highlight)~
+    iwtf_steal_helper_anchor_calls
 
-  PATCH_IF ((iwtf_steal_enabled_calls != 1) || (iwtf_steal_clickable_calls != 1)) BEGIN
+  PATCH_IF ((iwtf_steal_enabled_calls != 1) ||
+            (iwtf_steal_clickable_calls != 1) ||
+            (iwtf_steal_action_calls != 1) ||
+            (iwtf_steal_helper_anchor_calls != 1)) BEGIN
     PATCH_FAIL ~Could not safely identify Infinity UI++'s store-stealing controls in UI.MENU. Installation was stopped to avoid a partial UI patch.~
   END
+
+  // Replace the original button action before inserting our helper, so the
+  // native OnStealItemButtonClick() call inside the helper remains untouched.
+  REPLACE_TEXTUALLY
+    ~storeScreen:OnStealItemButtonClick()~
+    ~iwtfStealSelectedItems()~
 
   REPLACE_TEXTUALLY
     ~enabled "(not storeScreen:IsContainer()) and storeScreen:IsStealEnabled()"~
@@ -24,9 +40,115 @@ COPY_EXISTING ~UI.MENU~ ~override~
 
   REPLACE_TEXTUALLY
     ~clickable lua "storeScreen:IsStealItemButtonClickable() and (not storeScreen:IsContainer()) and storeScreen:IsStealEnabled()"~
-    ~clickable lua "storeScreen:IsStealItemButtonClickable() and (not storeScreen:IsContainer()) and (storeScreen:IsStealEnabled() or rgGameEngine == 3)"~
+    ~clickable lua "iwtfCanStealSelectedItems()"~
 
-  PATCH_PRINT ~Infinity UI++ store-stealing controls enabled for IWDEE while preserving IsStealItemButtonClickable().~
+  // Adapted from lefreut's Steal Multiple Items concept: selected entries are
+  // collected, deselected, then stolen sequentially so the engine only ever
+  // receives one selected store item per native stealing attempt.
+  REPLACE_TEXTUALLY
+    ~function getStoreSlotHighlight(highlight)~
+    ~function iwtfActorHasThiefClass()
+    if currentID == nil or characters == nil or characters[currentID] == nil or characters[currentID].classlevel == nil then
+        return false
+    end
+
+    local thiefName = rgGetGameEngineString(1082,1082,1082,1082)
+    if thiefName == nil then
+        return false
+    end
+    thiefName = thiefName:lower()
+
+    local levels = characters[currentID].classlevel
+    if levels.first ~= nil and rgGetClassName(1):lower() == thiefName then
+        return true
+    end
+    if levels.second ~= nil and rgGetClassName(2):lower() == thiefName then
+        return true
+    end
+    if levels.third ~= nil and rgGetClassName(3):lower() == thiefName then
+        return true
+    end
+
+    return false
+end
+
+function iwtfCanStealSelectedItems()
+    if storeScreen:IsContainer() or storeScreen:IsSpriteOrderable() == false then
+        return false
+    end
+
+    local selected = 0
+    for _, v in pairs(store.storeItems) do
+        if v.highlight == 1 then
+            selected = selected + 1
+        end
+    end
+
+    if selected == 0 then
+        return false
+    end
+
+    // Keep every native clickability check intact for the ordinary one-item case.
+    if selected == 1 then
+        return storeScreen:IsStealItemButtonClickable()
+    end
+
+    // IsStealItemButtonClickable() intentionally rejects multiple selections.
+    // For that case reproduce only the eligibility checks we need here; each
+    // actual theft below is revalidated natively after reducing the selection
+    // to exactly one item.
+    return iwtfActorHasThiefClass() and selected + #store.groupItems <= 16
+end
+
+function iwtfStealSelectedItems()
+    local toSteal = {}
+
+    for k, v in pairs(store.storeItems) do
+        if v.highlight == 1 then
+            local amount = v.amountSelected or 1
+            table.insert(toSteal, v.item.name)
+            for i = 2, amount do
+                table.insert(toSteal, v.item.name)
+            end
+            storeScreen:SelectStoreItem(k - 1, false)
+        end
+    end
+
+    for _, name in ipairs(toSteal) do
+        local steal = 0
+
+        for k, v in pairs(store.storeItems) do
+            // A previous native attempt left an item selected: stop rather than
+            // feed the engine an unsafe multiple-selection state.
+            if v.highlight == 1 then
+                steal = 0
+                break
+            end
+            if v.item.name == name then
+                steal = k
+            end
+        end
+
+        if steal == 0 then
+            break
+        end
+
+        storeScreen:SelectStoreItem(steal - 1, true)
+
+        // Recheck the engine's normal one-item rules for every attempt. This
+        // preserves class/kit eligibility and any other native restrictions.
+        if storeScreen:IsStealItemButtonClickable() then
+            storeScreen:OnStealItemButtonClick()
+        else
+            storeScreen:SelectStoreItem(steal - 1, false)
+            break
+        end
+    end
+end
+
+function getStoreSlotHighlight(highlight)~
+
+  PATCH_PRINT ~Infinity UI++ store stealing enabled for IWDEE, including sequential multiple-item stealing.~
 BUT_ONLY
 
 // Enable the store-level stealing flag only for real retail stores that have
