@@ -57,7 +57,7 @@ ACTION_IF (STRING_LENGTH ~%iwtf_rr_sd_abbr%~ > 0) BEGIN
           SPRINT iwtf_rr_sd_new_ability ~%iwtf_rr_sd_ability%~
           SPRINT iwtf_rr_sd_new_prereq ~%iwtf_rr_sd_prereq%~
           SPRINT iwtf_rr_sd_new_excluded ~%iwtf_rr_sd_excluded%~
-          OUTER_SET iwtf_rr_sd_set_unlimited = 0
+          SET iwtf_rr_sd_set_unlimited = 0
 
           // Match ZS Shadowdancer Overhaul's component 5001 semantics for the
           // vanilla Shadowdancer: Scribe -> Crippling Strike, Evasion -> Danger
