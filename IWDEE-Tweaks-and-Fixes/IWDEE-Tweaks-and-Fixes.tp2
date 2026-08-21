@@ -9,6 +9,7 @@
 // Component 5: Bardic Wonders Extend Revised Bard Song Mechanics to IWDEE Classic Songs
 // Component 6: Rework Giant Insect as IWD2-style Giant Vermin (IWDEE-balanced)
 // Component 7: Rework Giant Insect as IWD2-style Giant Vermin (IWD2-faithful)
+// Component 9: Enable Store Stealing
 //
 // Component-level requirements remain in this TP2. Runtime action code is
 // split into component .tpa files and loaded with INCLUDE.
@@ -138,3 +139,10 @@ REQUIRE_PREDICATE ((FILE_EXISTS ~IWDEE-Tweaks-and-Fixes/2da/IWGVT07.2DA~) AND
                    (FILE_EXISTS ~IWDEE-Tweaks-and-Fixes/2da/IWGVT15.2DA~)) @84
 OUTER_SET iwtf_gv_balanced_mode = 0
 INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component6.tpa~
+
+BEGIN ~Enable Store Stealing~ DESIGNATED 9
+LABEL ~iwtf_store_stealing~
+REQUIRE_PREDICATE (GAME_IS ~iwdee~) ~This component is only for Icewind Dale: Enhanced Edition.~
+REQUIRE_PREDICATE (MOD_IS_INSTALLED ~infinity_ui.tp2~ ~0~) ~Infinity UI++ must be installed first.~
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~UI.MENU~ ~UI.MENU is missing; Infinity UI++ must be installed correctly first.~
+INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component9.tpa~

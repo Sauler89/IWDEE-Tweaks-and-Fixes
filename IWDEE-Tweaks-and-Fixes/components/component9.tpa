@@ -1,0 +1,49 @@
+// Restore the Enhanced Edition store-stealing controls in IWDEE while
+// preserving Infinity UI++'s existing store layout and clickability guard.
+//
+// This is intentionally conservative: the UI-side IsStealEnabled() gate is
+// bypassed only for IWDEE, while IsStealItemButtonClickable() remains intact.
+// Retail STO resources are marked stealable, but their existing stealing
+// difficulty values are preserved.
+
+COPY_EXISTING ~UI.MENU~ ~override~
+  COUNT_REGEXP_INSTANCES
+    ~enabled "(not storeScreen:IsContainer()) and storeScreen:IsStealEnabled()"~
+    iwtf_steal_enabled_calls
+  COUNT_REGEXP_INSTANCES
+    ~clickable lua "storeScreen:IsStealItemButtonClickable() and (not storeScreen:IsContainer()) and storeScreen:IsStealEnabled()"~
+    iwtf_steal_clickable_calls
+
+  PATCH_IF ((iwtf_steal_enabled_calls != 1) || (iwtf_steal_clickable_calls != 1)) BEGIN
+    PATCH_FAIL ~Could not safely identify Infinity UI++'s store-stealing controls in UI.MENU. Installation was stopped to avoid a partial UI patch.~
+  END
+
+  REPLACE_TEXTUALLY
+    ~enabled "(not storeScreen:IsContainer()) and storeScreen:IsStealEnabled()"~
+    ~enabled "(not storeScreen:IsContainer()) and (storeScreen:IsStealEnabled() or rgGameEngine == 3)"~
+
+  REPLACE_TEXTUALLY
+    ~clickable lua "storeScreen:IsStealItemButtonClickable() and (not storeScreen:IsContainer()) and storeScreen:IsStealEnabled()"~
+    ~clickable lua "storeScreen:IsStealItemButtonClickable() and (not storeScreen:IsContainer()) and (storeScreen:IsStealEnabled() or rgGameEngine == 3)"~
+
+  PATCH_PRINT ~Infinity UI++ store-stealing controls enabled for IWDEE while preserving IsStealItemButtonClickable().~
+BUT_ONLY
+
+// Enable the store-level stealing flag only for real retail stores that have
+// merchandise for sale. Taverns, inns, temples and container/bag STO files
+// are deliberately left unchanged. The field layout used here is shared by
+// the V1.0/V9.0 store resources relevant to IWDEE.
+COPY_EXISTING_REGEXP GLOB ~.*\.sto~ ~override~
+  PATCH_IF (SOURCE_SIZE > 0x3b) BEGIN
+    READ_ASCII 0x00 iwtf_store_signature (4)
+    READ_LONG  0x08 iwtf_store_type
+    READ_LONG  0x10 iwtf_store_flags
+    READ_LONG  0x38 iwtf_store_sale_count
+
+    PATCH_IF ((~%iwtf_store_signature%~ STRING_EQUAL_CASE ~STOR~) &&
+              (iwtf_store_type = 0) &&
+              (iwtf_store_sale_count > 0)) BEGIN
+      WRITE_LONG 0x10 (iwtf_store_flags BOR 0x00000008)
+    END
+  END
+BUT_ONLY
