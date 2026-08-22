@@ -1,9 +1,0 @@
-IF
-  !PartyHasItem("IWTFDYE")
-  Global("IWTFDYE_DELIVERY_V3","GLOBAL",0)
-THEN
-  RESPONSE #100
-    SetGlobal("IWTFDYE_DELIVERY_V3","GLOBAL",1)
-    GiveItemCreate("IWTFDYE",Player1,1,0,0)
-    Continue()
-END
