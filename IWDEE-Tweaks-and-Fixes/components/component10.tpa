@@ -44,6 +44,67 @@ BEGIN
   WRITE_LONG  0x6a (iwtf_fx_off + 0x28)
 END
 
+// Reuse EBOTTLE.ITM's artwork as the visual basis. Read both icon resrefs from
+// the installed game so this follows any compatible icon replacement already
+// applied to The Genie's Flask. The ground icon is reused unchanged; only the
+// inventory BAM is copied and recolored for the Chromatic Dye Kit.
+COPY_EXISTING ~EBOTTLE.ITM~ ~override~
+  READ_ASCII 0x3a iwtf_ebottle_inv_icon (8) NULL
+  READ_ASCII 0x44 iwtf_ebottle_ground_icon (8) NULL
+BUT_ONLY
+
+COPY_EXISTING ~%iwtf_ebottle_inv_icon%.BAM~ ~override/IWTFDYE.BAM~
+  READ_LONG 0x10 iwtf_bam_palette
+  PATCH_IF ((iwtf_bam_palette > 0) AND (SOURCE_SIZE >= (iwtf_bam_palette + 0x400))) BEGIN
+    // Preserve palette index 0 (transparency). Recolor the active palette
+    // entries used by this flask with a vivid red->orange->yellow->green->
+    // cyan->blue->violet->magenta sweep. This changes only IWTFDYE.BAM and
+    // leaves EBOTTLE's original BAM untouched.
+    WRITE_LONG (iwtf_bam_palette + (1 * 4)) 0xFFBF2A2A
+    WRITE_LONG (iwtf_bam_palette + (2 * 4)) 0xFFF25035
+    WRITE_LONG (iwtf_bam_palette + (3 * 4)) 0xFFB24F27
+    WRITE_LONG (iwtf_bam_palette + (4 * 4)) 0xFF905020
+    WRITE_LONG (iwtf_bam_palette + (5 * 4)) 0xFFD89030
+    WRITE_LONG (iwtf_bam_palette + (6 * 4)) 0xFFE8B433
+    WRITE_LONG (iwtf_bam_palette + (7 * 4)) 0xFF9C8A22
+    WRITE_LONG (iwtf_bam_palette + (8 * 4)) 0xFFA0A023
+    WRITE_LONG (iwtf_bam_palette + (9 * 4)) 0xFFD1EB34
+    WRITE_LONG (iwtf_bam_palette + (10 * 4)) 0xFFA4D32F
+    WRITE_LONG (iwtf_bam_palette + (11 * 4)) 0xFF5F8E1F
+    WRITE_LONG (iwtf_bam_palette + (12 * 4)) 0xFF66B828
+    WRITE_LONG (iwtf_bam_palette + (13 * 4)) 0xFF6BF235
+    WRITE_LONG (iwtf_bam_palette + (14 * 4)) 0xFF3EBA29
+    WRITE_LONG (iwtf_bam_palette + (15 * 4)) 0xFF1F8E1F
+    WRITE_LONG (iwtf_bam_palette + (16 * 4)) 0xFF2ED245
+    WRITE_LONG (iwtf_bam_palette + (17 * 4)) 0xFF34EC69
+    WRITE_LONG (iwtf_bam_palette + (18 * 4)) 0xFF24A159
+    WRITE_LONG (iwtf_bam_palette + (19 * 4)) 0xFF229A67
+    WRITE_LONG (iwtf_bam_palette + (20 * 4)) 0xFF33E7B3
+    WRITE_LONG (iwtf_bam_palette + (21 * 4)) 0xFF30DAC2
+    WRITE_LONG (iwtf_bam_palette + (22 * 4)) 0xFF209191
+    WRITE_LONG (iwtf_bam_palette + (23 * 4)) 0xFF279DB0
+    WRITE_LONG (iwtf_bam_palette + (24 * 4)) 0xFF35BCF2
+    WRITE_LONG (iwtf_bam_palette + (25 * 4)) 0xFF2B81C1
+    WRITE_LONG (iwtf_bam_palette + (26 * 4)) 0xFF1F4E8C
+    WRITE_LONG (iwtf_bam_palette + (27 * 4)) 0xFF2C5ACA
+    WRITE_LONG (iwtf_bam_palette + (28 * 4)) 0xFF354FEF
+    WRITE_LONG (iwtf_bam_palette + (29 * 4)) 0xFF2525A8
+    WRITE_LONG (iwtf_bam_palette + (30 * 4)) 0xFF312195
+    WRITE_LONG (iwtf_bam_palette + (31 * 4)) 0xFF6432E1
+    WRITE_LONG (iwtf_bam_palette + (32 * 4)) 0xFF7C31E0
+    WRITE_LONG (iwtf_bam_palette + (33 * 4)) 0xFF632195
+    WRITE_LONG (iwtf_bam_palette + (34 * 4)) 0xFF8325A9
+    WRITE_LONG (iwtf_bam_palette + (35 * 4)) 0xFFD535F0
+    WRITE_LONG (iwtf_bam_palette + (36 * 4)) 0xFFC92CC9
+    WRITE_LONG (iwtf_bam_palette + (37 * 4)) 0xFF8C1F7D
+    WRITE_LONG (iwtf_bam_palette + (38 * 4)) 0xFFC32B97
+    WRITE_LONG (iwtf_bam_palette + (39 * 4)) 0xFFF135A1
+    WRITE_LONG (iwtf_bam_palette + (40 * 4)) 0xFFAF2661
+    WRITE_LONG (iwtf_bam_palette + (41 * 4)) 0xFF912040
+    WRITE_LONG (iwtf_bam_palette + (42 * 4)) 0xFFDB3049
+  END
+BUT_ONLY
+
 COPY_EXISTING ~SW1H01.ITM~ ~override/IWTFDYE.ITM~
   SAY NAME1 ~Chromatic Dye Kit~
   SAY NAME2 ~Chromatic Dye Kit~
@@ -73,10 +134,9 @@ COPY_EXISTING ~SW1H01.ITM~ ~override/IWTFDYE.ITM~
   WRITE_LONG  0x34 1
   WRITE_SHORT 0x38 1
 
-  // Reuse EBOTTLE.ITM's native artwork. In IWDEE EBOTTLE points to
-  // CDUNI203.BAM for its inventory icon and GPOTN01.BAM for its ground icon.
-  WRITE_ASCII 0x3a ~CDUNI203~ #8
-  WRITE_ASCII 0x44 ~GPOTN01~  #8
+  // Custom rainbow inventory icon derived from EBOTTLE; original ground icon.
+  WRITE_ASCII  0x3a ~IWTFDYE~ #8
+  WRITE_ASCIIE 0x44 ~%iwtf_ebottle_ground_icon%~ #8
 
   WRITE_SHORT 0x68 0
   WRITE_SHORT 0x70 0
