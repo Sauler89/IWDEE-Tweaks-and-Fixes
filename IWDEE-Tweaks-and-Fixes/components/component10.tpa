@@ -1,24 +1,61 @@
 // Reusable appearance customization item.
 //
 // Right-click IWTFDYE.ITM in the inventory and use ITEMDIAL.2DA's Customize
-// button to open IWTFDYE.DLG. Colors are changed directly on the character
-// with ChangeColor(), rather than by persistent opcode 7 effects. No dye is
-// consumed.
+// button to open IWTFDYE.DLG. Color changes are applied by tiny helper spells
+// containing opcode 7 (Set Character Colours by Palette), matching the
+// mechanism used by native-style dye items. No dye is consumed.
 
-// Ensure the EE ChangeColor action is available to the dialogue compiler.
-APPEND ~ACTION.IDS~
-  ~440 ChangeColor(I:Range*Clownrge,I:Color*Clownclr)~
-  UNLESS ~ChangeColor~
+// WeiDU's bundled helper set does not provide ADD_SPELL_HEADER. These helper
+// spells are freshly CREATEd V1 SPLs, so we can add their single empty extended
+// header directly and then let the standard ADD_SPELL_EFFECT function attach
+// the opcode 7 effect.
+DEFINE_PATCH_FUNCTION IWTF_ADD_FRESH_SPELL_HEADER
+BEGIN
+  READ_LONG 0x64 iwtf_header_off
+  READ_LONG 0x6a iwtf_fx_off
+  READ_SHORT 0x68 iwtf_header_count
 
-// Install the confirmed Chromatic Dye Kit artwork under a unique resref so the
-// original CDUNI200 resource (and any other item using it) is never replaced.
-COPY ~IWDEE-Tweaks-and-Fixes/bam/cduni200.bam~ ~override/IWTFDYE.BAM~
+  // CREATE ~spl~ produces a 0x72-byte V1 spell with both table offsets at
+  // 0x72 and no headers/effects. Keep this helper defensive in case WeiDU ever
+  // initializes the same structure slightly differently.
+  PATCH_IF iwtf_header_off = 0 BEGIN
+    SET iwtf_header_off = 0x72
+    WRITE_LONG 0x64 iwtf_header_off
+  END
+  PATCH_IF iwtf_fx_off = 0 BEGIN
+    SET iwtf_fx_off = iwtf_header_off
+    WRITE_LONG 0x6a iwtf_fx_off
+  END
+
+  INSERT_BYTES (iwtf_header_off + (iwtf_header_count * 0x28)) 0x28
+  SET iwtf_new_header = iwtf_header_off + (iwtf_header_count * 0x28)
+
+  WRITE_BYTE  (iwtf_new_header + 0x00) 1  // standard spell form
+  WRITE_BYTE  (iwtf_new_header + 0x02) 4  // ability location
+  WRITE_BYTE  (iwtf_new_header + 0x0c) 1  // self target
+  WRITE_SHORT (iwtf_new_header + 0x0e) 0  // range
+  WRITE_SHORT (iwtf_new_header + 0x10) 1  // minimum level
+  WRITE_SHORT (iwtf_new_header + 0x12) 0  // casting time
+  WRITE_SHORT (iwtf_new_header + 0x1e) 0  // effect count (updated below)
+  WRITE_SHORT (iwtf_new_header + 0x20) 0  // first effect index
+  WRITE_SHORT (iwtf_new_header + 0x26) 1  // no projectile
+
+  WRITE_SHORT 0x68 (iwtf_header_count + 1)
+  WRITE_LONG  0x6a (iwtf_fx_off + 0x28)
+END
+
+// Install the custom Chromatic Dye Kit inventory icon.
+COPY ~IWDEE-Tweaks-and-Fixes/bam/cduni200.bam~ ~override/cduni200.bam~
 
 COPY_EXISTING ~SW1H01.ITM~ ~override/IWTFDYE.ITM~
   SAY NAME1 ~Chromatic Dye Kit~
   SAY NAME2 ~Chromatic Dye Kit~
   SAY UNIDENTIFIED_DESC ~A reusable set of pigments and applicators for altering a character's appearance. Right-click the kit in the inventory and choose Customize to recolor metal and decorative details, skin, leather and straps, armor and robe trim, or hair. The kit is never consumed.~
   SAY IDENTIFIED_DESC ~A reusable set of pigments and applicators for altering a character's appearance. Right-click the kit in the inventory and choose Customize to recolor metal and decorative details, skin, leather and straps, armor and robe trim, or hair. The kit is never consumed.~
+
+  // Use cduni200 as the inventory icon. Leave the ground icon unchanged for
+  // this test so we only alter the graphic requested by the user.
+  WRITE_ASCII 0x3a ~cduni200~ #8
 
   // Convert the sword donor into a passive miscellaneous dialog item.
   // ITEMDIAL requires the Conversable item flag (bit 11 / 0x0800). The
@@ -42,31 +79,43 @@ COPY_EXISTING ~SW1H01.ITM~ ~override/IWTFDYE.ITM~
   WRITE_SHORT 0x32 0
   WRITE_LONG  0x34 1
   WRITE_SHORT 0x38 1
-
-  // Confirmed custom inventory icon; use the native potion ground icon.
-  WRITE_ASCII 0x3a ~IWTFDYE~ #8
-  WRITE_ASCII 0x44 ~gpotn01~ #8
-
   WRITE_SHORT 0x68 0
   WRITE_SHORT 0x70 0
 BUT_ONLY
 
+// Build one minimal self-targeting helper spell for every native color
+// gradient (0..114) and each hidden character color range:
+//   0 metal/decorations, 3 skin, 4 leather, 5 armor, 6 hair.
+// Resource names are ID<range>_<color>, e.g. ID5_63.
+ACTION_FOR_EACH iwtf_dye_range IN 0 3 4 5 6 BEGIN
+  OUTER_FOR (iwtf_dye_color = 0; iwtf_dye_color < 115; ++iwtf_dye_color) BEGIN
+    OUTER_SPRINT iwtf_dye_spell ~ID%iwtf_dye_range%_%iwtf_dye_color%~
+
+    CREATE ~spl~ ~%iwtf_dye_spell%~
+    COPY_EXISTING ~%iwtf_dye_spell%.SPL~ ~override~
+      WRITE_SHORT 0x1c 4
+      WRITE_LONG 0x34 1
+      LPF IWTF_ADD_FRESH_SPELL_HEADER END
+      LPF ADD_SPELL_EFFECT
+        INT_VAR
+          opcode         = 7
+          target         = 1
+          timing         = 9
+          parameter1     = iwtf_dye_color
+          parameter2     = iwtf_dye_range
+          resist_dispel  = 2
+      END
+    BUT_ONLY
+  END
+END
+
 OUTER_SET iwtf_dye_customize = RESOLVE_STR_REF(~Customize~)
 APPEND ~ITEMDIAL.2DA~ ~IWTFDYE %iwtf_dye_customize% IWTFDYE~ UNLESS ~^IWTFDYE[ %TAB%]~
 
-// Build a temporary dialogue source from the existing menu. Convert every
-// ApplySpellRES("ID<range>_<color>",LastTalkedToBy) call into ChangeColor().
-// This preserves all 115 gradients while avoiding persistent opcode-7 effects,
-// which can desynchronise the native Appearance color controls.
-COPY ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye.d~
-     ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye_change_color.d~
-  REPLACE_TEXTUALLY
-    ~ApplySpellRES("ID\([03456]\)_\([0-9][0-9]*\)",LastTalkedToBy)~
-    ~ActionOverride(LastTalkedToBy,ChangeColor(\1,\2))~
-
-// Compile the converted dialogue, then retain the existing ITEMDIAL entry-state
-// fix and the clearer palette-family labels already used on develop.
-COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye_change_color.d~
+// Compile the main dialogue, then add an explicit entry trigger to state 0.
+// Pocket Wardrobe uses InParty(Myself) for the same ITEMDIAL mechanism; this
+// ensures IWDEE can select the first state when Customize starts the dialogue.
+COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye.d~
 COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye_start_fix.d~
 COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye_family_labels.d~
 
