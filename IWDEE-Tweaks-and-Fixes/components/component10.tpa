@@ -53,8 +53,7 @@ COPY_EXISTING ~SW1H01.ITM~ ~override/IWTFDYE.ITM~
   SAY UNIDENTIFIED_DESC ~A reusable set of pigments and applicators for altering a character's appearance. Right-click the kit in the inventory and choose Customize to recolor metal and decorative details, skin, leather and straps, armor and robe trim, or hair. The kit is never consumed.~
   SAY IDENTIFIED_DESC ~A reusable set of pigments and applicators for altering a character's appearance. Right-click the kit in the inventory and choose Customize to recolor metal and decorative details, skin, leather and straps, armor and robe trim, or hair. The kit is never consumed.~
 
-  // Use cduni200 as the inventory icon. Leave the ground icon unchanged for
-  // this test so we only alter the graphic requested by the user.
+  // Use cduni200 as the inventory icon.
   WRITE_ASCII 0x3a ~cduni200~ #8
 
   // Convert the sword donor into a passive miscellaneous dialog item.
@@ -108,7 +107,6 @@ ACTION_FOR_EACH iwtf_dye_range IN 0 3 4 5 6 BEGIN
     BUT_ONLY
   END
 END
-
 
 // Build one cleanup spell per Dye Kit color range. Each cleanup spell uses
 // opcode 321 (Remove Effects by Resource) to remove only the permanent opcode 7
