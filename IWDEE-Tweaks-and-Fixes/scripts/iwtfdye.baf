@@ -1,18 +1,9 @@
 IF
-  Global("IWTFDYE_DELIVERY_V2","GLOBAL",0)
   !PartyHasItem("IWTFDYE")
+  Global("IWTFDYE_DELIVERY_V3","GLOBAL",0)
 THEN
   RESPONSE #100
-    ActionOverride(Player1,CreateItem("IWTFDYE",1,0,0))
-    SetGlobal("IWTFDYE_DELIVERY_V2","GLOBAL",1)
-    Continue()
-END
-
-IF
-  Global("IWTFDYE_DELIVERY_V2","GLOBAL",0)
-  PartyHasItem("IWTFDYE")
-THEN
-  RESPONSE #100
-    SetGlobal("IWTFDYE_DELIVERY_V2","GLOBAL",1)
+    SetGlobal("IWTFDYE_DELIVERY_V3","GLOBAL",1)
+    GiveItemCreate("IWTFDYE",Player1,1,0,0)
     Continue()
 END
