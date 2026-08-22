@@ -90,4 +90,8 @@ APPEND ~ITEMDIAL.2DA~ ~IWTFDYE %iwtf_dye_customize% IWTFDYE~ UNLESS ~^IWTFDYE[ %
 
 COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye.d~
 
-EXTEND_BOTTOM ~BALDUR.BCS~ ~IWDEE-Tweaks-and-Fixes/scripts/iwtfdye.baf~
+// Put the delivery block at the top of the always-running global script.
+// On heavily modded installs an EXTEND_BOTTOM block can be starved by an
+// earlier continuously-true block that lacks Continue(). Our own block always
+// calls Continue(), so it does not interfere with the rest of BALDUR.BCS.
+EXTEND_TOP ~BALDUR.BCS~ ~IWDEE-Tweaks-and-Fixes/scripts/iwtfdye.baf~
