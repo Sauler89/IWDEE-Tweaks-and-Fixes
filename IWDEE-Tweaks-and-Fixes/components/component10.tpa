@@ -54,6 +54,7 @@ COPY_EXISTING ~SW1H01.ITM~ ~override/IWTFDYE.ITM~
   // non-stackable miscellaneous item. ITEMDIAL handles all interaction; the
   // donor's original abilities/effects are ignored by zeroing their counts.
   WRITE_SHORT 0x1c 0
+  WRITE_LONG  0x34 1  // base price: Pomab sells it for 1 gp (150% markup rounds to 1)
   WRITE_SHORT 0x38 1
   WRITE_SHORT 0x68 0
   WRITE_SHORT 0x70 0
@@ -90,10 +91,18 @@ APPEND ~ITEMDIAL.2DA~ ~IWTFDYE %iwtf_dye_customize% IWTFDYE~ UNLESS ~^IWTFDYE[ %
 
 COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye.d~
 
-// Mirror Pocket Wardrobe's delivery strategy: extend whichever standard
-// always-running campaign script exists, and use the same GiveItemCreate block.
-ACTION_FOR_EACH iwtf_baldurbcs IN baldur bdbaldur baldur25 BEGIN
-  ACTION_IF FILE_EXISTS_IN_GAME ~%iwtf_baldurbcs%.bcs~ BEGIN
-    EXTEND_BOTTOM ~%iwtf_baldurbcs%.bcs~ ~IWDEE-Tweaks-and-Fixes/scripts/iwtfdye.baf~
+// Pomab's Emporium in Easthaven is EHPOMAB.STO in IWDEE. Add one identified
+// copy to the beginning of his stock instead of automatically placing the kit
+// in the player's inventory.
+COPY_EXISTING ~EHPOMAB.STO~ ~override~
+  LPF ADD_STORE_ITEM_EX
+    INT_VAR
+      stack = 1
+      unlimited = 0
+      overwrite = 1
+    STR_VAR
+      item_name = ~IWTFDYE~
+      position = ~FIRST~
+      flags = ~identified~
   END
-END
+BUT_ONLY
