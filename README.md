@@ -103,8 +103,6 @@ Restores store stealing in IWDEE through Infinity UI++.
 
 **Requires:** Infinity UI++ installed first. Install #9 after mods that add or replace retail `.STO` files if you want those stores included.
 
-Validated in game with vanilla and mod-added Thief kits; no crashes were observed in the tested single-item, multi-item and stack-quantity cases.
-
 ### 10. Chromatic Dye Kit
 Adds a reusable **Chromatic Dye Kit** to Pomab's store in Easthaven. Right-click the item in the inventory and choose **Customize** to recolor character palette ranges that are normally unavailable from the inventory screen.
 
@@ -112,10 +110,6 @@ Adds a reusable **Chromatic Dye Kit** to Pomab's store in Easthaven. Right-click
 - Makes all **115 native IWDEE palette gradients** available for each supported range, grouped into readable color families.
 - Automatically removes the previous Dye Kit effect on the same range before applying a new one, so permanent color effects do not accumulate.
 - Includes **Restore Hair Base Color**, **Restore Skin Base Color**, and **Restore All Base Colors**. Restoring Hair or Skin returns the underlying base color and restores normal use of the corresponding Appearance color slider.
-
-The restored base color becomes visibly apparent after closing the Dye Kit dialogue; the underlying reset is already applied when the Restore option is selected.
-
-Validated in game for item display, right-click dialog access, color application, repeated color changes, base-color restoration and Appearance slider recovery.
 
 ## Install / compatibility notes
 
