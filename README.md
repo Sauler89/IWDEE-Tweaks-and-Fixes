@@ -1,10 +1,8 @@
 # IWDEE Tweaks and Fixes
 
-**Development version 0.4-dev**
+**Stable release v0.4**
 
 A WeiDU mod for **Icewind Dale: Enhanced Edition** that adds selected BG2-style features, compatibility fixes and convenience tweaks, with a focus on **Infinity UI++** and modded IWDEE installations.
-
-> Stable release: **v0.3b** on `main`.
 
 ## Screenshots
 
@@ -93,7 +91,7 @@ Choose one variant:
 
 Uses IWD2-inspired duration and creature progression while building the actual resources from IWDEE files.
 
-**Status:** structurally validated with WeiDU 24900; focused in-game validation is still pending.
+Structurally validated with WeiDU 24900; focused in-game testing confirmed the intended level-scaled summon counts and that summons appear on spell completion rather than at casting time zero.
 
 ### 9. Enable Store Stealing
 Restores store stealing in IWDEE through Infinity UI++.
@@ -106,6 +104,18 @@ Restores store stealing in IWDEE through Infinity UI++.
 **Requires:** Infinity UI++ installed first. Install #9 after mods that add or replace retail `.STO` files if you want those stores included.
 
 Validated in game with vanilla and mod-added Thief kits; no crashes were observed in the tested single-item, multi-item and stack-quantity cases.
+
+### 10. Chromatic Dye Kit
+Adds a reusable **Chromatic Dye Kit** to Pomab's store in Easthaven. Right-click the item in the inventory and choose **Customize** to recolor character palette ranges that are normally unavailable from the inventory screen.
+
+- Supports **Metal / buckles / decorations**, **Skin**, **Leather / straps / robe trim**, **Armor / major robe trim**, and **Hair**.
+- Makes all **115 native IWDEE palette gradients** available for each supported range, grouped into readable color families.
+- Automatically removes the previous Dye Kit effect on the same range before applying a new one, so permanent color effects do not accumulate.
+- Includes **Restore Hair Base Color**, **Restore Skin Base Color**, and **Restore All Base Colors**. Restoring Hair or Skin returns the underlying base color and restores normal use of the corresponding Appearance color slider.
+
+The restored base color becomes visibly apparent after closing the Dye Kit dialogue; the underlying reset is already applied when the Restore option is selected.
+
+Validated in game for item display, right-click dialog access, color application, repeated color changes, base-color restoration and Appearance slider recovery.
 
 ## Install / compatibility notes
 
