@@ -153,5 +153,6 @@ LABEL ~iwtf_chromatic_dye_kit~
 REQUIRE_PREDICATE (GAME_IS ~iwdee~) ~This component is only for Icewind Dale: Enhanced Edition.~
 REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~ITEMDIAL.2DA~ ~ITEMDIAL.2DA is missing; the reusable item dialog cannot be installed.~
 REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~SW1H01.ITM~ ~SW1H01.ITM is missing; the Chromatic Dye Kit cannot be built.~
+REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~EBOTTLE.ITM~ ~EBOTTLE.ITM is missing; the Chromatic Dye Kit cannot reuse The Genie's Flask artwork.~
 REQUIRE_PREDICATE FILE_EXISTS_IN_GAME ~EHPOMAB.STO~ ~EHPOMAB.STO is missing; the Chromatic Dye Kit cannot be added to Pomab's store.~
 INCLUDE ~IWDEE-Tweaks-and-Fixes/components/component10.tpa~
