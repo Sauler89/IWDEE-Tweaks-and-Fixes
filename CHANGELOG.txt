@@ -1,7 +1,7 @@
 IWDEE Tweaks and Fixes - Changelog
 ==================================
 
-v0.4 - 2026-08-22
+v0.4
 -----------------
 - Added component #10: Chromatic Dye Kit. Adds a reusable item to Pomab's Easthaven store that can recolor Metal / buckles / decorations, Skin, Leather / straps / robe trim, Armor / major robe trim, and Hair.
 - Chromatic Dye Kit exposes all 115 native IWDEE palette gradients for each supported range through grouped color-family menus and uses a dedicated inventory icon.
