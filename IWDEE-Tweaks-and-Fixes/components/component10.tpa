@@ -105,7 +105,11 @@ END
 OUTER_SET iwtf_dye_customize = RESOLVE_STR_REF(~Customize~)
 APPEND ~ITEMDIAL.2DA~ ~IWTFDYE %iwtf_dye_customize% IWTFDYE~ UNLESS ~^IWTFDYE[ %TAB%]~
 
+// Compile the main dialogue, then add an explicit entry trigger to state 0.
+// Pocket Wardrobe uses InParty(Myself) for the same ITEMDIAL mechanism; this
+// ensures IWDEE can select the first state when Customize starts the dialogue.
 COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye.d~
+COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye_start_fix.d~
 
 // Place one identified copy in Pomab's Easthaven store. ADD_STORE_ITEM_EX
 // avoids script-based delivery and safely skips a duplicate entry on reinstall.
