@@ -90,8 +90,10 @@ APPEND ~ITEMDIAL.2DA~ ~IWTFDYE %iwtf_dye_customize% IWTFDYE~ UNLESS ~^IWTFDYE[ %
 
 COMPILE ~IWDEE-Tweaks-and-Fixes/dialogs/iwtfdye.d~
 
-// Put the delivery block at the top of the always-running global script.
-// On heavily modded installs an EXTEND_BOTTOM block can be starved by an
-// earlier continuously-true block that lacks Continue(). Our own block always
-// calls Continue(), so it does not interfere with the rest of BALDUR.BCS.
-EXTEND_TOP ~BALDUR.BCS~ ~IWDEE-Tweaks-and-Fixes/scripts/iwtfdye.baf~
+// Mirror Pocket Wardrobe's delivery strategy: extend whichever standard
+// always-running campaign script exists, and use the same GiveItemCreate block.
+ACTION_FOR_EACH iwtf_baldurbcs IN baldur bdbaldur baldur25 BEGIN
+  ACTION_IF FILE_EXISTS_IN_GAME ~%iwtf_baldurbcs%.bcs~ BEGIN
+    EXTEND_BOTTOM ~%iwtf_baldurbcs%.bcs~ ~IWDEE-Tweaks-and-Fixes/scripts/iwtfdye.baf~
+  END
+END
