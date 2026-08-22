@@ -1,8 +1,13 @@
 IWDEE Tweaks and Fixes - Changelog
 ==================================
 
-v0.4-dev (unreleased)
----------------------
+v0.4 - 2026-08-22
+-----------------
+- Added component #10: Chromatic Dye Kit. Adds a reusable item to Pomab's Easthaven store that can recolor Metal / buckles / decorations, Skin, Leather / straps / robe trim, Armor / major robe trim, and Hair.
+- Chromatic Dye Kit exposes all 115 native IWDEE palette gradients for each supported range through grouped color-family menus and uses a dedicated inventory icon.
+- Added automatic cleanup of previous Dye Kit color effects on the same range before a new color is applied, preventing permanent color effects from accumulating on the character.
+- Added Restore Hair Base Color, Restore Skin Base Color, and Restore All Base Colors. Hair/Skin restore returns the underlying base color and restores normal use of the corresponding Appearance color slider; the restored color is visually refreshed after leaving the Dye Kit dialogue.
+- Component #10 completed in-game validation for item display, right-click Customize access, color application, repeated color changes, base-color restoration, Appearance slider recovery, and stability after the final icon/resource fix.
 - Added component #9: Enable Store Stealing. Restores Infinity UI++'s store-stealing controls in IWDEE, enables the store-level steal flag on retail STO resources with merchandise, and preserves each store's existing Stealing Difficulty.
 - Added sequential multiple-item stealing based on the established lefreut/EEUITweaks approach: selected store entries are deselected and then processed one at a time through the native `OnStealItemButtonClick()` path rather than passing multiple simultaneous selections to the engine.
 - Added selectable stack-quantity support for store stealing, including ammunition and other stackable merchandise. Inventory-capacity checks count selected store rows/stacks rather than the number of units inside a stack.
@@ -30,8 +35,7 @@ v0.4-dev (unreleased)
 - Preserved the installation's current Giant Insect icon, targeting, range, casting time, projectile, casting effects, and top-level spell metadata.
 - Dedicated summons award no XP, carry no gold, drop no loot, leave no corpse, use no death variables or dialogue, and count toward the normal summoning cap.
 - Updated the Giant Insect spell description to document the new progression.
-- Passed WeiDU 24900 structural installation and binary-resource validation; in-game validation remains pending.
-- Development work is isolated from the stable v0.3b `main` baseline.
+- Passed WeiDU 24900 structural installation and binary-resource validation; focused in-game testing confirmed the intended level-scaled summon counts and that summons appear on spell completion rather than at casting time zero.
 
 v0.3b
 -----
